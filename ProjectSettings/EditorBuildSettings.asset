@@ -8,20 +8,25 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/UniLiveViewer/_GitIgnore/Scene/TitleScene.unity
     guid: 4789cc37c60d4f94c837f1f1e4447a2d
-  - enabled: 0
+  - enabled: 1
     path: Assets/UniLiveViewer/_GitIgnore/Scene/ViewerScene.unity
     guid: ad9584c435602b246a18468fe20047ef
-  - enabled: 0
+  - enabled: 1
     path: Assets/UniLiveViewer/_GitIgnore/Scene/LiveScene.unity
     guid: b132e99634c0a9e4dbc3abe437d5dbfb
-  - enabled: 0
+  - enabled: 1
     path: Assets/UniLiveViewer/_GitIgnore/Scene/KAGURAScene.unity
     guid: 03c318050d2017f4682eb1089003839f
   - enabled: 1
     path: Assets/UniLiveViewer/_GitIgnore/Scene/GymnasiumScene.unity
     guid: 34806b44c05c313488f5b23088620ba8
+  - enabled: 0
+    path: Assets/UniLiveViewer/_GitIgnore/Scene/FantasyVillage.unity
+    guid: 43c2367f7308bb549af16752c594cd9f
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 61c208025619b1f4580060058fdb9fd3, type: 2}
+    com.unity.addressableassets: {fileID: 11400000, guid: 467975eed20acad4da6668e96b0cf21d, type: 2}
+    com.unity.localization.settings: {fileID: 11400000, guid: f6c81784d199da642ac72b50224dd1bc, type: 2}
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 4b37281877dad80499e039077a686bfe, type: 2}
     com.unity.xr.openxr.settings4: {fileID: 11400000, guid: d490d79d8f50776409f92f99e8aa0f7c, type: 2}
     xr.sdk.mock-hmd.settings: {fileID: 11400000, guid: fced707960bee8645978e226d113b8fb, type: 2}

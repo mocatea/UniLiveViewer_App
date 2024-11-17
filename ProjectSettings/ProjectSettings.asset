@@ -136,9 +136,10 @@ PlayerSettings:
     16:10: 1
     16:9: 1
     Others: 1
-  bundleVersion: 0.6.9a
+  bundleVersion: 0.7.0
   preloadedAssets:
   - {fileID: 11400000, guid: 35ecb5a9a00f52d4fad961c2b4aa1a3d, type: 2}
+  - {fileID: 11400000, guid: f6c81784d199da642ac72b50224dd1bc, type: 2}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -159,15 +160,15 @@ PlayerSettings:
   androidMaxAspectRatio: 2.1
   applicationIdentifier:
     Android: com.NanaCiel.UniLiveViewer
-    Standalone: com.Mocatea.UnityChanLiveURP
+    Standalone: com.NanaCiel.UniLiveViewer
   buildNumber:
     Standalone: 0
     iPhone: 0
     tvOS: 0
   overrideDefaultApplicationIdentifier: 1
-  AndroidBundleVersionCode: 15
+  AndroidBundleVersionCode: 18
   AndroidMinSdkVersion: 29
-  AndroidTargetSdkVersion: 29
+  AndroidTargetSdkVersion: 32
   AndroidPreferredInstallLocation: 0
   aotOptions: 
   stripEngineCode: 1
