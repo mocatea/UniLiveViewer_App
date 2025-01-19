@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace UniLiveViewer.Stage
 {
-    // TODO: LS化
+    // TODO: service化、settingがあれば
     public class BackGroundController : MonoBehaviour
     {
         [SerializeField] int currntMaster = 0;
@@ -25,43 +25,34 @@ namespace UniLiveViewer.Stage
 
         void Start()
         {
-            string str;
-            SetCubemap(0, out str);
-            SetWormHole(0, out str);
-            SetParticle(0, out str);
+            SetParticle(0);
+            SetWormHole(0);
+            SetCubemap(0);
         }
 
-        /// <summary>
-        /// passthrough用
-        /// </summary>
-        public void Clear_CubemapTex()
+        public void SetParticle(int moveIndex)
         {
-            string str;
-            //cubemap_Mat.SetTexture("_Tex", null);
-            //ワームホールを無効化しておく
-            currntHole = 0;
-            SetWormHole(0, out str);
+            currntParticle += moveIndex;
+            if (particleAnchors.Length <= currntParticle) currntParticle = 0;
+            else if (currntParticle < 0) currntParticle = particleAnchors.Length - 1;
+
+            var setFlag = false;
+            for (int i = 0; i < particleAnchors.Length; i++)
+            {
+                setFlag = (i == currntParticle);
+                if (particleAnchors[i].gameObject.activeSelf != setFlag) particleAnchors[i].gameObject.SetActive(setFlag);
+            }
         }
 
-        /// <summary>
-        /// キューブマップを変更
-        /// </summary>
-        /// <param name="moveIndex"></param>
-        public void SetCubemap(int moveIndex, out string resultCurrent)
+        public string GetParticleName(int moveIndex)
         {
-            currntCubemap += moveIndex;
-            if (cubemapList.Length <= currntCubemap) currntCubemap = 0;
-            else if (currntCubemap < 0) currntCubemap = cubemapList.Length - 1;
-
-            cubemap_Mat.SetTexture("_Tex", cubemapList[currntCubemap]);
-            resultCurrent = $"{currntCubemap}";
+            var temporaryIndex = currntParticle + moveIndex;
+            if (particleAnchors.Length <= temporaryIndex) temporaryIndex = 0;
+            else if (temporaryIndex < 0) temporaryIndex = particleAnchors.Length - 1;
+            return temporaryIndex == 0 ? "None" : particleAnchors[temporaryIndex].name;
         }
 
-        /// <summary>
-        /// ワームホールを変更
-        /// </summary>
-        /// <param name="moveIndex"></param>
-        public void SetWormHole(int moveIndex, out string resultCurrent)
+        public void SetWormHole(int moveIndex)
         {
             currntHole += moveIndex;
             if (tunnelList.Length <= currntHole) currntHole = 0;
@@ -70,36 +61,48 @@ namespace UniLiveViewer.Stage
             if (currntHole == 0)
             {
                 if (tunnelAnchor.gameObject.activeSelf) tunnelAnchor.gameObject.SetActive(false);
-                resultCurrent = "None";
             }
             else
             {
                 if (!tunnelAnchor.gameObject.activeSelf) tunnelAnchor.gameObject.SetActive(true);
                 TunnelFX2.instance.preset = (TUNNEL_PRESET)tunnelList[currntHole];
-
-                resultCurrent = $"{currntHole}";
             }
         }
 
-        /// <summary>
-        /// パーティクルを変更
-        /// </summary>
-        /// <param name="moveIndex"></param>
-        public void SetParticle(int moveIndex, out string resultName)
+        public string GetWormHolleName(int moveIndex)
         {
-            currntParticle += moveIndex;
-            if (particleAnchors.Length <= currntParticle) currntParticle = 0;
-            else if (currntParticle < 0) currntParticle = particleAnchors.Length - 1;
+            var temporaryIndex = currntHole + moveIndex;
+            if (tunnelList.Length <= temporaryIndex) temporaryIndex = 0;
+            else if (temporaryIndex < 0) temporaryIndex = tunnelList.Length - 1;
+            return temporaryIndex == 0 ? "None" : temporaryIndex.ToString();
+        }
 
-            bool setFlag = false;
-            for (int i = 0; i < particleAnchors.Length; i++)
-            {
-                setFlag = (i == currntParticle);
-                if (particleAnchors[i].gameObject.activeSelf != setFlag) particleAnchors[i].gameObject.SetActive(setFlag);
-            }
+        /// <summary>
+        /// passthrough用
+        /// </summary>
+        public void Clear_CubemapTex()
+        {
+            //cubemap_Mat.SetTexture("_Tex", null);
+            //ワームホールを無効化しておく
+            currntHole = 0;
+            SetWormHole(0);
+        }
 
-            if (currntParticle == 0) resultName = "None";
-            else resultName = particleAnchors[currntParticle].name;
+        public void SetCubemap(int moveIndex)
+        {
+            currntCubemap += moveIndex;
+            if (cubemapList.Length <= currntCubemap) currntCubemap = 0;
+            else if (currntCubemap < 0) currntCubemap = cubemapList.Length - 1;
+
+            cubemap_Mat.SetTexture("_Tex", cubemapList[currntCubemap]);
+        }
+
+        public string GetCubemapName(int moveIndex)
+        {
+            var temporaryIndex = currntCubemap + moveIndex;
+            if (cubemapList.Length <= temporaryIndex) temporaryIndex = 0;
+            else if (temporaryIndex < 0) temporaryIndex = cubemapList.Length - 1;
+            return temporaryIndex.ToString();
         }
     }
 }

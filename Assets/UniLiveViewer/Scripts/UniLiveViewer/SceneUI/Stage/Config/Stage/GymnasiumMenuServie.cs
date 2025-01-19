@@ -47,10 +47,7 @@ namespace UniLiveViewer.Menu.Config.Stage
         void OnClickLightColor(bool isEnable)
         {
             _audioSourceService.PlayOneShot(AudioSE.ButtonClick);
-
             _stageLightIsWhite.OnNext(isEnable);
-            FileReadAndWriteUtility.UserProfile.scene_gym_whitelight = isEnable;
-            FileReadAndWriteUtility.WriteJson(FileReadAndWriteUtility.UserProfile);
         }
 
         // 雑
@@ -65,8 +62,8 @@ namespace UniLiveViewer.Menu.Config.Stage
             if (max <= _lightIndex) _lightIndex = 0;
             else if (_lightIndex < 0) _lightIndex = max - 1;
 
-            _stageLightIndex.OnNext(_lightIndex);
             _settings.Texts[0].text = $"SpotLight_{Enum.GetName(typeof(StageEnums.StageLight), _lightIndex)}";
+            _stageLightIndex.OnNext(_lightIndex);
         }
 
         void IStageMenuService.Dispose()

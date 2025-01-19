@@ -5,13 +5,14 @@ using VContainer.Unity;
 namespace UniLiveViewer.Stage.Gymnasium
 {
     [RequireComponent(typeof(StageLightChangeService))]
-    public class StageLightLifetimeScope : LifetimeScope
+    public class GymnasiumEnvironmentLifetimeScope : LifetimeScope
     {
         protected override void Configure(IContainerBuilder builder)
         {
+            builder.Register<GymnasiumEnvironmentService>(Lifetime.Singleton);
             builder.RegisterComponent(GetComponent<StageLightChangeService>());
 
-            builder.RegisterEntryPoint<StageLightPresenter>();
+            builder.RegisterEntryPoint<GymnasiumEnvironmentPresenter>();
         }
     }
 }

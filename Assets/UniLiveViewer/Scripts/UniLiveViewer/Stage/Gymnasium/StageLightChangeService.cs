@@ -3,12 +3,13 @@ using UnityEngine;
 
 namespace UniLiveViewer.Stage.Gymnasium
 {
+    // 作りイマイチ
     public class StageLightChangeService : MonoBehaviour
     {
         [SerializeField] Transform[] _lights = new Transform[5];
+        bool _isWhite;
         int _currnt;
         IStageLight[] _stagelights;
-        bool _isWhite;
         int _charaCount;
 
         void Awake()
@@ -47,7 +48,6 @@ namespace UniLiveViewer.Stage.Gymnasium
         /// <summary>
         /// 召喚数更新時
         /// </summary>
-        /// <param name="count"></param>
         public void OnChangeSummonedCount(int count)
         {
             _charaCount = count;
@@ -59,7 +59,6 @@ namespace UniLiveViewer.Stage.Gymnasium
         /// ライトカラー更新時
         /// （UI開いた時にも通知きてる）
         /// </summary>
-        /// <param name="isWhite"></param>
         public void OnChangeLightColor(bool isWhite)
         {
             _isWhite = isWhite;

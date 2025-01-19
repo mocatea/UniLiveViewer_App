@@ -1,4 +1,6 @@
-﻿using UniLiveViewer.Stage;
+﻿using System;
+using UniLiveViewer.Stage;
+using UniRx;
 using UnityEngine;
 using VContainer;
 
@@ -6,7 +8,18 @@ namespace UniLiveViewer.Menu.Config.Stage
 {
     public class ViewerMenuServie : IStageMenuService
     {
-        Transform[] _actionObj = new Transform[1];
+        public IObservable<int> ParticleMoveIndexAsObservable => _particleMoveIndex;
+        readonly Subject<int> _particleMoveIndex = new();
+
+        public IObservable<int> WormHolleMoveIndexAsObservable => _wormHolleMoveIndex;
+        readonly Subject<int> _wormHolleMoveIndex = new();
+
+        public IObservable<int> SkyboxMoveIndexAsObservable => _skyboxMoveIndex;
+        readonly Subject<int> _skyboxMoveIndex = new();
+
+        public IObservable<bool> IsFloorLEDAsObservable => _isFloorLED;
+        readonly Subject<bool> _isFloorLED = new();
+
         BackGroundController _backGroundCon;
 
         readonly ViewerMenuSettings _settings;
@@ -21,134 +34,86 @@ namespace UniLiveViewer.Menu.Config.Stage
 
         void IStageMenuService.Initialize()
         {
-            _settings.LedButton.onTrigger += (btn) => OnClick(0, btn.isEnable);
+            _settings.LedButton.onTrigger += (btn) => OnClickFloorLED(btn.isEnable);
+            _backGroundCon = GameObject.FindGameObjectWithTag("BackGroundController").GetComponent<BackGroundController>();
 
             for (int i = 0; i < _settings.ParticleButtons.Length; i++)
             {
                 _settings.ParticleButtons[i].onTrigger += (btn) =>
                 {
                     // これやらんと発火時はLengthの値になる
-                    var index = btn == _settings.ParticleButtons[0] ? 0 : 1;
-                    OnClickParticle(index);
+                    var moveIndex = btn == _settings.ParticleButtons[0] ? -1 : 1;
+                    OnClickParticle(moveIndex);
                 };
             }
             for (int i = 0; i < _settings.WormHolleButtons.Length; i++)
             {
                 _settings.WormHolleButtons[i].onTrigger += (btn) =>
                 {
-                    var index = btn == _settings.WormHolleButtons[0] ? 0 : 1;
-                    OnClickWormHolle(index);
+                    var moveIndex = btn == _settings.WormHolleButtons[0] ? -1 : 1;
+                    OnClickWormHolle(moveIndex);
                 };
             }
             for (int i = 0; i < _settings.SkyBoxButtons.Length; i++)
             {
                 _settings.SkyBoxButtons[i].onTrigger += (btn) =>
                 {
-                    var index = btn == _settings.SkyBoxButtons[0] ? 0 : 1;
-                    OnClickSkyBox(index);
+                    var moveIndex = btn == _settings.SkyBoxButtons[0] ? -1 : 1;
+                    OnClickSkyBox(moveIndex);
                 };
             }
-
-            _actionObj[0] = GameObject.FindGameObjectWithTag("FloorLED").transform;
-            _backGroundCon = GameObject.FindGameObjectWithTag("BackGroundController").GetComponent<BackGroundController>();
         }
 
         void IStageMenuService.OnEnable()
         {
-            _actionObj[0].gameObject.SetActive(FileReadAndWriteUtility.UserProfile.scene_view_led);
-            _settings.LedButton.isEnable = _actionObj[0].gameObject.activeSelf;
+            _settings.LedButton.isEnable = FileReadAndWriteUtility.UserProfile.scene_view_led;
         }
 
-        void OnClick(int index, bool isEnable)
-        {
-            _audioSourceService.PlayOneShot(AudioSE.ButtonClick);
-
-            switch (index)
-            {
-                //LED
-                case 0:
-                    if (_actionObj[0])
-                    {
-                        _actionObj[0].gameObject.SetActive(isEnable);
-                        FileReadAndWriteUtility.UserProfile.scene_view_led = isEnable;
-                    }
-                    break;
-            }
-            FileReadAndWriteUtility.WriteJson(FileReadAndWriteUtility.UserProfile);
-        }
-
-        void OnClickParticle(int index)
+        void OnClickParticle(int moveIndex)
         {
             if (!_backGroundCon) return;
             _audioSourceService.PlayOneShot(AudioSE.ButtonClick);
-
-            string str;
-            switch (index)
-            {
-                case 0:
-                    _backGroundCon.SetParticle(-1, out str);
-                    _settings.Texts[0].text = "Particle_" + str;
-                    break;
-                case 1:
-                    _backGroundCon.SetParticle(1, out str);
-                    _settings.Texts[0].text = "Particle_" + str;
-                    break;
-            }
+            _settings.Texts[0].text = "Particle_" + _backGroundCon.GetParticleName(moveIndex);
+            _particleMoveIndex.OnNext(moveIndex);
         }
 
-        void OnClickWormHolle(int index)
+        void OnClickWormHolle(int moveIndex)
         {
             if (!_backGroundCon) return;
             _audioSourceService.PlayOneShot(AudioSE.ButtonClick);
-
-            string str;
-            switch (index)
-            {
-                case 0:
-                    _backGroundCon.SetWormHole(-1, out str);
-                    _settings.Texts[1].text = "Particle_" + str;
-                    break;
-                case 1:
-                    _backGroundCon.SetWormHole(1, out str);
-                    _settings.Texts[1].text = "Particle_" + str;
-                    break;
-            }
+            _settings.Texts[1].text = "WormHolle_" + _backGroundCon.GetWormHolleName(moveIndex);
+            _wormHolleMoveIndex.OnNext(moveIndex);
         }
 
-        void OnClickSkyBox(int index)
+        void OnClickSkyBox(int moveIndex)
         {
             if (!_backGroundCon) return;
             _audioSourceService.PlayOneShot(AudioSE.ButtonClick);
+            _settings.Texts[2].text = "SkyBox_" + _backGroundCon.GetCubemapName(moveIndex);
+            _skyboxMoveIndex.OnNext(moveIndex);
+        }
 
-            string str;
-            switch (index)
-            {
-                case 0:
-                    _backGroundCon.SetCubemap(-1, out str);
-                    _settings.Texts[2].text = "SkyBox_" + str;
-                    break;
-                case 1:
-                    _backGroundCon.SetCubemap(1, out str);
-                    _settings.Texts[2].text = "SkyBox_" + str;
-                    break;
-            }
+        void OnClickFloorLED(bool isEnable)
+        {
+            _audioSourceService.PlayOneShot(AudioSE.ButtonClick);
+            _isFloorLED.OnNext(isEnable);
         }
 
         void IStageMenuService.Dispose()
         {
-            _settings.LedButton.onTrigger -= (btn) => OnClick(0, btn.isEnable);
+            _settings.LedButton.onTrigger -= (btn) => OnClickFloorLED(btn.isEnable);
 
             for (int i = 0; i < _settings.ParticleButtons.Length; i++)
             {
-                _settings.ParticleButtons[i].onTrigger -= (btn) => OnClickParticle(i);
+                _settings.ParticleButtons[i].onTrigger -= (btn) => OnClickParticle(0);
             }
             for (int i = 0; i < _settings.WormHolleButtons.Length; i++)
             {
-                _settings.WormHolleButtons[i].onTrigger -= (btn) => OnClickWormHolle(i);
+                _settings.WormHolleButtons[i].onTrigger -= (btn) => OnClickWormHolle(0);
             }
             for (int i = 0; i < _settings.SkyBoxButtons.Length; i++)
             {
-                _settings.SkyBoxButtons[i].onTrigger -= (btn) => OnClickSkyBox(i);
+                _settings.SkyBoxButtons[i].onTrigger -= (btn) => OnClickSkyBox(0);
             }
         }
     }

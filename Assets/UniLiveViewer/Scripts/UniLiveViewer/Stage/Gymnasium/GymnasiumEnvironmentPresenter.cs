@@ -9,46 +9,46 @@ using VContainer.Unity;
 
 namespace UniLiveViewer.Stage.Gymnasium
 {
-    public class StageLightPresenter : IStartable, ITickable, IDisposable
+    public class GymnasiumEnvironmentPresenter : IStartable, ITickable, IDisposable
     {
         readonly IStageMenuService _stageMenuServie;
-        readonly StageLightChangeService _changeService;
+        readonly GymnasiumEnvironmentService _environmentService;
         readonly PlayableBinderService _playableBinderService;
 
         readonly CompositeDisposable _disposable = new();
 
         [Inject]
-        public StageLightPresenter(
+        public GymnasiumEnvironmentPresenter(
             IStageMenuService stageMenuServie,
-            StageLightChangeService changeService,
+            GymnasiumEnvironmentService environmentService,
             PlayableBinderService playableBinderService)
         {
             _stageMenuServie = stageMenuServie;
+            _environmentService = environmentService;
             _playableBinderService = playableBinderService;
-            _changeService = changeService;
         }
 
         void IStartable.Start()
         {
             _playableBinderService.StageActorCount
-                .Subscribe(_changeService.OnChangeSummonedCount)
+                .Subscribe(_environmentService.OnChangeSummonedCount)
                 .AddTo(_disposable);
 
             // 一旦Downcast、乱用しすぎたらイベント集約パターンにする
-            if (_stageMenuServie is GymnasiumMenuServie gymnasiumMenu)
+            if (_stageMenuServie is GymnasiumMenuServie gymnasiumMenuServie)
             {
-                gymnasiumMenu.StageLightIsWhiteAsObservable
-                .Subscribe(_changeService.OnChangeLightColor)
-                .AddTo(_disposable);
-                gymnasiumMenu.StageLightIndexAsObservable
-                    .Subscribe(_changeService.OnChangeStageLight)
+                gymnasiumMenuServie.StageLightIndexAsObservable
+                    .Subscribe(_environmentService.OnChangeStageLight)
+                    .AddTo(_disposable);
+                gymnasiumMenuServie.StageLightIsWhiteAsObservable
+                    .Subscribe(_environmentService.OnClickWhiteLightColor)
                     .AddTo(_disposable);
             }
         }
 
         void ITickable.Tick()
         {
-            _changeService.OnTick();
+            _environmentService.OnTick();
         }
 
         void IDisposable.Dispose()
