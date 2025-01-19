@@ -1,10 +1,9 @@
 ﻿using Cysharp.Threading.Tasks;
 using MessagePipe;
 using System;
+using UniLiveViewer.Menu.Config.Stage;
 using UniLiveViewer.Timeline;
-using UniLiveViewer.Menu;
 using UniRx;
-using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 
@@ -12,7 +11,7 @@ namespace UniLiveViewer.Stage.Gymnasium
 {
     public class StageLightPresenter : IStartable, ITickable, IDisposable
     {
-        readonly ConfigPage _configPage;
+        readonly IStageMenuService _stageMenuServie;
         readonly StageLightChangeService _changeService;
         readonly PlayableBinderService _playableBinderService;
 
@@ -20,11 +19,11 @@ namespace UniLiveViewer.Stage.Gymnasium
 
         [Inject]
         public StageLightPresenter(
-            ConfigPage configPage,
+            IStageMenuService stageMenuServie,
             StageLightChangeService changeService,
             PlayableBinderService playableBinderService)
         {
-            _configPage = configPage;
+            _stageMenuServie = stageMenuServie;
             _playableBinderService = playableBinderService;
             _changeService = changeService;
         }
@@ -35,12 +34,16 @@ namespace UniLiveViewer.Stage.Gymnasium
                 .Subscribe(_changeService.OnChangeSummonedCount)
                 .AddTo(_disposable);
 
-            _configPage.StageLightIsWhiteAsObservable
+            // 一旦Downcast、乱用しすぎたらイベント集約パターンにする
+            if (_stageMenuServie is GymnasiumMenuServie gymnasiumMenu)
+            {
+                gymnasiumMenu.StageLightIsWhiteAsObservable
                 .Subscribe(_changeService.OnChangeLightColor)
                 .AddTo(_disposable);
-            _configPage.StageLightIndexAsObservable
-                .Subscribe(_changeService.OnChangeStageLight)
-                .AddTo(_disposable);
+                gymnasiumMenu.StageLightIndexAsObservable
+                    .Subscribe(_changeService.OnChangeStageLight)
+                    .AddTo(_disposable);
+            }
         }
 
         void ITickable.Tick()

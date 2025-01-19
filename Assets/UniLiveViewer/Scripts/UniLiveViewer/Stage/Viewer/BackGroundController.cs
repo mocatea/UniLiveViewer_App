@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace UniLiveViewer.Stage
 {
+    // TODO: LS化
     public class BackGroundController : MonoBehaviour
     {
         [SerializeField] int currntMaster = 0;

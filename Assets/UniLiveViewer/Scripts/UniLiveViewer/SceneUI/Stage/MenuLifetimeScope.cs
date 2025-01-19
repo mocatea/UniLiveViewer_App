@@ -1,4 +1,4 @@
-using MessagePipe;
+﻿using MessagePipe;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -11,11 +11,11 @@ namespace UniLiveViewer.Menu
         [SerializeField] BookSetting _bookSetting;
         [SerializeField] BookAnchor _bookAnchor;
 
+        // この辺全部LS化したい
         [Header("各ページ")]
         [SerializeField] CharacterPage _characterPage;
         [SerializeField] AudioPlaybackPage _audioPlaybackPage;
         [SerializeField] ItemPage _itemPage;
-        [SerializeField] ConfigPage _configPage;
 
         [Header("その他")]
         [SerializeField] JumpList _jumpList;
@@ -31,7 +31,6 @@ namespace UniLiveViewer.Menu
 
             builder.RegisterComponent(_audioPlaybackPage);
             builder.RegisterComponent(_itemPage);
-            builder.RegisterComponent(_configPage);
             builder.RegisterEntryPoint<MainMenuPresenter>();
 
             builder.RegisterComponent(_bookSetting);
