@@ -6,8 +6,8 @@ namespace UniLiveViewer
     {
         public int LanguageCode = -1;//未設定-1,EN0,JP1
         public int LastSceneSceneTypeNo = 1;//SceneLoader.SceneType.CANDY_LIVE
-        public float InitCharaSize = 1.15f;
-        public float CharaShadow = 1.25f;
+        public float InitCharaSize = 1.1f;
+        public float CharaShadowSize = 1.25f;
         public int CharaShadowType = 7;
         public bool IsSmoothVMD = false;
         public bool IsVRM10 = true;

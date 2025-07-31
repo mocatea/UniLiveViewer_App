@@ -1,4 +1,4 @@
-﻿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using NanaCiel;
 using System.Threading;
 using UniLiveViewer.Player;
@@ -215,7 +215,7 @@ namespace UniLiveViewer.Menu
             {
                 //TimeLine再生時間をスライダーにセット
                 var sec = (float)_playableMusicService.AudioClipPlaybackTime;
-                _playbackSlider.NotNotifyChangeValue(sec);
+                _playbackSlider.SetValueWithoutNotify(sec);
                 _textMeshs[1].text = $"{((int)sec / 60):00}:{((int)sec % 60):00}";
             }
 #if UNITY_EDITOR

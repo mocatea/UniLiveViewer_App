@@ -76,7 +76,7 @@ namespace UniLiveViewer
         /// 掴み操作以外で動かす必要があるケースで利用
         /// NOTE: 通知すると無限ループに陥る
         /// </summary>
-        public void NotNotifyChangeValue(float value)
+        public void SetValueWithoutNotify(float value)
         {
             _value = Mathf.Clamp(value, minValuel, maxValuel);
         }

@@ -19,8 +19,8 @@ namespace UniLiveViewer.Menu.Config.Actor
         public SliderGrabController FallingShadowSlider => _fallingShadowSlider;
         [SerializeField] SliderGrabController _fallingShadowSlider;
 
-        public TextMesh FallingShadowText => _fallingShadowText;
-        [SerializeField] TextMesh _fallingShadowText;
+        public TextMesh FallingShadowTypeText => _fallingShadowTypeText;
+        [SerializeField] TextMesh _fallingShadowTypeText;
 
         public TextMesh FallingShadowValueText => _fallingShadowValueText;
         [SerializeField] TextMesh _fallingShadowValueText;

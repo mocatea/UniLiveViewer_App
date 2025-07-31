@@ -45,11 +45,7 @@ namespace UniLiveViewer.Timeline
         public float FootRay => _footRay;
         [SerializeField] float _footRay = 0.05f;
 
-        public void OnStart()
-        {
-            _shadowScale = FileReadAndWriteUtility.UserProfile.CharaShadow;
-        }
-
+        // TODO: 雑なので改善する
         [Serializable]
         public class Preset
         {

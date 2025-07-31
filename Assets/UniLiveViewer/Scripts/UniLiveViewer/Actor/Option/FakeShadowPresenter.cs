@@ -13,16 +13,19 @@ namespace UniLiveViewer.Timeline
         readonly IActorEntity _actorEntity;
         readonly FakeShadowService _fakeShadowService;
         readonly ISubscriber<AllActorOperationMessage> _allSubscriber;
+        readonly QuasiShadowSetting _setting;
         readonly CompositeDisposable _disposables = new();
 
         [Inject]
         public FakeShadowPresenter(
             IActorEntity actorService,
             FakeShadowService fakeShadowService,
+            QuasiShadowSetting setting,
             ISubscriber<AllActorOperationMessage> allSubscriber)
         {
             _actorEntity = actorService;
             _fakeShadowService = fakeShadowService;
+            _setting = setting;
             _allSubscriber = allSubscriber;
         }
 
@@ -32,8 +35,9 @@ namespace UniLiveViewer.Timeline
                 .Subscribe(x =>
                 {
                     if (x.ActorState != ActorState.FIELD) return;
-                    if (x.ActorCommand != ActorCommand.UPDATE_SHADOW ) return;
-                    _fakeShadowService.OnUpdateShadowType();
+                    if (x.ActorCommand != ActorCommand.UPDATE_SHADOW) return;
+                    var presetIndex = (int)_setting.ShadowType;
+                    _fakeShadowService.OnUpdateShadowSettings(_setting.ShadowType, _setting.ShadowScale, _setting.Presets[presetIndex]);
                 }).AddTo(_disposables);
 
             _actorEntity.ActorEntity()
@@ -47,7 +51,10 @@ namespace UniLiveViewer.Timeline
                 .Subscribe(_fakeShadowService.OnChangeRootScalar)
                 .AddTo(_disposables);
 
-            _fakeShadowService.Setup();
+            var presetIndex = FileReadAndWriteUtility.UserProfile.CharaShadowType;
+            var shadowType = (SHADOWTYPE)presetIndex;
+            var shadowScale = FileReadAndWriteUtility.UserProfile.CharaShadowSize;
+            _fakeShadowService.Setup(shadowType, shadowScale, _setting.Presets[presetIndex]);
         }
 
         void ITickable.Tick()

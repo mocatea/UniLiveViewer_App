@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UniLiveViewer.Actor;
 using UnityEngine;
 using VContainer;
@@ -17,19 +17,24 @@ namespace UniLiveViewer.Timeline
         float _rootScalar;
         ShadowData _shadowData;
         ActorEntity _actorEntity;
+        SHADOWTYPE _shadowType;
+        QuasiShadowSetting.Preset _preset;
+        float _shadowScale;
 
         readonly LifetimeScope _parent;
-        readonly QuasiShadowSetting _setting;
 
         [Inject]
-        public FakeShadowService(LifetimeScope lifetimeScope, QuasiShadowSetting setting)
+        public FakeShadowService(LifetimeScope lifetimeScope)
         {
             _parent = lifetimeScope;
-            _setting = setting;
         }
 
-        public void Setup()
+        public void Setup(SHADOWTYPE shadowType, float shadowScale, QuasiShadowSetting.Preset preset)
         {
+            _shadowType = shadowType;
+            _shadowScale = shadowScale;
+            _preset = preset;
+
             var meshRenderer = GameObject.Instantiate<MeshRenderer>(Resources.Load<MeshRenderer>(Path));
 
             //メッシュ消え対策 ←Shader移動じゃなければ多分不要
@@ -44,8 +49,8 @@ namespace UniLiveViewer.Timeline
 
             GameObject.Destroy(meshRenderer.gameObject);
 
-            //初期化
-            OnUpdateShadowType();
+            // 初期反映
+            UpdateMeshRenderers();
         }
 
         public void OnChangeActorEntity(ActorEntity actorEntity)
@@ -70,32 +75,32 @@ namespace UniLiveViewer.Timeline
             _rootScalar = rootScalar;
         }
 
-        public void OnUpdateShadowType()
+        public void OnUpdateShadowSettings(SHADOWTYPE shadowType, float shadowScale, QuasiShadowSetting.Preset preset)
         {
-            _setting.ShadowType = (SHADOWTYPE)FileReadAndWriteUtility.UserProfile.CharaShadowType;
+            _shadowType = shadowType;
+            _shadowScale = shadowScale;
+            _preset = preset;
             UpdateMeshRenderers();
         }
 
         void UpdateMeshRenderers()
         {
-            var index = (int)_setting.ShadowType;
-            var isEnable = _setting.ShadowType != SHADOWTYPE.NONE;
-            _shadowData.SetMeshRenderers(isEnable, _setting.Presets[index].texture_Body, _setting.Presets[index].texture_Foot);
+            var isEnable = _shadowType != SHADOWTYPE.NONE;
+            _shadowData.SetMeshRenderers(isEnable, _preset.texture_Body, _preset.texture_Foot);
         }
 
         public void OnTick()
         {
             if (_actorEntity == null || !_isEnable) return;
-            if (_setting.ShadowType == SHADOWTYPE.NONE) return;
-            var index = (int)_setting.ShadowType;
-            Transforming(_shadowData.spine, _shadowData.meshRenderer_c, _setting.Presets[index].scala_Body);
-            Transforming(_shadowData.leftFoot, _shadowData.meshRenderer_l, _setting.Presets[index].scala_Foot);
-            Transforming(_shadowData.rightFoot, _shadowData.meshRenderer_r, _setting.Presets[index].scala_Foot);
+            if (_shadowType == SHADOWTYPE.NONE) return;
+            Transforming(_shadowData.spine, _shadowData.meshRenderer_c, _preset.scala_Body);
+            Transforming(_shadowData.leftFoot, _shadowData.meshRenderer_l, _preset.scala_Foot);
+            Transforming(_shadowData.rightFoot, _shadowData.meshRenderer_r, _preset.scala_Foot);
         }
 
         void Transforming(Transform targetBone, MeshRenderer targetMesh, float presetScale)
         {
-            var scale = presetScale * _setting.ShadowScale * _rootScalar;
+            var scale = presetScale * _shadowScale * _rootScalar;
             var offset = targetBone.position;
             var actorYPos = _actorEntity.GetAnimator.transform.position.y;
             offset.y = actorYPos;

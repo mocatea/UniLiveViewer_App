@@ -1,4 +1,4 @@
-﻿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using MessagePipe;
 using NanaCiel;
 using System;
@@ -228,7 +228,7 @@ namespace UniLiveViewer.Actor
 
         void IActorEntity.AddRootScalar(float add)
         {
-            _rootScalar.Value = Mathf.Clamp(_rootScalar.Value + add, 0.25f, 20.0f);
+            _rootScalar.Value = Mathf.Clamp(_rootScalar.Value + add, ActorConstants.ActorMinSize, ActorConstants.ActorMaxSize);
             _lifetimeScope.transform.localScale = Vector3.one * _rootScalar.Value;
             //_actorEntity.Value.GetAnimator.transform.localScale = Vector3.one * _customScalar;
         }
