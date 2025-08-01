@@ -1,5 +1,4 @@
-﻿using NanaCiel;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using UniLiveViewer.Actor;
@@ -63,19 +62,20 @@ namespace UniLiveViewer.Timeline
         Dictionary<string, DanceInfoData> _map = new();
 
         readonly PlayableBinderService _playableBinderService;
+        readonly TimelineService _timelineService;
         readonly PresetResourceData _presetResourceData;
-        readonly PlayableDirector _playableDirector;
         readonly TimelineAsset _timelineAsset;
 
         [Inject]
         public PlayableAnimationClipService(
             PlayableBinderService playableBinderService,
+            TimelineService timelineService,
             PresetResourceData presetResourceData,
             PlayableDirector playableDirector)
         {
             _playableBinderService = playableBinderService;
+            _timelineService = timelineService;
             _presetResourceData = presetResourceData;
-            _playableDirector = playableDirector;
             _timelineAsset = playableDirector.playableAsset as TimelineAsset;
         }
 
@@ -104,7 +104,7 @@ namespace UniLiveViewer.Timeline
 
             _map[data.StreamName] = danceInfoData;
 
-            _playableDirector.ResumeTimeline();
+            _timelineService.ResumeTimeline();
             _newBindingStream.OnNext(Unit.Default);
         }
 
@@ -277,7 +277,7 @@ namespace UniLiveViewer.Timeline
             //presetな状態が必要なのでcustomDanceInfoDataを使わない
             _map[data.StreamName] = _map[TimelineConstants.TrackNames[TimelineConstants.PortalIndex]];
 
-            _playableDirector.ResumeTimeline();
+            _timelineService.ResumeTimeline();
             _bindingToStream.OnNext(Unit.Default);
             return true;
         }
@@ -387,7 +387,7 @@ namespace UniLiveViewer.Timeline
                     var originalDanceInfoData = _map[data.StreamName];
                     SetOriginalHandAnimation(leftHandTrack, SUBCLIP0, originalDanceInfoData);
                 }
-                _playableDirector.ResumeTimeline();
+                _timelineService.ResumeTimeline();
             }
             else if (humanBodyBones == HumanBodyBones.RightHand)
             {
@@ -398,7 +398,7 @@ namespace UniLiveViewer.Timeline
                     var originalDanceInfoData = _map[data.StreamName];
                     SetOriginalHandAnimation(rightHandTrack, SUBCLIP1, originalDanceInfoData);
                 }
-                _playableDirector.ResumeTimeline();
+                _timelineService.ResumeTimeline();
             }
         }
 

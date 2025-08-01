@@ -43,7 +43,8 @@ namespace UniLiveViewer.Timeline
             
             builder.RegisterComponent(GetComponent<AudioAssetManager>());
             builder.RegisterComponent(GetComponent<PlayableDirector>());
-            builder.Register<PlayableMusicService>(Lifetime.Singleton);
+            builder.Register<TimelineAudioClipSwitcherService>(Lifetime.Singleton);
+            builder.Register<TimelineService>(Lifetime.Singleton);
             builder.Register<PlayableBinderService>(Lifetime.Singleton);
             builder.Register<PlayableAnimationClipService>(Lifetime.Singleton);
             builder.RegisterEntryPoint<PlayableMusicPresenter>();

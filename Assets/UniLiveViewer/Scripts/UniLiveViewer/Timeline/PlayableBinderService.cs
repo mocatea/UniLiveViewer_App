@@ -1,5 +1,4 @@
-﻿using NanaCiel;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using UniLiveViewer.Actor;
@@ -36,11 +35,15 @@ namespace UniLiveViewer.Timeline
         public IReadOnlyList<BindingData> BindingData => _bindingData;
         readonly List<BindingData> _bindingData = Enumerable.Repeat<BindingData>(null, 6).ToList();
 
+        readonly TimelineService _timelineService;
         readonly PlayableDirector _playableDirector;
 
         [Inject]
-        public PlayableBinderService(PlayableDirector playableDirector)
+        public PlayableBinderService(
+            TimelineService timelineService,
+            PlayableDirector playableDirector)
         {
+            _timelineService = timelineService;
             _playableDirector = playableDirector;
         }
 
@@ -68,7 +71,7 @@ namespace UniLiveViewer.Timeline
 
             var data = new BindingData(playableBinding.sourceObject, baseName, instanceId, actorEntity);
             _bindingData[TimelineConstants.PortalIndex] = data;
-            _playableDirector.ResumeTimeline();
+            _timelineService.ResumeTimeline();
 
             _newBindingStream.OnNext(Unit.Default);
         }
@@ -149,7 +152,7 @@ namespace UniLiveViewer.Timeline
             var data = _bindingData[TimelineConstants.PortalIndex];
             if (data == null) return;
             Unbind(data.InstanceId);
-            _playableDirector.ResumeTimeline();
+            _timelineService.ResumeTimeline();
         }
 
         public void OnDeleteAllActor()
@@ -165,7 +168,7 @@ namespace UniLiveViewer.Timeline
         public void OnDeleteActor(InstanceId instanceId)
         {
             Unbind(instanceId);
-            _playableDirector.ResumeTimeline();
+            _timelineService.ResumeTimeline();
             _stageActorCount.Value -= 1;
         }
 

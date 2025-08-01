@@ -10,18 +10,35 @@ namespace UniLiveViewer.Timeline
 {
     public class PlayableMusicPresenter : IAsyncStartable, IDisposable
     {
-        readonly PlayableMusicService _playableMusicService;
+        readonly TimelineService _timelineService;
+        readonly TimelineAudioClipSwitcherService _timelineAudioClipSwitcher;
+        readonly RootAudioSourceService _audioSourceService;
+        readonly SpectrumConverter _spectrumConverter;
         readonly CompositeDisposable _disposable = new();
 
         [Inject]
-        public PlayableMusicPresenter(PlayableMusicService playableMusicService)
+        public PlayableMusicPresenter(
+            TimelineService timelineService,
+            TimelineAudioClipSwitcherService timelineAudioClipSwitcher,
+            RootAudioSourceService audioSourceService,
+            SpectrumConverter spectrumConverter)
         {
-            _playableMusicService = playableMusicService;
+            _timelineService = timelineService;
+            _timelineAudioClipSwitcher = timelineAudioClipSwitcher;
+            _audioSourceService = audioSourceService;
+            _spectrumConverter = spectrumConverter;
         }
 
         public async UniTask StartAsync(CancellationToken cancellation)
         {
-            await _playableMusicService.OnStartAsync(cancellation);
+            _spectrumConverter.Initialize(_audioSourceService.BgmAudioSource);
+
+            _timelineAudioClipSwitcher.AudioClipChangedAsObservable
+                .Subscribe(_spectrumConverter.ResetSpectrumData)
+                .AddTo(_disposable);
+
+            _timelineService.Begin();
+            await _timelineAudioClipSwitcher.BeginAsync(cancellation);
 
             OVRManager.InputFocusLost += async () => await HomePause(cancellation);
             OVRManager.InputFocusAcquired += HomeReStart;
@@ -31,7 +48,7 @@ namespace UniLiveViewer.Timeline
 
         async UniTask HomePause(CancellationToken cancellation)
         {
-            await _playableMusicService.ManualModeAsync(cancellation);
+            await _timelineService.ManualModeAsync(cancellation);
             Time.timeScale = 0;
         }
 

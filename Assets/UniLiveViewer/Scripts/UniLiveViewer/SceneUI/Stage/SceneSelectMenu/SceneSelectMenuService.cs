@@ -11,19 +11,19 @@ namespace UniLiveViewer.Menu.SceneSelect
     {
         readonly MenuRootService _menuRootService;
         readonly SceneChangeService _sceneChangeService;
-        readonly PlayableMusicService _playableMusicService;
+        readonly TimelineService _timelineService;
         readonly RootAudioSourceService _rootAudioSourceService;
 
         [Inject]
         public SceneSelectMenuService(
             MenuRootService menuRootService,
             SceneChangeService sceneChangeService,
-            PlayableMusicService playableMusicService,
+            TimelineService timelineService,
             RootAudioSourceService rootAudioSourceService)
         {
             _menuRootService = menuRootService;
             _sceneChangeService = sceneChangeService;
-            _playableMusicService = playableMusicService;
+            _timelineService = timelineService;
             _rootAudioSourceService = rootAudioSourceService;
         }
 
@@ -34,7 +34,7 @@ namespace UniLiveViewer.Menu.SceneSelect
             if (sceneType == SceneType.FANTASY_VILLAGE) return;//一旦無効化
 
             var dummy = new CancellationToken();
-            await _playableMusicService.ManualModeAsync(dummy);// 音が割れるので止める
+            await _timelineService.ManualModeAsync(dummy);// 音が割れるので止める
 
             await UniTask.Delay(100, cancellationToken: dummy);
             _menuRootService.OnMenuSwitching();//開いてる想定なので閉じる
