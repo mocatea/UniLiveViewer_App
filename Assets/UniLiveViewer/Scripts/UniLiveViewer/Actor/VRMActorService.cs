@@ -1,4 +1,4 @@
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using MessagePipe;
 using NanaCiel;
 using System;
@@ -224,6 +224,12 @@ namespace UniLiveViewer.Actor
 
             if (_lifetimeScope.gameObject.activeSelf == isActive) return;
             _lifetimeScope.gameObject.SetActive(isActive);
+        }
+
+        void IActorEntity.SetRootTransform(Vector3 pos, Quaternion quaternion, Vector3 scale)
+        {
+            _lifetimeScope.gameObject.transform.SetPositionAndRotation(pos, quaternion);
+            _lifetimeScope.gameObject.transform.localScale = scale;
         }
 
         void IActorEntity.AddRootScalar(float add)

@@ -1,4 +1,4 @@
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using System.Threading;
 using UniRx;
 using UnityEngine;
@@ -30,6 +30,8 @@ namespace UniLiveViewer.Actor
         UniTask SetupAsync(Transform firstParent, CancellationToken cancellation);
 
         void Activate(bool isActive);
+
+        void SetRootTransform(Vector3 pos, Quaternion quaternion, Vector3 scale);
 
         void AddRootScalar(float add);
 

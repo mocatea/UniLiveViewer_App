@@ -126,6 +126,12 @@ namespace UniLiveViewer.Actor
             _lifetimeScope.gameObject.SetActive(isActive);
         }
 
+        void IActorEntity.SetRootTransform(Vector3 pos, Quaternion quaternion, Vector3 scale)
+        {
+            _lifetimeScope.gameObject.transform.SetPositionAndRotation(pos, quaternion);
+            _lifetimeScope.gameObject.transform.localScale = scale;
+        }
+
         void IActorEntity.AddRootScalar(float add)
         {
             _rootScalar.Value = Mathf.Clamp(_rootScalar.Value + add, ActorConstants.ActorMinSize, ActorConstants.ActorMaxSize);
