@@ -1,6 +1,7 @@
 ﻿using Cysharp.Threading.Tasks;
 using NanaCiel;
 using System.Threading;
+using System.Threading.Tasks;
 using UniLiveViewer.Player;
 using UniLiveViewer.Timeline;
 using UniRx;
@@ -124,7 +125,7 @@ namespace UniLiveViewer.Menu
                 _switchAudio[i].onTrigger += OnClickCategory;
             }
 
-            Initialize();
+            await InitializeAsync(_cancellationToken);
 
             //最初のアクターが生成されるのを待つ
             await UniTask.Delay(2000, cancellationToken: cancellation);
@@ -191,10 +192,10 @@ namespace UniLiveViewer.Menu
 
         void OnEnable()
         {
-            Initialize();
+            InitializeAsync(_cancellationToken).Forget();
         }
 
-        async void Initialize()
+        async UniTask InitializeAsync(CancellationToken cancellationToken)
         {
             if (_playableDirector.timeUpdateMode == DirectorUpdateMode.Manual)
             {
@@ -206,9 +207,8 @@ namespace UniLiveViewer.Menu
                 _stopButton.gameObject.SetActive(true);
                 _playButton.gameObject.SetActive(false);
             }
-            //オーディオの長さ
-            var sec = await _timelineAudioClipSwitcher.GetCurrentAudioLengthAsync(true, _cancellationToken);
-            _textMeshs[2].text = $"{((int)sec / 60):00}:{((int)sec % 60):00}";
+
+            await UpdateAudioMaxLength(cancellationToken);
         }
 
         void Update()
@@ -268,6 +268,11 @@ namespace UniLiveViewer.Menu
                 return;
             }
 
+            await UpdateAudioMaxLength(cancellation);
+        }
+
+        async UniTask UpdateAudioMaxLength(CancellationToken cancellation)
+        {
             var sec = await _timelineAudioClipSwitcher.GetCurrentAudioLengthAsync(_isPresetAudio, cancellation);
             _playbackSlider.maxValuel = sec;
             _textMeshs[2].text = $"{((int)sec / 60):00}:{((int)sec % 60):00}";
