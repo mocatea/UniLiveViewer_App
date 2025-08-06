@@ -76,7 +76,8 @@ namespace UniLiveViewer.Actor
         LIPSYNC_ENEBLE,
         LIPSYNC_DISABLE,
         TIMELINE_PLAY,
-        TIMELINE_NONPLAY,
+        TIMELINE_PAUSE,
+        TIMELINE_STOP,
         UPDATE_SHADOW
     }
 

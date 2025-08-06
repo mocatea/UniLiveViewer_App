@@ -48,7 +48,7 @@ namespace UniLiveViewer.Timeline
 
         async UniTask HomePause(CancellationToken cancellation)
         {
-            await _timelineService.ManualModeAsync(cancellation);
+            await _timelineService.PauseAsync(cancellation);
             Time.timeScale = 0;
         }
 

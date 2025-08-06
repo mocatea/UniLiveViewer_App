@@ -21,8 +21,8 @@ namespace UniLiveViewer.Menu
 
         [SerializeField] Button_Base[] _audioButton = new Button_Base[2];
         [SerializeField] Button_Base _playButton = null;
+        [SerializeField] Button_Base _pauseButton = null;
         [SerializeField] Button_Base _stopButton = null;
-        [SerializeField] Button_Base _baseReturnButton = null;
         [SerializeField] TextMesh[] _textMeshs = new TextMesh[4];
         [SerializeField] SliderGrabController _playbackSlider = null;
         [SerializeField] SliderGrabController _playbackSpeedSlider = null;
@@ -117,8 +117,8 @@ namespace UniLiveViewer.Menu
             _playbackSpeedSlider.Value = 1.0f;
 
             _playButton.onTrigger += OnClickPlay;
+            _pauseButton.onTrigger += OnClickPause;
             _stopButton.onTrigger += OnClickStop;
-            _baseReturnButton.onTrigger += OnClickBaseReturn;
             for (int i = 0; i < _switchAudio.Length; i++)
             {
                 _switchAudio[i].isEnable = (i == 0);
@@ -129,7 +129,7 @@ namespace UniLiveViewer.Menu
 
             //最初のアクターが生成されるのを待つ
             await UniTask.Delay(2000, cancellationToken: cancellation);
-            BaseReturnAsync(cancellation).Forget();
+            StopAsync(cancellation).Forget();
 
 
             void OnClickPlay(Button_Base btn)
@@ -140,20 +140,20 @@ namespace UniLiveViewer.Menu
                 PlayAsync(_cancellationToken).Forget();
             }
 
+            void OnClickPause(Button_Base btn)
+            {
+                _audioSourceService.PlayOneShot(AudioSE.ButtonClick);
+                if (_playerHandsService.IsGrabbingSliderWithHands()) return;
+
+                PauseAsync(_cancellationToken).Forget();
+            }
+
             void OnClickStop(Button_Base btn)
             {
                 _audioSourceService.PlayOneShot(AudioSE.ButtonClick);
                 if (_playerHandsService.IsGrabbingSliderWithHands()) return;
 
                 StopAsync(_cancellationToken).Forget();
-            }
-
-            void OnClickBaseReturn(Button_Base btn)
-            {
-                _audioSourceService.PlayOneShot(AudioSE.ButtonClick);
-                if (_playerHandsService.IsGrabbingSliderWithHands()) return;
-
-                BaseReturnAsync(_cancellationToken).Forget();
             }
 
             void OnClickCategory(Button_Base btn)
@@ -199,12 +199,12 @@ namespace UniLiveViewer.Menu
         {
             if (_playableDirector.timeUpdateMode == DirectorUpdateMode.Manual)
             {
-                _stopButton.gameObject.SetActive(false);
+                _pauseButton.gameObject.SetActive(false);
                 _playButton.gameObject.SetActive(true);
             }
             else
             {
-                _stopButton.gameObject.SetActive(true);
+                _pauseButton.gameObject.SetActive(true);
                 _playButton.gameObject.SetActive(false);
             }
 
@@ -290,7 +290,7 @@ namespace UniLiveViewer.Menu
             if (_timelineService.AudioClipPlaybackTime > 0) return;
 
             //再生表示
-            if (_stopButton) _stopButton.gameObject.SetActive(false);
+            if (_pauseButton) _pauseButton.gameObject.SetActive(false);
             if (_playButton) _playButton.gameObject.SetActive(true);
         }
 
@@ -298,34 +298,32 @@ namespace UniLiveViewer.Menu
         {
             if (_playableDirector.timeUpdateMode == DirectorUpdateMode.Manual) return;
 
-            _stopButton.gameObject.SetActive(false);
+            _pauseButton.gameObject.SetActive(false);
             _playButton.gameObject.SetActive(true);
 
             var dummy = new CancellationToken();
-            _timelineService.ManualModeAsync(dummy).Forget();
+            _timelineService.PauseAsync(dummy).Forget();
         }
 
         async UniTask PlayAsync(CancellationToken cancellation)
         {
-            _stopButton.gameObject.SetActive(true);
+            _pauseButton.gameObject.SetActive(true);
             _playButton.gameObject.SetActive(false);
 
             await _timelineService.PlayAsync(cancellation);
         }
 
-        async UniTask StopAsync(CancellationToken cancellation)
+        async UniTask PauseAsync(CancellationToken cancellation)
         {
-            if (_playableDirector.timeUpdateMode == DirectorUpdateMode.Manual) return;
-
-            _stopButton.gameObject.SetActive(false);
+            _pauseButton.gameObject.SetActive(false);
             _playButton.gameObject.SetActive(true);
 
-            await _timelineService.ManualModeAsync(cancellation);
+            await _timelineService.PauseAsync(cancellation);
         }
 
-        async UniTask BaseReturnAsync(CancellationToken cancellation)
+        async UniTask StopAsync(CancellationToken cancellation)
         {
-            await _timelineService.BaseReturnAsync(cancellation);
+            await _timelineService.StopAsync(cancellation);
         }
 
         void DebugInput()
@@ -338,7 +336,7 @@ namespace UniLiveViewer.Menu
             if (Input.GetKeyDown(KeyCode.I))
             {
                 var dummy = new CancellationToken();
-                BaseReturnAsync(dummy).Forget();
+                StopAsync(dummy).Forget();
             }
             if (Input.GetKeyDown(KeyCode.K)) ChangeAudioAsync(1, _cancellationToken).Forget();
             if (Input.GetKeyDown(KeyCode.J)) ChangeAudioAsync(-1, _cancellationToken).Forget();

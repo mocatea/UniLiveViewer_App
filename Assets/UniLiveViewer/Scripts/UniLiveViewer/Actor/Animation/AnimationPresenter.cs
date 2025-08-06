@@ -77,9 +77,14 @@ namespace UniLiveViewer.Actor.Animation
                     {
                         _animationService.ReturnRuntimeAnimatorController();
                     }
-                    else if (x.ActorCommand == ActorCommand.TIMELINE_NONPLAY)
+                    else if (x.ActorCommand == ActorCommand.TIMELINE_PAUSE)
                     {
                         _animationService.RemoveRuntimeAnimatorController();
+                    }
+                    else if (x.ActorCommand == ActorCommand.TIMELINE_STOP)
+                    {
+                        _animationService.RemoveRuntimeAnimatorController();
+                        _animationService.TryVMDInitializePose();
                     }
                 }).AddTo(_disposables);
             return UniTask.CompletedTask;

@@ -9,7 +9,7 @@ namespace UniLiveViewer.Actor.Expression
         const int BLENDSHAPE_WEIGHT = 100;
         [SerializeField] SkinBindInfo[] _skinBindInfo;
         AnimationCurve _gainCurve = new();// 最初の一体のみ初期化必須
-        
+
         string[] IFacialSync.GetKeyArray() => _customMap.Keys?.ToArray();
         public IReadOnlyDictionary<string, FACIALTYPE> CustomMap => _customMap;
         Dictionary<string, FACIALTYPE> _customMap = new()
@@ -69,7 +69,7 @@ namespace UniLiveViewer.Actor.Expression
         /// <summary>
         /// シェイプキーを更新する
         /// </summary>
-        void IFacialSync.Morph() 
+        void IFacialSync.Morph()
         {
             foreach (var info in _skinBindInfo)
             {

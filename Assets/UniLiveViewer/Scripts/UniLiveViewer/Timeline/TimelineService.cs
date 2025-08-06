@@ -124,12 +124,25 @@ namespace UniLiveViewer.Timeline
             _attachPointPublisher.Publish(attachPointMessage);
         }
 
+        public async UniTask PauseAsync(CancellationToken cancellation)
+        {
+            var message = new AllActorOperationMessage(ActorState.NULL, ActorCommand.TIMELINE_PAUSE);
+            _allPublisher.Publish(message);
+            await UniTask.Yield(cancellation);
+
+            await ManualModeAsync(cancellation);
+        }
+
         /// <summary>
         /// 再生位置を初期化する
         /// </summary>
-        public async UniTask BaseReturnAsync(CancellationToken cancellation)
+        public async UniTask StopAsync(CancellationToken cancellation)
         {
             _playableDirector.Stop();//停止状態にする(UIにトリガーを送る為)
+
+            var message = new AllActorOperationMessage(ActorState.NULL, ActorCommand.TIMELINE_STOP);
+            _allPublisher.Publish(message);
+            await UniTask.Yield(cancellation);
 
             await ManualModeAsync(cancellation);
             AudioClipPlaybackTime = 0;
@@ -138,14 +151,9 @@ namespace UniLiveViewer.Timeline
         /// <summary>
         /// マニュアル状態にする
         /// </summary>
-        public async UniTask ManualModeAsync(CancellationToken cancellation)
+        async UniTask ManualModeAsync(CancellationToken cancellation)
         {
             if (_playableDirector.timeUpdateMode == DirectorUpdateMode.Manual) return;
-
-            //先にmessage
-            var message = new AllActorOperationMessage(ActorState.NULL, ActorCommand.TIMELINE_NONPLAY);
-            _allPublisher.Publish(message);
-            await UniTask.Yield(cancellation);
 
             //マニュアルモードに
             _playableDirector.timeUpdateMode = DirectorUpdateMode.Manual;

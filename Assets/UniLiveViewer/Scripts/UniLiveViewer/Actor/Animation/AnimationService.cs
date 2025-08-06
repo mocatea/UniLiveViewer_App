@@ -24,6 +24,7 @@ namespace UniLiveViewer.Actor.Animation
         readonly PlayableAnimationClipService _playableAnimationClipService;
         readonly PresetResourceData _presetResourceData;
         readonly VMDData _vmdData;
+        VMDPlayer_Custom _vmdPlayer;
 
         [Inject]
         public AnimationService(
@@ -43,7 +44,12 @@ namespace UniLiveViewer.Actor.Animation
         public void OnChangeAnimator(ActorEntity actorEntity)
         {
             _actorEntity = actorEntity;
-            if (_actorEntity == null) return;
+            if (actorEntity == null)
+            {
+                _vmdPlayer = null;
+                return;
+            }
+            _vmdPlayer = actorEntity.GetVMDPlayer;
 
             var animator = _actorEntity.GetAnimator;
             animator.runtimeAnimatorController = _cachedAnimatorController;
@@ -63,7 +69,7 @@ namespace UniLiveViewer.Actor.Animation
             _currentMode = mode;
             if (_currentMode == CurrentMode.PRESET)
             {
-                _actorEntity.GetVMDPlayer.ClearBaseAndSyncData();
+                _vmdPlayer.ClearBaseAndSyncData();
                 _actorEntity.GetAnimator.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);//Animator層が動いているので
                 _actorEntity.GetAnimator.enabled = true;
 
@@ -74,6 +80,9 @@ namespace UniLiveViewer.Actor.Animation
             }
             else if (_currentMode == CurrentMode.CUSTOM)
             {
+                // MEMO: 常時脱いでおかないと一瞬anim側のポーズが適用されポーズ時の姿勢がブレる
+                RemoveRuntimeAnimatorController();
+
                 _actorEntity.GetAnimator.enabled = false;
                 _actorEntity.GetAnimator.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);//Animator層が動いているので
 
@@ -113,11 +122,11 @@ namespace UniLiveViewer.Actor.Animation
                 VMD newVMD = null;
                 if (isBaseMotion)
                 {
-                    newVMD = await _actorEntity.GetVMDPlayer.SetupBaseMotion(info, cancellation);
+                    newVMD = await _vmdPlayer.SetupBaseMotion(info, cancellation);
                 }
                 else
                 {
-                    newVMD = await _actorEntity.GetVMDPlayer.SetupExpression(info, cancellation);
+                    newVMD = await _vmdPlayer.SetupExpression(info, cancellation);
                 }
                 _vmdData.Add(fileName, newVMD);
             }
@@ -127,11 +136,11 @@ namespace UniLiveViewer.Actor.Animation
                 var info = new VMDSetupInfo(existingVMD, folderPath, fileName, boneAmplifier, isSmoothVMD);
                 if (isBaseMotion)
                 {
-                    await _actorEntity.GetVMDPlayer.SetupBaseMotion(info, cancellation);
+                    await _vmdPlayer.SetupBaseMotion(info, cancellation);
                 }
                 else
                 {
-                    await _actorEntity.GetVMDPlayer.SetupExpression(info, cancellation);
+                    await _vmdPlayer.SetupExpression(info, cancellation);
                 }
             }
         }
@@ -143,7 +152,7 @@ namespace UniLiveViewer.Actor.Animation
 
             if (syncFileName == TimelineConstants.NoCustomFacialSyncMessage)
             {
-                _actorEntity.GetVMDPlayer.ClearSyncData();
+                _vmdPlayer.ClearSyncData();
             }
             else
             {
@@ -163,7 +172,14 @@ namespace UniLiveViewer.Actor.Animation
         public void OnLateTick()
         {
             if (_actorEntity == null) return;
-            _actorEntity.GetVMDPlayer.ToeIKReset();
+            _vmdPlayer.ToeIKReset();
+        }
+
+        public void TryVMDInitializePose()
+        {
+            if (_actorEntity == null) return;
+            if (_currentMode != CurrentMode.CUSTOM) return;
+            _vmdPlayer.InitializePose();
         }
 
         /// <summary>
@@ -183,6 +199,7 @@ namespace UniLiveViewer.Actor.Animation
         public void ReturnRuntimeAnimatorController()
         {
             if (_actorEntity == null) return;
+            if (_currentMode == CurrentMode.CUSTOM) return;// 不都合回避の為VMDは常時脱いだまま
             if (!_cachedAnimatorController) return;
             _actorEntity.GetAnimator.runtimeAnimatorController = _cachedAnimatorController;
             _cachedAnimatorController = null;

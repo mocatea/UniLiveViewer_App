@@ -34,7 +34,7 @@ namespace UniLiveViewer.Menu.SceneSelect
             if (sceneType == SceneType.FANTASY_VILLAGE) return;//一旦無効化
 
             var dummy = new CancellationToken();
-            await _timelineService.ManualModeAsync(dummy);// 音が割れるので止める
+            await _timelineService.PauseAsync(dummy);// 音が割れるので止める
 
             await UniTask.Delay(100, cancellationToken: dummy);
             _menuRootService.OnMenuSwitching();//開いてる想定なので閉じる
