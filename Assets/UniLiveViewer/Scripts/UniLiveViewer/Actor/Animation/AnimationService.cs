@@ -1,11 +1,12 @@
 ﻿using Cysharp.Threading.Tasks;
 using System.IO;
 using System.Threading;
+using UniLiveViewer.External;
+using UniLiveViewer.External.UnityVMDReader;
 using UniLiveViewer.Menu;
 using UniLiveViewer.Timeline;
 using UnityEngine;
 using UnityEngine.Playables;
-using UnityVMDReader;
 using VContainer;
 
 namespace UniLiveViewer.Actor.Animation
@@ -24,7 +25,7 @@ namespace UniLiveViewer.Actor.Animation
         readonly PlayableAnimationClipService _playableAnimationClipService;
         readonly PresetResourceData _presetResourceData;
         readonly VMDData _vmdData;
-        VMDPlayer_Custom _vmdPlayer;
+        IVMDPlayer _vmdPlayer;
 
         [Inject]
         public AnimationService(
@@ -122,11 +123,11 @@ namespace UniLiveViewer.Actor.Animation
                 VMD newVMD = null;
                 if (isBaseMotion)
                 {
-                    newVMD = await _vmdPlayer.SetupBaseMotion(info, cancellation);
+                    newVMD = await _vmdPlayer.SetupBaseMotionAsync(info, cancellation);
                 }
                 else
                 {
-                    newVMD = await _vmdPlayer.SetupExpression(info, cancellation);
+                    newVMD = await _vmdPlayer.SetupExpressionAsync(info, cancellation);
                 }
                 _vmdData.Add(fileName, newVMD);
             }
@@ -136,11 +137,11 @@ namespace UniLiveViewer.Actor.Animation
                 var info = new VMDSetupInfo(existingVMD, folderPath, fileName, boneAmplifier, isSmoothVMD);
                 if (isBaseMotion)
                 {
-                    await _vmdPlayer.SetupBaseMotion(info, cancellation);
+                    await _vmdPlayer.SetupBaseMotionAsync(info, cancellation);
                 }
                 else
                 {
-                    await _vmdPlayer.SetupExpression(info, cancellation);
+                    await _vmdPlayer.SetupExpressionAsync(info, cancellation);
                 }
             }
         }

@@ -33,8 +33,7 @@ namespace UniLiveViewer.Actor.Expression
             {
                 if (_actorEntity.ActorEntity().Value == null) return;
                 var vmdPlayer = _actorEntity.ActorEntity().Value.GetVMDPlayer;
-                if (vmdPlayer.MorphPlayerVRM == null) return;
-                vmdPlayer.MorphPlayerVRM.SetFaceUpdate(isEnable);
+                _actorEntity.ActorEntity().Value.GetVMDPlayer.SetFaceUpdate(isEnable);
             }
             _facialSync.MorphReset();
         }
@@ -46,9 +45,7 @@ namespace UniLiveViewer.Actor.Expression
             if (_animationMode == CurrentMode.CUSTOM)
             {
                 if (_actorEntity.ActorEntity().Value == null) return;
-                var vmdPlayer = _actorEntity.ActorEntity().Value.GetVMDPlayer;
-                if (vmdPlayer.MorphPlayerVRM == null) return;
-                vmdPlayer.MorphPlayerVRM.SetLipUpdate(isEnable);
+                _actorEntity.ActorEntity().Value.GetVMDPlayer.SetLipUpdate(isEnable);
             }
             _lipSync.MorphReset();
         }

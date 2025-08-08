@@ -7,6 +7,7 @@ using UniGLTF;
 using UniLiveViewer.Actor.AttachPoint;
 using UniLiveViewer.Actor.Expression;
 using UniLiveViewer.Actor.LookAt;
+using UniLiveViewer.External;
 using UniLiveViewer.Menu;
 using UniLiveViewer.Timeline;
 using UniRx;

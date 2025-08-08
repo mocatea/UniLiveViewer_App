@@ -13,8 +13,8 @@ namespace UniLiveViewer.Actor
         public Animator GetAnimator => _animator;
         readonly Animator _animator;
 
-        public VMDPlayer_Custom GetVMDPlayer => _vmdPlayer;
-        readonly VMDPlayer_Custom _vmdPlayer;
+        public IVMDPlayer GetVMDPlayer => _vmdPlayer;
+        readonly IVMDPlayer _vmdPlayer;
 
         public CharaInfoData CharaInfoData => _charaInfoData;
         readonly CharaInfoData _charaInfoData;
@@ -35,7 +35,7 @@ namespace UniLiveViewer.Actor
         float _height;
 
         public ActorEntity(Animator animator, CharaInfoData charaInfoData,
-            VMDPlayer_Custom vmdPlayer, LookAtService lookAtAllocator,
+            IVMDPlayer vmdPlayer, LookAtService lookAtAllocator,
             NormalizedBoneGenerator normalizedBoneGenerator)
         {
             _animator = animator;

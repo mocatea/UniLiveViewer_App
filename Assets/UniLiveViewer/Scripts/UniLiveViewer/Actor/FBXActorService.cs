@@ -3,6 +3,7 @@ using System.Threading;
 using UniLiveViewer.Actor.AttachPoint;
 using UniLiveViewer.Actor.Expression;
 using UniLiveViewer.Actor.LookAt;
+using UniLiveViewer.External;
 using UniRx;
 using UnityEngine;
 using VContainer;
