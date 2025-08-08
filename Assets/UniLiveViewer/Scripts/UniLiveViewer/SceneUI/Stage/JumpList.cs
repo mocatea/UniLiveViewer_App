@@ -1,7 +1,10 @@
-﻿using System;
+﻿using Cysharp.Threading.Tasks;
+using NanaCiel;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using UniLiveViewer.Actor;
 using UniRx;
 using UnityEngine;
 using VContainer;
@@ -11,6 +14,9 @@ namespace UniLiveViewer.Menu
     //本当はスクロールビューにしたい、ボコボコボタン生成めちゃ高コスト
     public class JumpList : MonoBehaviour
     {
+        const int MaxFontWidth = 40;
+        const int MaxFontLength = 20;
+
         public enum TARGET
         {
             NULL,
@@ -32,6 +38,7 @@ namespace UniLiveViewer.Menu
         AudioAssetManager _audioAssetManager;
         List<Button_Base> _btnList = new();
         AudioClipSettings _audioClipSettings;
+        RootAudioSourceService _audioSourceService;
 
         [Inject]
         public void Construct(
@@ -39,62 +46,60 @@ namespace UniLiveViewer.Menu
             ActorEntityManagerService actorEntityManagerService,
             AnimationAssetManager animationAssetManager,
             AudioAssetManager audioAssetManager,
-            AudioClipSettings audioClipSettings)
+            AudioClipSettings audioClipSettings,
+            RootAudioSourceService audioSourceService)
         {
             _presetResourceData = presetResourceData;
             _actorEntityManagerService = actorEntityManagerService;
             _animationAssetManager = animationAssetManager;
             _audioAssetManager = audioAssetManager;
             _audioClipSettings = audioClipSettings;
+            _audioSourceService = audioSourceService;
             Close();
         }
 
         /// <summary>
         /// 必要に応じてボタンを追加生成
         /// </summary>
-        public void BtnInstanceCheck(int needCount)
+        public void IfNeededCreateButton(int needCount)
         {
+            if (_btnList.Count >= needCount) return;
+
             const int MAXLINE = 20;//行数
-            const float BETWEEN_ROWS = 3.4f;//列間
-            const float BETWEEN_LINE = 0.24f;//行間
+            const float BETWEEN_ROWS = 0.38f;//列間
+            const float BETWEEN_LINE = 0.026f;//行間
+            float initX = 0, initY = 0;
 
-            if (_btnList.Count < needCount)
+            Button_Base btn;
+            for (int i = _btnList.Count; i < needCount; i++)
             {
-                float initX = 0, initY = 0;
+                initX = 0.07f + i / MAXLINE * BETWEEN_ROWS;
+                initY = 0.21f - (i % MAXLINE * BETWEEN_LINE);
 
-                Button_Base btn;
-                for (int i = _btnList.Count; i < needCount; i++)
-                {
-                    initX = i / MAXLINE * BETWEEN_ROWS;
-                    initY = 2.0f - (i % MAXLINE * BETWEEN_LINE);
+                btn = Instantiate(Button_BasePrefab);
+                btn.onTrigger += OnClick;
+                btn.transform.SetParent(parentAnchor);
 
-                    btn = Instantiate(Button_BasePrefab);
-                    btn.onTrigger += OnClick;
-                    btn.transform.parent = parentAnchor;
+                btn.transform.localRotation = Quaternion.identity;
+                btn.transform.localScale = Vector3.one;
 
-                    btn.transform.localRotation = Quaternion.identity;
+                //Zファイティング対策
+                if ((initX / 3) % 2 == 0) btn.transform.localPosition = new Vector3(initX, initY, 0);
+                else btn.transform.localPosition = new Vector3(initX, initY, -0.01f);
 
-                    //Zファイティング対策
-                    if ((initX / 3) % 2 == 0) btn.transform.localPosition = new Vector3(initX, initY, 0);
-                    else btn.transform.localPosition = new Vector3(initX, initY, -0.01f);
-
-                    _btnList.Add(btn);
-                    btn = null;
-                }
+                _btnList.Add(btn);
+                btn = null;
             }
         }
 
         /// <summary>
-        /// ボタンにキャラ名を設定する
+        /// アクター情報を設定する
         /// </summary>
-        /// <param name="charaInfoDatas"></param>
-        public void SetCharaData(bool isPreset)
+        public async UniTask SetActorAsync(bool isPreset)
         {
             var viewNames = isPreset
                 ? _actorEntityManagerService.FbxViewNames : _actorEntityManagerService.VRMViewNames;
-
-            //必要ならボタンを生成
-            BtnInstanceCheck(viewNames.Length);
+            IfNeededCreateButton(viewNames.Length);
 
             for (int i = 0; i < _btnList.Count; i++)
             {
@@ -111,25 +116,25 @@ namespace UniLiveViewer.Menu
                 }
             }
             _target = TARGET.CHARA;
+            await UniTask.Delay(400, cancellationToken: this.GetCancellationTokenOnDestroy());
+            _audioSourceService.PlayOneShot(AudioSE.SpringMenuItem);
         }
 
         /// <summary>
-        /// ボタンにアニメーション名を設定する
+        /// アニメーション情報を設定する
         /// </summary>
-        /// <param name="danceInfoData"></param>
-        public void SetAnimeData(bool isPreset)
+        public async UniTask SetAnimeAsync(bool isPreset)
         {
             var danceInfoData = isPreset
                 ? _presetResourceData.DanceInfoData.Select(x => x.ViewName).ToList() : _animationAssetManager.VmdList;
-
-            //必要ならボタンを生成
-            BtnInstanceCheck(danceInfoData.Count);
+            IfNeededCreateButton(danceInfoData.Count);
 
             for (int i = 0; i < _btnList.Count; i++)
             {
                 if (i < danceInfoData.Count)
                 {
-                    _btnList[i].SetTextMesh(danceInfoData[i]);
+                    var abbreviatedName = danceInfoData[i].TruncateWithEllipsis(MaxFontWidth, MaxFontLength);
+                    _btnList[i].SetTextMesh(abbreviatedName);
                     if (!_btnList[i].gameObject.activeSelf) _btnList[i].gameObject.SetActive(true);
                 }
                 else if (danceInfoData.Count <= i)
@@ -138,24 +143,24 @@ namespace UniLiveViewer.Menu
                 }
             }
             _target = TARGET.ANIME;
+            await UniTask.Delay(400, cancellationToken: this.GetCancellationTokenOnDestroy());
+            _audioSourceService.PlayOneShot(AudioSE.SpringMenuItem);
         }
 
         /// <summary>
-        /// ボタンにアニメーション名を設定する
+        /// 追加表情情報を設定する
         /// </summary>
-        /// <param name="danceInfoData"></param>
-        public void SetLipSyncNames()
+        public async UniTask SerAdditionalFacialAsync()
         {
             var lipSyncNames = _animationAssetManager.VmdSyncList;
-
-            //必要ならボタンを生成
-            BtnInstanceCheck(lipSyncNames.Count);
+            IfNeededCreateButton(lipSyncNames.Count);
 
             for (int i = 0; i < _btnList.Count; i++)
             {
                 if (i < lipSyncNames.Count)
                 {
-                    _btnList[i].SetTextMesh(lipSyncNames[i]);
+                    var abbreviatedName = lipSyncNames[i].TruncateWithEllipsis(MaxFontWidth, MaxFontLength);
+                    _btnList[i].SetTextMesh(abbreviatedName);
                     if (!_btnList[i].gameObject.activeSelf) _btnList[i].gameObject.SetActive(true);
                 }
                 else if (lipSyncNames.Count <= i)
@@ -164,25 +169,27 @@ namespace UniLiveViewer.Menu
                 }
             }
             _target = TARGET.VMD_LIPSYNC;
+            await UniTask.Delay(400, cancellationToken: this.GetCancellationTokenOnDestroy());
+            _audioSourceService.PlayOneShot(AudioSE.SpringMenuItem);
         }
 
         /// <summary>
-        /// ボタンにオーディオ名を設定する
+        /// 楽曲情報を設定する
         /// </summary>
-        public void SetAudioData(bool isPresetAudio)
+        public async UniTask SetAudioAsync(bool isPresetAudio)
         {
             if (isPresetAudio)
             {
-                //必要ならボタンを生成
                 var count = _audioClipSettings.AudioBGM.Count;
-                BtnInstanceCheck(count);
+                IfNeededCreateButton(count);
 
                 for (int i = 0; i < _btnList.Count; i++)
                 {
                     if (i < count)
                     {
                         var name = Path.GetFileName(_audioClipSettings.AudioBGM[i].name);
-                        _btnList[i].SetTextMesh(name);
+                        var abbreviatedName = name.TruncateWithEllipsis(MaxFontWidth, MaxFontLength);
+                        _btnList[i].SetTextMesh(abbreviatedName);
                         if (!_btnList[i].gameObject.activeSelf) _btnList[i].gameObject.SetActive(true);
                     }
                     else
@@ -195,14 +202,15 @@ namespace UniLiveViewer.Menu
             {
                 //必要ならボタンを生成
                 var count = _audioAssetManager.CustomAudios.Count;
-                BtnInstanceCheck(count);
+                IfNeededCreateButton(count);
 
                 for (int i = 0; i < _btnList.Count; i++)
                 {
                     if (i < count)
                     {
                         var name = Path.GetFileName(_audioAssetManager.CustomAudios[i]);
-                        _btnList[i].SetTextMesh(name);
+                        var abbreviatedName = name.TruncateWithEllipsis(MaxFontWidth, MaxFontLength);
+                        _btnList[i].SetTextMesh(abbreviatedName);
                         if (!_btnList[i].gameObject.activeSelf) _btnList[i].gameObject.SetActive(true);
                     }
                     else
@@ -212,12 +220,13 @@ namespace UniLiveViewer.Menu
                 }
             }
             _target = TARGET.AUDIO;
+            await UniTask.Delay(400, cancellationToken: this.GetCancellationTokenOnDestroy());
+            _audioSourceService.PlayOneShot(AudioSE.SpringMenuItem);
         }
 
         /// <summary>
         /// リスト内のいずれかのボタンがクリックされた
         /// </summary>
-        /// <param name="btn"></param>
         void OnClick(Button_Base btn)
         {
             //ボタンを特定
@@ -225,6 +234,7 @@ namespace UniLiveViewer.Menu
             {
                 if (btn != _btnList[i]) continue;
                 _selectStream.OnNext((_target, i));
+                _audioSourceService.PlayOneShot(AudioSE.ButtonClick);
                 Debug.Log($"ジャンプボタンIndex:{i}");
                 break;
             }

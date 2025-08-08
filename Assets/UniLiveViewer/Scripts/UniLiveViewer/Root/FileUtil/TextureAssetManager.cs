@@ -37,12 +37,13 @@ namespace UniLiveViewer
             await UniTask.Delay(100, cancellationToken: cancellation);
 
             _vrmNamesData = new VRMNamesData(GetVrmNames(charaFolderPath));
+
             var rawData = _vrmNamesData.RawData;
 
             for (int i = 0; i < rawData.Length; i++)
             {
-                if (spr) spr = null;
-                if (texture) texture = null;
+                spr = null;
+                texture = null;
 
                 spr = _thumbnails.FirstOrDefault(x => x.Key == _vrmNamesData.RawData[i]).Value;
                 if (spr != null) continue;

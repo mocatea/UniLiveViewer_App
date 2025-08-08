@@ -1,7 +1,6 @@
 ﻿using Cysharp.Threading.Tasks;
 using NanaCiel;
 using System.Threading;
-using System.Threading.Tasks;
 using UniLiveViewer.Player;
 using UniLiveViewer.Timeline;
 using UniRx;
@@ -233,7 +232,7 @@ namespace UniLiveViewer.Menu
 
             if (btn == btn_jumpList[0])
             {
-                _menuManager.jumpList.SetAudioData(_isPresetAudio);
+                _menuManager.jumpList.SetAudioAsync(_isPresetAudio).Forget();
             }
             _audioSourceService.PlayOneShot(AudioSE.ButtonClick);
         }
@@ -259,8 +258,7 @@ namespace UniLiveViewer.Menu
 
         async UniTask ChangeAuidoInternalAsync(string clipName, CancellationToken cancellation)
         {
-            _textMeshs[0].text = clipName;
-            _textMeshs[0].fontSize = clipName.FontSizeMatch(600, 30, 50);
+            _textMeshs[0].SetAutoSizedText(clipName, 0.45f, 40);
 
             if (clipName == string.Empty)
             {

@@ -3,7 +3,6 @@ using NanaCiel;
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using UniLiveViewer.Timeline;
 using UniRx;
 using UnityEngine;
 using VContainer;
@@ -122,8 +121,8 @@ namespace UniLiveViewer.Menu
                     if (!_buttons[index].gameObject.activeSelf) _buttons[index].gameObject.SetActive(true);
                     //ボタン情報更新
                     _buttons[index].name = clampedData[index];
-                    _texts[index].text = clampedData[index];
-                    _texts[index].fontSize = _texts[index].text.FontSizeMatch(500, 25, 40);
+                    _texts[index].SetAutoSizedText(clampedData[index], 0.1f, 40);
+                    _texts[index].text = _texts[index].text.InsertNewline();
                     UpdateSprite(clampedData, index);
 
                     if (i % GENERATE_COUNT[random] == 0)

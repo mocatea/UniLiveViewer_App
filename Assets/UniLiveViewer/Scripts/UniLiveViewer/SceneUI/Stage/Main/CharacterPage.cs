@@ -301,15 +301,15 @@ namespace UniLiveViewer.Menu
 
             if (btn == _btnJumpList[0])
             {
-                _menuManager.jumpList.SetCharaData(_currentActorMode == CurrentMode.PRESET);
+                _menuManager.jumpList.SetActorAsync(_currentActorMode == CurrentMode.PRESET).Forget();
             }
             else if (btn == _btnJumpList[1])
             {
-                _menuManager.jumpList.SetAnimeData(_animationMode == CurrentMode.PRESET);
+                _menuManager.jumpList.SetAnimeAsync(_animationMode == CurrentMode.PRESET).Forget();
             }
             else if (btn == _btnJumpList[2])
             {
-                _menuManager.jumpList.SetLipSyncNames();
+                _menuManager.jumpList.SerAdditionalFacialAsync().Forget();
             }
             _audioSourceService.PlayOneShot(AudioSE.ButtonClick);
         }
@@ -383,8 +383,7 @@ namespace UniLiveViewer.Menu
         public void OnVRMLoadFrame()
         {
             var userMessage = MenuConstants.LoadVRM;
-            _textMeshs[0].text = userMessage;
-            _textMeshs[0].fontSize = userMessage.FontSizeMatch(600, 30, 50);
+            _textMeshs[0].SetAutoSizedText(userMessage, 0.25f, 40);
         }
 
         /// <summary>
@@ -454,8 +453,7 @@ namespace UniLiveViewer.Menu
         void UpdateActorInfo(ActorEntity actorEntity)
         {
             var actorName = actorEntity?.CharaInfoData.viewName;
-            _textMeshs[0].text = actorName;
-            _textMeshs[0].fontSize = actorName.FontSizeMatch(600, 30, 50);
+            _textMeshs[0].SetAutoSizedText(actorName, 0.25f, 40);
 
             if (actorEntity == null) return;
 
@@ -509,9 +507,8 @@ namespace UniLiveViewer.Menu
             {
                 var data = _presetResourceData.DanceInfoData[_clipIndex.Value];
                 var baseMotionName = _isReverse.Value ? data.ViewName + " R" : data.ViewName;
+                _textMeshs[1].SetAutoSizedText(baseMotionName, 0.25f, 40);
 
-                _textMeshs[1].text = baseMotionName;
-                _textMeshs[1].fontSize = baseMotionName.FontSizeMatch(600, 30, 50);
                 //反転ボタン
                 if (!_switchReverse.gameObject.activeSelf) _switchReverse.gameObject.SetActive(true);
                 _sliderOffset.Value = 0;
@@ -520,17 +517,15 @@ namespace UniLiveViewer.Menu
             }
             else if (_animationMode == CurrentMode.CUSTOM)
             {
-                if(_animationAssetManager.VmdList == null ||  _animationAssetManager.VmdList.Count <= 0)
+                if (_animationAssetManager.VmdList == null || _animationAssetManager.VmdList.Count <= 0)
                 {
                     var noneMessage = TimelineConstants.NoCustomDanceMessage;
-                    _textMeshs[1].text = noneMessage;
-                    _textMeshs[1].fontSize = noneMessage.FontSizeMatch(600, 30, 50);
+                    _textMeshs[1].SetAutoSizedText(noneMessage, 0.25f, 40);
                     return;
                 }
 
                 var baseMotionName = _animationAssetManager.VmdList[_vmdIndex.Value];
-                _textMeshs[1].text = baseMotionName;
-                _textMeshs[1].fontSize = baseMotionName.FontSizeMatch(600, 30, 50);
+                _textMeshs[1].SetAutoSizedText(baseMotionName, 0.25f, 40);
                 //反転ボタン
                 if (_switchReverse.gameObject.activeSelf) _switchReverse.gameObject.SetActive(false);
                 _sliderOffset.Value = FileReadAndWriteUtility.GetMotionOffset[baseMotionName];
@@ -538,8 +533,7 @@ namespace UniLiveViewer.Menu
                 if (!_vmdAnchor.gameObject.activeSelf) _vmdAnchor.gameObject.SetActive(true);
                 var syncFileName = FileReadAndWriteUtility.TryGetSyncFileName(baseMotionName);
                 if (string.IsNullOrEmpty(syncFileName)) syncFileName = TimelineConstants.NoCustomFacialSyncMessage;
-                _textMeshs[4].text = syncFileName;
-                _textMeshs[4].fontSize = syncFileName.FontSizeMatch(600, 25, 40);
+                _textMeshs[4].SetAutoSizedText(syncFileName, 0.25f, 40);
             }
         }
 
