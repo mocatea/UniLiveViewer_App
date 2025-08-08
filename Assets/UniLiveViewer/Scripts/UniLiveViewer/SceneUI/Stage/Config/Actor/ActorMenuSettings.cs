@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace UniLiveViewer.Menu.Config.Actor
 {
@@ -24,5 +25,16 @@ namespace UniLiveViewer.Menu.Config.Actor
 
         public TextMesh FallingShadowValueText => _fallingShadowValueText;
         [SerializeField] TextMesh _fallingShadowValueText;
+
+        void Awake()
+        {
+            Assert.IsNotNull(_initialActorSizeSlider);
+            Assert.IsNotNull(_initialActorSizeText);
+            Assert.IsNotNull(_fallingShadowLButton);
+            Assert.IsNotNull(_fallingShadowRButton);
+            Assert.IsNotNull(_fallingShadowSlider);
+            Assert.IsNotNull(_fallingShadowTypeText);
+            Assert.IsNotNull(_fallingShadowValueText);
+        }
     }
 }

@@ -1,7 +1,8 @@
-using System;
+﻿using System;
 using UniLiveViewer.SceneLoader;
 using UniRx;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace UniLiveViewer.Menu.SceneSelect
 {
@@ -12,6 +13,21 @@ namespace UniLiveViewer.Menu.SceneSelect
 
         public IObservable<SceneType> ChangeSceneAsObservable => _stream;
         readonly Subject<SceneType> _stream = new();
+
+        void Awake()
+        {
+            Assert.IsNotNull(_textMaxActor);
+            Assert.IsNotNull(_sceneButton);
+
+            for (int i = 0; i < _textMaxActor.Length; i++)
+            {
+                Assert.IsNotNull(_textMaxActor[i]);
+            }
+            for (int i = 0; i < _sceneButton.Length; i++)
+            {
+                Assert.IsNotNull(_sceneButton[i]);
+            }
+        }
 
         void Start()
         {

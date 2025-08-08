@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace UniLiveViewer.Stage.Title
 {
@@ -15,5 +16,13 @@ namespace UniLiveViewer.Stage.Title
 
         public GameObject ScalingEffect => _scalingEffect;
         [SerializeField] GameObject _scalingEffect;
+
+        void Awake()
+        {
+            Assert.IsNotNull(_spriteRenderer);
+            Assert.IsNotNull(_appVersionText);
+            Assert.IsNotNull(_ovrScreenFade);
+            Assert.IsNotNull(_scalingEffect);
+        }
     }
 }

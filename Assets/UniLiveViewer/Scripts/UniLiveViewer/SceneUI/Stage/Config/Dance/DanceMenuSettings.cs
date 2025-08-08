@@ -1,4 +1,5 @@
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace UniLiveViewer.Menu.Config.Dance
 {
@@ -12,5 +13,12 @@ namespace UniLiveViewer.Menu.Config.Dance
 
         public TextMesh VMDScaleText => _vmdScaleText;
         [SerializeField] TextMesh _vmdScaleText;
+
+        void Awake()
+        {
+            Assert.IsNotNull(_vmdSmoothButton);
+            Assert.IsNotNull(_vmdScaleSlider);
+            Assert.IsNotNull(_vmdScaleText);
+        }
     }
 }

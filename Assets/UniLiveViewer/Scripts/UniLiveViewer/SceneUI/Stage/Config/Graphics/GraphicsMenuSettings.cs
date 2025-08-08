@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.Rendering.Universal;
 
 namespace UniLiveViewer.Menu.Config.Graphics
@@ -27,6 +28,14 @@ namespace UniLiveViewer.Menu.Config.Graphics
 
         void Awake()
         {
+            Assert.IsNotNull(_graphicButton);
+            Assert.IsNotNull(_graphicSlider);
+            Assert.IsNotNull(_graphicsText);
+            Assert.IsNotNull(_outlineSlider);
+            Assert.IsNotNull(_frd);
+            Assert.IsNotNull(_outlineMat);
+            // _outlineRenderは動的に取得
+
             //レンダーパイプラインからoutlineオブジェクトを取得    
             foreach (var renderObj in _frd.rendererFeatures)
             {

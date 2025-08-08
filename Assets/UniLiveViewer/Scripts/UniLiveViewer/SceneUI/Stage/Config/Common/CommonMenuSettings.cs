@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace UniLiveViewer.Menu.Config.Common
 {
@@ -21,5 +22,15 @@ namespace UniLiveViewer.Menu.Config.Common
 
         public Button_Base JapaneseButton => _japaneseButton;
         [SerializeField] Button_Base _japaneseButton;
+
+        void Awake()
+        {
+            Assert.IsNotNull(_vibrationButton);
+            Assert.IsNotNull(_passthroughButton);
+            Assert.IsNotNull(_fixedFoveatedSlider);
+            Assert.IsNotNull(_fixedFoveatedText);
+            Assert.IsNotNull(_englishButton);
+            Assert.IsNotNull(_japaneseButton);
+        }
     }
 }
