@@ -48,7 +48,23 @@ namespace UniLiveViewer.Actor.Animation
                 .AddTo(_disposables);
 
             _actorEntity.ActorState()
-                .Subscribe();
+                .Subscribe(async x => 
+                {
+                    if (x == ActorState.MINIATURE)
+                    {
+                        if (_animationService.IsPlaying()) return;
+                        await _animationService.OnChangeScale(cancellation);
+                    }
+                    else if (x == ActorState.HOLD)
+                    {
+                        _animationService.Stop();
+                    }
+                    else if (x == ActorState.FIELD)
+                    {
+                        await _animationService.OnChangeScale(cancellation);
+                    }
+                }
+                ).AddTo(_disposables);
 
             _subscriber
                 .Subscribe(async x =>
@@ -87,6 +103,7 @@ namespace UniLiveViewer.Actor.Animation
                         _animationService.TryVMDInitializePose();
                     }
                 }).AddTo(_disposables);
+
             return UniTask.CompletedTask;
         }
 

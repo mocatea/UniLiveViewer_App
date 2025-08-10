@@ -160,6 +160,8 @@ namespace UniLiveViewer.Timeline
 
             //マニュアルモードでの更新を開始
             ManualUpdateAsync(cancellation).Forget();
+
+            await UniTask.CompletedTask;
         }
 
         /// <summary>

@@ -29,6 +29,7 @@ namespace UniLiveViewer.Timeline
             builder.RegisterMessageBroker<ActorOperationMessage>(options);
             builder.RegisterMessageBroker<AllActorOptionMessage>(options);
             builder.RegisterMessageBroker<ActorAnimationMessage>(options);
+            builder.RegisterMessageBroker<ActorStateMessage>(options);
             builder.RegisterMessageBroker<ActorResizeMessage>(options);
             builder.RegisterMessageBroker<AttachPointMessage>(options);
 

@@ -70,7 +70,8 @@ namespace UniLiveViewer.Actor.Animation
             _currentMode = mode;
             if (_currentMode == CurrentMode.PRESET)
             {
-                _vmdPlayer.ClearBaseAndSyncData();
+                _vmdPlayer.Stop();
+                _vmdPlayer.ClearMotionAndExpressionData();
                 _actorEntity.GetAnimator.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);//Animator層が動いているので
                 _actorEntity.GetAnimator.enabled = true;
 
@@ -123,11 +124,11 @@ namespace UniLiveViewer.Actor.Animation
                 VMD newVMD = null;
                 if (isBaseMotion)
                 {
-                    newVMD = await _vmdPlayer.SetupBaseMotionAsync(info, cancellation);
+                    newVMD = await _vmdPlayer.PlayMotionAsync(info, cancellation);
                 }
                 else
                 {
-                    newVMD = await _vmdPlayer.SetupExpressionAsync(info, cancellation);
+                    newVMD = await _vmdPlayer.PlayExpressionAsync(info, cancellation);
                 }
                 _vmdData.Add(fileName, newVMD);
             }
@@ -137,13 +138,29 @@ namespace UniLiveViewer.Actor.Animation
                 var info = new VMDSetupInfo(existingVMD, folderPath, fileName, boneAmplifier, isSmoothVMD);
                 if (isBaseMotion)
                 {
-                    await _vmdPlayer.SetupBaseMotionAsync(info, cancellation);
+                    await _vmdPlayer.PlayMotionAsync(info, cancellation);
                 }
                 else
                 {
-                    await _vmdPlayer.SetupExpressionAsync(info, cancellation);
+                    await _vmdPlayer.PlayExpressionAsync(info, cancellation);
                 }
             }
+        }
+
+        public void Stop()
+        {
+            _vmdPlayer.Stop();
+        }
+
+        public bool IsPlaying()
+        {
+           return _vmdPlayer.IsPlaying();
+        }
+
+        public async UniTask OnChangeScale(CancellationToken cancellation)
+        {
+            await _vmdPlayer.ReplayMotionAsync(cancellation);
+            await _vmdPlayer.ReplayExpressionAsync(cancellation);
         }
 
         async UniTask TrySetSyncVMDAsync(CancellationToken cancellation)
@@ -153,7 +170,7 @@ namespace UniLiveViewer.Actor.Animation
 
             if (syncFileName == TimelineConstants.NoCustomFacialSyncMessage)
             {
-                _vmdPlayer.ClearSyncData();
+                _vmdPlayer.ClearExpressionData();
             }
             else
             {
@@ -180,6 +197,7 @@ namespace UniLiveViewer.Actor.Animation
         {
             if (_actorEntity == null) return;
             if (_currentMode != CurrentMode.CUSTOM) return;
+            //_vmdPlayer.Stop(); 本来停止が正しいが、マニュアルモード中スライダー同期しなくなるのでしない
             _vmdPlayer.InitializePose();
         }
 

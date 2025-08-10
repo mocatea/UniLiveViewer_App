@@ -148,12 +148,13 @@ namespace UniLiveViewer.Actor
         public void SetState(ActorState setState, Transform overrideTarget)
         {
             if (_actorEntity.Value == null) return;
+            if (_actorState.Value == setState) return;
+
             var rootGameObject = _lifetimeScope.gameObject;
             var globalScale = Vector3.zero;
 
             _overrideAnchor = overrideTarget;
-            _actorState.Value = setState;
-            switch (_actorState.Value)
+            switch (setState)
             {
                 case ActorState.NULL:
                     //VRMとPrefab用
@@ -199,7 +200,7 @@ namespace UniLiveViewer.Actor
             }
             else rootTransform.parent = null;
 
-            if (_actorState.Value == ActorState.MINIATURE || _actorState.Value == ActorState.HOLD)
+            if (setState == ActorState.MINIATURE || setState == ActorState.HOLD)
             {
                 rootTransform.localScale = globalScale;
             }
@@ -208,6 +209,7 @@ namespace UniLiveViewer.Actor
                 rootTransform.localScale = globalScale * _rootScalar.Value;
             }
 
+            _actorState.Value = setState;
             _rawRootScalar.Value = rootTransform.localScale.x;
         }
 
