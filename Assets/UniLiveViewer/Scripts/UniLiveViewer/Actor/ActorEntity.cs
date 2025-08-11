@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NanaCiel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UniLiveViewer.Actor.LookAt;
@@ -29,11 +30,11 @@ namespace UniLiveViewer.Actor
         public IReadOnlyDictionary<HumanBodyBones, Transform> BoneMap => _boneMap;
         readonly Dictionary<HumanBodyBones, Transform> _boneMap;
 
-        /// <summary>
-        /// 身長
-        /// </summary>
-        float _height;
-
+        public float Height { get; private set; }
+        public int BonesCount { get; private set; }
+        public int MaterialsCount { get; private set; }
+        public int Polygons { get; private set; }
+        
         public ActorEntity(Animator animator, CharaInfoData charaInfoData,
             IVMDPlayer vmdPlayer, LookAtService lookAtAllocator,
             NormalizedBoneGenerator normalizedBoneGenerator)
@@ -50,7 +51,13 @@ namespace UniLiveViewer.Actor
                 .Cast<HumanBodyBones>()
                 .Where(b => b != HumanBodyBones.LastBone)
                 .ToDictionary(bone => bone, bone => animator.GetBoneTransform(bone));
-            _height = _boneMap[HumanBodyBones.Head].position.y - _boneMap[HumanBodyBones.Spine].position.y;
+
+            _animator.ResetToReferencePose();
+            Height = _animator.MeasureExactHeight(out var topWorldPoint);
+            BonesCount = _animator.gameObject.GetUniqueBoneCount();
+            MaterialsCount = _animator.gameObject.GetUniqueMaterialAssetCount();
+            Polygons = MeshExtensionMethods.GetPolygonCountRecursive(_animator.gameObject);
+            
 
             _normalizedBoneGenerator.Setup(_boneMap);
 

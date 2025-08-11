@@ -1,4 +1,4 @@
-﻿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using MessagePipe;
 using NanaCiel;
 using UniLiveViewer.Actor;
@@ -19,6 +19,10 @@ namespace UniLiveViewer.Menu
         [SerializeField] TextMesh _pleasePushText;
         [SerializeField] TextMesh _vrmLoadFailureText;
         [SerializeField] TextMesh _actorMaxText;
+        [SerializeField] TextMesh _actorHeigthText;
+        [SerializeField] TextMesh _actorBoneCountText;
+        [SerializeField] TextMesh _actorMaterialsCountText;
+        [SerializeField] TextMesh _actorPolygonsText;
 
         MenuManager _menuManager;
         [Header("--- Preset or Custom ---")]
@@ -452,10 +456,15 @@ namespace UniLiveViewer.Menu
 
         void UpdateActorInfo(ActorEntity actorEntity)
         {
-            var actorName = actorEntity?.CharaInfoData.viewName;
+            if (actorEntity == null) return;
+
+            var actorName = actorEntity.CharaInfoData.viewName;
             _textMeshs[0].SetAutoSizedText(actorName, 0.25f, 40);
 
-            if (actorEntity == null) return;
+            _actorHeigthText.text = $"{actorEntity.Height.ToString("0.00")} m";
+            _actorBoneCountText.text = $"{actorEntity.BonesCount} bones";
+            _actorMaterialsCountText.text = $"{actorEntity.MaterialsCount} mat";
+            _actorPolygonsText.text = $"▲{actorEntity.Polygons}";
 
             actorEntity.LookAtService.SetHeadWeight(_sliderHeadLook.Value);
             actorEntity.LookAtService.SetEyeWeight(_sliderEyeLook.Value);
