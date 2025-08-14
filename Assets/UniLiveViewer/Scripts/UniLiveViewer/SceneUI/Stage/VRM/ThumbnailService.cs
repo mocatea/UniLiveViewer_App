@@ -11,6 +11,8 @@ namespace UniLiveViewer.Menu
 {
     public class ThumbnailService
     {
+        const string ButtonPrefabPath = "Prefabs/Button/Thumbnail/btnVRM";
+
         public IObservable<Button_Base> OnClickAsObservable => _clickStream;
         readonly Subject<Button_Base> _clickStream = new();
 
@@ -45,7 +47,7 @@ namespace UniLiveViewer.Menu
         {
             if (!RootSystemSettings._isUsedCustomFolders) return;
 
-            _btnPrefab = Resources.Load<Button_Base>("Prefabs/Button/btnVRM");
+            _btnPrefab = Resources.Load<Button_Base>(ButtonPrefabPath);
             CreateButtonAsync(cancellation).Forget();
             await UniTask.CompletedTask;
         }

@@ -40,6 +40,10 @@ namespace UniLiveViewer
 
             var rawData = _vrmNamesData.RawData;
 
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+            
+
+
             for (int i = 0; i < rawData.Length; i++)
             {
                 spr = null;
@@ -51,7 +55,8 @@ namespace UniLiveViewer
                 try
                 {
                     //VRMファイルからサムネイルを抽出する
-                    texture = await VRMExtension.GetThumbnailAsync(charaFolderPath + rawData[i], cancellation);
+                    //texture = await VRMExtension.GetThumbnailAsync(charaFolderPath + rawData[i], cancellation);
+                    texture = VRMThumbnailPurser.Parse(charaFolderPath + rawData[i]);
 
                     if (texture)
                     {
@@ -86,7 +91,10 @@ namespace UniLiveViewer
                     throw;
                 }
                 await UniTask.Yield(PlayerLoopTiming.Update, cancellation);
-            };
+            }
+
+            stopwatch.Stop(); // 終了
+            UnityEngine.Debug.Log($"処理時間: {stopwatch.Elapsed.TotalMilliseconds.ToString("0.00")} ms");
         }
 
         /// <summary>

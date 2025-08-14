@@ -9,6 +9,9 @@ using VRMShaders;
 
 namespace NanaCiel
 {
+    /// <summary>
+    /// 廃止、VRMThumbnailPurserを推奨
+    /// </summary>
     public static class VRMExtension
     {
 
@@ -31,8 +34,6 @@ namespace NanaCiel
         /// サムネイルのみ取得する
         /// あとは直パースでもしない限り速度誤差なのでとりまこれで
         /// </summary>
-        /// <param name="path"></param>
-        /// <returns></returns>
         public static async Task<Texture2D> GetThumbnailAsync(string path, CancellationToken cancellation)
         {
             if (string.IsNullOrEmpty(path)) return null;
