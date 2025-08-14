@@ -6,6 +6,7 @@ namespace UniLiveViewer.Actor.LookAt
     {
         Animator _animator;
         Transform _lookTarget;
+
         float _headWeight = 0.0f;
         float _eyeWeight = 0.0f;
 
@@ -33,5 +34,9 @@ namespace UniLiveViewer.Actor.LookAt
             _animator.SetLookAtPosition(_lookTarget.position);
             //_animator.SetLookAtPosition(_test.lookTarget_limit.position);// TODO
         }
+
+#if UNITY_EDITOR
+        public (Transform name, float head, float eye) GetLookAtInfo => (_lookTarget, _headWeight, _eyeWeight);
+#endif
     }
 }

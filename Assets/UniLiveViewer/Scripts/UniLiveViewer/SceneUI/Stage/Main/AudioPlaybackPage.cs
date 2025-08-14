@@ -81,7 +81,7 @@ namespace UniLiveViewer.Menu
             _cancellationToken = cancellation;
 
             //再生スライダーに最大値を設定
-            _playbackSlider.maxValuel = (float)_playableDirector.duration;
+            _playbackSlider.SetMaxValuel((float)_playableDirector.duration);
 
             //ジャンプリスト
             foreach (var e in btn_jumpList)
@@ -272,7 +272,7 @@ namespace UniLiveViewer.Menu
         async UniTask UpdateAudioMaxLength(CancellationToken cancellation)
         {
             var sec = await _timelineAudioClipSwitcher.GetCurrentAudioLengthAsync(_isPresetAudio, cancellation);
-            _playbackSlider.maxValuel = sec;
+            _playbackSlider.SetMaxValuel(sec);
             _textMeshs[2].text = $"{((int)sec / 60):00}:{((int)sec % 60):00}";
         }
 
@@ -329,7 +329,14 @@ namespace UniLiveViewer.Menu
             if (Input.GetKeyDown(KeyCode.U))
             {
                 var dummy = new CancellationToken();
-                PlayAsync(dummy).Forget();
+                if (_playableDirector.timeUpdateMode == DirectorUpdateMode.Manual)
+                {
+                    PlayAsync(dummy).Forget();
+                }
+                else
+                {
+                    PauseAsync(dummy).Forget();
+                } 
             }
             if (Input.GetKeyDown(KeyCode.I))
             {

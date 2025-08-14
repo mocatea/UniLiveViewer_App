@@ -79,13 +79,16 @@ namespace UniLiveViewer.Actor
                     if (go.TryGetComponent<VRMLookAtBoneApplyer>(out var boneApplyer))
                     {
                         _lookAtService.VRMSetup(animator, target, boneApplyer);
+                        Debug.Log("0.xでVRMロード、type: VRMLookAtBoneApplyer");
                     }
                     else if (go.TryGetComponent<VRMLookAtBlendShapeApplyer>(out var blendShapeApplyer))
                     {
                         _lookAtService.VRMSetup(animator, target, blendShapeApplyer);
+                        Debug.Log("0.xでVRMロード、type: VRMLookAtBlendShapeApplyer");
                     }
                     else
                     {
+                        Debug.Log("0.xでVRMロード、type: UV");
                         //UV？
                     }
                 }
