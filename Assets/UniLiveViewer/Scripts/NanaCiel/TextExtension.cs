@@ -1,8 +1,8 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace NanaCiel
 {
-    public static class TextExtensionMethods
+    public static class TextExtension
     {
         /// <summary>
         /// bounds基準でフォントサイズを調整してテキスト設定

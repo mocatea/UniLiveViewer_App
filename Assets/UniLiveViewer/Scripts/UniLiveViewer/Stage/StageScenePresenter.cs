@@ -41,7 +41,8 @@ namespace UniLiveViewer.Stage
         {
             await _fileAccessManager.PreparationStartAsync(cancellation).OnError(OnFolderError);
             _animationAssetManager.Setup();
-            await _textureAssetManager.CacheThumbnails(cancellation).OnError(OnThumbnailsError);
+            _textureAssetManager.Start();
+            await _textureAssetManager.CacheThumbnailsAsync(cancellation).OnError(OnThumbnailsError);
             _fileAccessManager.PreparationEnd();
         }
 

@@ -1,4 +1,4 @@
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using MessagePipe;
 using System.Threading;
 using UnityEngine;
@@ -176,7 +176,7 @@ namespace UniLiveViewer.Menu
             var cancel = this.GetCancellationTokenOnDestroy();
             try
             {
-                await _textureAssetManager.CopyVRMtoCharaFolder(PathsInfo.GetDownloadFolderPath() + "/", cancel);
+                await _textureAssetManager.CopyVRMtoActorFolderAsync(PathsInfo.GetDownloadFolderPath() + "/", cancel);
                 _publisher.Publish(new VRMMenuShowMessage(0));
             }
             catch

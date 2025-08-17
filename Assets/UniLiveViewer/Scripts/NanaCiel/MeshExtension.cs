@@ -1,10 +1,10 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
 namespace NanaCiel
 {
-    public static class MeshExtensionMethods
+    public static class MeshExtension
     {
         /// <summary>
         /// 総ボーン数をカウント

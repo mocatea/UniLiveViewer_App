@@ -1,4 +1,4 @@
-﻿using NanaCiel;
+using NanaCiel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -56,7 +56,7 @@ namespace UniLiveViewer.Actor
             Height = _animator.MeasureExactHeight(out var topWorldPoint);
             BonesCount = _animator.gameObject.GetUniqueBoneCount();
             MaterialsCount = _animator.gameObject.GetUniqueMaterialAssetCount();
-            Polygons = MeshExtensionMethods.GetPolygonCountRecursive(_animator.gameObject);
+            Polygons = MeshExtension.GetPolygonCountRecursive(_animator.gameObject);
             
 
             _normalizedBoneGenerator.Setup(_boneMap);

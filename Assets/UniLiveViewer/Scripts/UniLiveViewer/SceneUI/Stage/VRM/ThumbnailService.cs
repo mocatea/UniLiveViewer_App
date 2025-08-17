@@ -152,7 +152,12 @@ namespace UniLiveViewer.Menu
             {
                 //サムネイル無しはデフォ画像を流用する仕様
                 var spr = _textureAssetManager.Thumbnails[clampedData[index]];
-                if (spr) _buttons[index].collisionChecker.colorSetting[0].targetSprite.sprite = spr;
+                if (spr)
+                {
+                    var targetSprite = _buttons[index].collisionChecker.colorSetting[0].targetSprite;
+                    targetSprite.sprite = spr;
+                    targetSprite.drawMode = SpriteDrawMode.Simple; // 形状編集に必須
+                }
             }
             catch
             {
