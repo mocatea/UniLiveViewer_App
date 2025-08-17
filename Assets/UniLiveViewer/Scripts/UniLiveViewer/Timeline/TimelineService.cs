@@ -55,9 +55,13 @@ namespace UniLiveViewer.Timeline
             }
         }
 
+        public IReactiveProperty<DirectorUpdateMode> TimelineUpdateMode => _timelineUpdateMode;
+        readonly ReactiveProperty<DirectorUpdateMode> _timelineUpdateMode = new(DirectorUpdateMode.Manual);
+
         public double AudioClipStartTime => _audioClipStartTime;
         double _audioClipStartTime = 0;//セットされたaudioクリップの開始再生位置
         double _playbackTime = 0.0f;
+        bool _isLoop = false;
 
         double _cacheSpeed;
 
@@ -104,6 +108,29 @@ namespace UniLiveViewer.Timeline
             }
         }
 
+        public void OnTick(float currentAudioLength)
+        {
+            if (_playableDirector.timeUpdateMode == DirectorUpdateMode.Manual) return;
+
+            if (_playbackTime > currentAudioLength)
+            {
+                if (!_isLoop)
+                {
+                    var cancellation = CancellationToken.None;
+                    PauseAsync(cancellation).Forget();
+                    return;
+                }
+                _playbackTime = _audioClipStartTime;
+                _playableDirector.time = _playbackTime;
+            }
+        }
+
+        void SetTimelineUpdateMode(DirectorUpdateMode mode)
+        {
+            _playableDirector.timeUpdateMode = mode;
+            _timelineUpdateMode.Value = mode;
+        }
+
         /// <summary>
         /// 再生状態にする
         /// </summary>
@@ -112,7 +139,7 @@ namespace UniLiveViewer.Timeline
             //モードをマニュアルからゲームタイマーへ
             if (_playableDirector.timeUpdateMode == DirectorUpdateMode.Manual)
             {
-                _playableDirector.timeUpdateMode = DirectorUpdateMode.GameTime;
+                SetTimelineUpdateMode(DirectorUpdateMode.GameTime);
             }
             ResumeTimeline();
 
@@ -156,7 +183,7 @@ namespace UniLiveViewer.Timeline
             if (_playableDirector.timeUpdateMode == DirectorUpdateMode.Manual) return;
 
             //マニュアルモードに
-            _playableDirector.timeUpdateMode = DirectorUpdateMode.Manual;
+            SetTimelineUpdateMode(DirectorUpdateMode.Manual);
 
             //マニュアルモードでの更新を開始
             ManualUpdateAsync(cancellation).Forget();
@@ -186,6 +213,11 @@ namespace UniLiveViewer.Timeline
                 }
                 await UniTask.Delay(100, cancellationToken: cancellation);
             }
+        }
+
+        public void SetLoop(bool isLoop)
+        {
+            _isLoop = isLoop;
         }
 
         public void ResumeTimeline()

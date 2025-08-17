@@ -26,10 +26,11 @@ namespace UniLiveViewer.Menu
             builder.RegisterMessageBroker<VRMMenuShowMessage>(options);
 
             ActorPageConfigure(builder);
+            AudioPlaybackPageConfigure(builder);
 
             builder.RegisterComponent(GetComponent<MenuManager>());
 
-            builder.RegisterComponent(_audioPlaybackPage);
+
             builder.RegisterComponent(_itemPage);
             builder.RegisterEntryPoint<MainMenuPresenter>();
 
@@ -42,7 +43,6 @@ namespace UniLiveViewer.Menu
         /// <summary>
         /// 理想はページごとにLS分けたい
         /// </summary>
-        /// <param name="builder"></param>
         void ActorPageConfigure(IContainerBuilder builder)
         {
             builder.RegisterComponent(_characterPage);
@@ -51,6 +51,12 @@ namespace UniLiveViewer.Menu
             builder.Register<ActorRegisterService>(Lifetime.Singleton);
             builder.Register<ActorEntityManagerService>(Lifetime.Singleton);
             builder.RegisterEntryPoint<ActorPresenter>();
+        }
+
+        void AudioPlaybackPageConfigure(IContainerBuilder builder)
+        {
+            builder.RegisterComponent(_audioPlaybackPage);
+            builder.RegisterEntryPoint<AudioPlaybackPresenter>();
         }
     }
 }

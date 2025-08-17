@@ -1,12 +1,12 @@
 ﻿using Cysharp.Threading.Tasks;
 using NanaCiel;
+using System;
 using System.Threading;
 using UniLiveViewer.Player;
 using UniLiveViewer.Timeline;
 using UniRx;
 using UnityEngine;
 using UnityEngine.Playables;
-using VContainer;
 
 namespace UniLiveViewer.Menu
 {
@@ -22,57 +22,48 @@ namespace UniLiveViewer.Menu
         [SerializeField] Button_Base _playButton = null;
         [SerializeField] Button_Base _pauseButton = null;
         [SerializeField] Button_Base _stopButton = null;
+        [SerializeField] Button_Base _loopButton = null;
+        [SerializeField] Button_Base _nonLoopButton = null;
         [SerializeField] TextMesh[] _textMeshs = new TextMesh[4];
         [SerializeField] SliderGrabController _playbackSlider = null;
         [SerializeField] SliderGrabController _playbackSpeedSlider = null;
+        public IReactiveProperty<float> AudioLength => _audioLength;
+        readonly ReactiveProperty<float> _audioLength = new(0);
 
-        TimelineService _timelineService;
+        public IObservable<Unit> PlayAsObservable => _playStream;
+        readonly Subject<Unit> _playStream = new();
+        public IObservable<Unit> PauseAsObservable => _pauseStream;
+        readonly Subject<Unit> _pauseStream = new();
+
+        public IObservable<Unit> StopAsObservable => _stopStream;
+        readonly Subject<Unit> _stopStream = new();
+
+        public IReactiveProperty<float> PlaybackTime => _playbackTime;
+        readonly ReactiveProperty<float> _playbackTime = new(0);
+        public IReactiveProperty<float> Speed => _speed;
+        readonly ReactiveProperty<float> _speed = new(1);
+
+        public IReactiveProperty<bool> IsLoop => _isLoop;
+        readonly ReactiveProperty<bool> _isLoop = new(true);
+
         PlayableDirector _playableDirector;
         PlayerHandsService _playerHandsService;
-        AudioAssetManager _audioAssetManager;
-        RootAudioSourceService _audioSourceService;
         TimelineAudioClipSwitcherService _timelineAudioClipSwitcher;
+        RootAudioSourceService _audioSourceService;
 
         CancellationToken _cancellationToken;
 
-        [Inject]
-        public void Construct(
+        public void Initialize(
             AudioAssetManager audioAssetManager,
-            TimelineService timelineService,
             PlayableDirector playableDirector,
             PlayerHandsService playerHandsService,
             TimelineAudioClipSwitcherService timelineAudioClipSwitcher,
             RootAudioSourceService audioSourceService)
         {
-            _audioAssetManager = audioAssetManager;
-            _timelineService = timelineService;
             _playableDirector = playableDirector;
             _playerHandsService = playerHandsService;
-            _audioSourceService = audioSourceService;
             _timelineAudioClipSwitcher = timelineAudioClipSwitcher;
-        }
-
-        public void OnJumpSelect((JumpList.TARGET, int) select)
-        {
-            var target = select.Item1;
-            var index = select.Item2;
-
-            int moveIndex = 0;
-            switch (target)
-            {
-                case JumpList.TARGET.AUDIO:
-                    if (_isPresetAudio)
-                    {
-                        moveIndex = index - _audioAssetManager.CurrentPreset;
-                    }
-                    else
-                    {
-                        moveIndex = index - _audioAssetManager.CurrentCustom;
-                    }
-                    ChangeAudioAsync(moveIndex, _cancellationToken).Forget();
-                    break;
-            }
-            _audioSourceService.PlayOneShot(AudioSE.ButtonClick);
+            _audioSourceService = audioSourceService;
         }
 
         public async UniTask StartAsync(CancellationToken cancellation)
@@ -89,8 +80,6 @@ namespace UniLiveViewer.Menu
                 e.onTrigger += OpenJumplist;
             }
 
-            _playableDirector.played += OnPlayedDirector;
-            _playableDirector.stopped += OnStopedDirector;
             for (int i = 0; i < _audioButton.Length; i++)
             {
                 _audioButton[i].onTrigger += OnClickMoveIndex;
@@ -100,17 +89,16 @@ namespace UniLiveViewer.Menu
                 .Subscribe(_ => OnUpdatePlaybackSlider()).AddTo(this);
             _playbackSlider.ValueAsObservable
                 .DistinctUntilChanged()
-                .Subscribe(value =>
+                .Subscribe(sec =>
                 {
-                    _timelineService.AudioClipPlaybackTime = value;
-                    var sec = _timelineService.AudioClipPlaybackTime;
+                    _playbackTime.Value = sec;
                     _textMeshs[1].text = $"{((int)sec / 60):00}:{((int)sec % 60):00}";
                 }).AddTo(this);
 
             _playbackSpeedSlider.ValueAsObservable
                 .Subscribe(value =>
                 {
-                    _timelineService.TimelineSpeed = value;
+                    _speed.Value = value;
                     _textMeshs[3].text = $"{value:0.00}";
                 }).AddTo(this);
             _playbackSpeedSlider.Value = 1.0f;
@@ -123,6 +111,8 @@ namespace UniLiveViewer.Menu
                 _switchAudio[i].isEnable = (i == 0);
                 _switchAudio[i].onTrigger += OnClickCategory;
             }
+            _loopButton.onTrigger += OnClickLoop;
+            _nonLoopButton.onTrigger += OnClickNonLoop;
 
             await InitializeAsync(_cancellationToken);
 
@@ -153,6 +143,24 @@ namespace UniLiveViewer.Menu
                 if (_playerHandsService.IsGrabbingSliderWithHands()) return;
 
                 StopAsync(_cancellationToken).Forget();
+            }
+
+            void OnClickLoop(Button_Base btn)
+            {
+                _audioSourceService.PlayOneShot(AudioSE.ButtonClick);
+                // 反転
+                _loopButton.gameObject.SetActive(false);
+                _nonLoopButton.gameObject.SetActive(true);
+                _isLoop.Value = false;
+            }
+
+            void OnClickNonLoop(Button_Base btn)
+            {
+                _audioSourceService.PlayOneShot(AudioSE.ButtonClick);
+                // 反転
+                _loopButton.gameObject.SetActive(true);
+                _nonLoopButton.gameObject.SetActive(false);
+                _isLoop.Value = true;
             }
 
             void OnClickCategory(Button_Base btn)
@@ -207,23 +215,66 @@ namespace UniLiveViewer.Menu
                 _playButton.gameObject.SetActive(false);
             }
 
+            if (_isLoop.Value)
+            {
+                _loopButton.gameObject.SetActive(true);
+                _nonLoopButton.gameObject.SetActive(false);
+            }
+            else
+            {
+                _loopButton.gameObject.SetActive(false);
+                _nonLoopButton.gameObject.SetActive(true);
+            }
+
             await UpdateAudioMaxLength(cancellationToken);
         }
 
-        void Update()
+        public void OnTick(float audioClipPlaybackTime)
         {
             //再生スライダー非制御中なら
             if (!_playbackSlider.IsGrabbed)
             {
                 //TimeLine再生時間をスライダーにセット
-                var sec = (float)_timelineService.AudioClipPlaybackTime;
+                var sec = audioClipPlaybackTime;
                 _playbackSlider.SetValueWithoutNotify(sec);
                 _textMeshs[1].text = $"{((int)sec / 60):00}:{((int)sec % 60):00}";
             }
+
 #if UNITY_EDITOR
             DebugInput();
 #elif UNITY_ANDROID
 #endif
+        }
+
+        public void OnChangeTimelineUpdateMode(DirectorUpdateMode mode)
+        {
+            if (mode == DirectorUpdateMode.Manual)
+            {
+                _pauseButton.gameObject.SetActive(false);
+                _playButton.gameObject.SetActive(true);
+            }
+            else
+            {
+                _pauseButton.gameObject.SetActive(true);
+                _playButton.gameObject.SetActive(false);
+            }
+        }
+
+        public void OnJumpSelect((JumpList.TARGET target, int index) select, (int presetIndex, int customIndex) current)
+        {
+            if (select.target != JumpList.TARGET.AUDIO) return;
+
+            int moveIndex = 0;
+            if (_isPresetAudio)
+            {
+                moveIndex = select.index - current.presetIndex;
+            }
+            else
+            {
+                moveIndex = select.index - current.customIndex;
+            }
+            ChangeAudioAsync(moveIndex, _cancellationToken).Forget();
+            _audioSourceService.PlayOneShot(AudioSE.ButtonClick);
         }
 
         void OpenJumplist(Button_Base btn)
@@ -274,54 +325,31 @@ namespace UniLiveViewer.Menu
             var sec = await _timelineAudioClipSwitcher.GetCurrentAudioLengthAsync(_isPresetAudio, cancellation);
             _playbackSlider.SetMaxValuel(sec);
             _textMeshs[2].text = $"{((int)sec / 60):00}:{((int)sec % 60):00}";
-        }
-
-        void OnPlayedDirector(PlayableDirector obj)
-        {
-            //停止表示
-            //btnS_Stop.gameObject.SetActive(true);
-            //btnS_Play.gameObject.SetActive(false);
-        }
-        void OnStopedDirector(PlayableDirector obj)
-        {
-            //再生途中の一時停止は無視する
-            if (_timelineService.AudioClipPlaybackTime > 0) return;
-
-            //再生表示
-            if (_pauseButton) _pauseButton.gameObject.SetActive(false);
-            if (_playButton) _playButton.gameObject.SetActive(true);
+            _audioLength.Value = sec;
         }
 
         void OnUpdatePlaybackSlider()
         {
             if (_playableDirector.timeUpdateMode == DirectorUpdateMode.Manual) return;
-
-            _pauseButton.gameObject.SetActive(false);
-            _playButton.gameObject.SetActive(true);
-
-            var dummy = new CancellationToken();
-            _timelineService.PauseAsync(dummy).Forget();
+            _pauseStream.OnNext(Unit.Default);
         }
 
         async UniTask PlayAsync(CancellationToken cancellation)
         {
-            _pauseButton.gameObject.SetActive(true);
-            _playButton.gameObject.SetActive(false);
-
-            await _timelineService.PlayAsync(cancellation);
+            _playStream.OnNext(Unit.Default);
+            await UniTask.CompletedTask;
         }
 
         async UniTask PauseAsync(CancellationToken cancellation)
         {
-            _pauseButton.gameObject.SetActive(false);
-            _playButton.gameObject.SetActive(true);
-
-            await _timelineService.PauseAsync(cancellation);
+            _pauseStream.OnNext(Unit.Default);
+            await UniTask.CompletedTask;
         }
 
         async UniTask StopAsync(CancellationToken cancellation)
         {
-            await _timelineService.StopAsync(cancellation);
+            _stopStream.OnNext(Unit.Default);
+            await UniTask.CompletedTask;
         }
 
         void DebugInput()
@@ -336,7 +364,7 @@ namespace UniLiveViewer.Menu
                 else
                 {
                     PauseAsync(dummy).Forget();
-                } 
+                }
             }
             if (Input.GetKeyDown(KeyCode.I))
             {
