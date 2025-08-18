@@ -16,6 +16,7 @@ namespace UniLiveViewer.Timeline
         [SerializeField] PresetResourceData _presetResourceData;
         [SerializeField] QuasiShadowSetting _quasiShadowSetting;
         [SerializeField] ActorLifetimeScopeSetting _actorLifetimeScopeSetting;
+
         /// <summary>
         /// Actorが使うのでここになちゃってる
         /// </summary>

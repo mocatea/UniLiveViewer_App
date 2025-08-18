@@ -25,7 +25,6 @@ namespace UniLiveViewer.Actor
         /// <summary>
         /// TODO: この通知リレーは止めたい
         /// </summary>
-        /// <returns></returns>
         IReactiveProperty<float> IActorEntity.RootScalar() => _rootScalar;
         readonly ReactiveProperty<float> _rootScalar = new(FileReadAndWriteUtility.UserProfile.InitCharaSize);
 
@@ -127,10 +126,9 @@ namespace UniLiveViewer.Actor
             _lifetimeScope.gameObject.SetActive(isActive);
         }
 
-        void IActorEntity.SetRootTransform(Vector3 pos, Quaternion quaternion, Vector3 scale)
+        void IActorEntity.SetRootTransform(Vector3 pos, Quaternion quaternion)
         {
             _lifetimeScope.gameObject.transform.SetPositionAndRotation(pos, quaternion);
-            _lifetimeScope.gameObject.transform.localScale = scale;
         }
 
         void IActorEntity.AddRootScalar(float add)

@@ -229,6 +229,14 @@ namespace UniLiveViewer.Menu
             await UpdateAudioMaxLength(cancellationToken);
         }
 
+        public void Update()
+        {
+#if UNITY_EDITOR
+            DebugInput();
+#elif UNITY_ANDROID
+#endif
+        }
+
         public void OnTick(float audioClipPlaybackTime)
         {
             //再生スライダー非制御中なら
@@ -239,11 +247,6 @@ namespace UniLiveViewer.Menu
                 _playbackSlider.SetValueWithoutNotify(sec);
                 _textMeshs[1].text = $"{((int)sec / 60):00}:{((int)sec % 60):00}";
             }
-
-#if UNITY_EDITOR
-            DebugInput();
-#elif UNITY_ANDROID
-#endif
         }
 
         public void OnChangeTimelineUpdateMode(DirectorUpdateMode mode)

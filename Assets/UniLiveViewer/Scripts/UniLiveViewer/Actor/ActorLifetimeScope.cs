@@ -56,7 +56,7 @@ namespace UniLiveViewer.Actor
 
             // 良い解決方法が思いつかない..
             ActorId = Container.Resolve<ActorId>();
-            _actorId = ActorId.ID;
+            _actorId = ActorId.Id;
             InstanceId = Container.Resolve<InstanceId>();
             _instanceId = InstanceId.Id;
         }

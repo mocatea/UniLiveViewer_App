@@ -1,44 +1,35 @@
+﻿using System;
+
 namespace UniLiveViewer.ValueObject
 {
     /// <summary>
     /// アクター種に関係なく完全ユニークなID
     /// ステージ生成順、常時インクリメントとする
+    /// MEMO: null使いたいのでstructにしない
     /// </summary>
-    public class InstanceId
+    public sealed class InstanceId : IEquatable<InstanceId>
     {
-        public int Id => _id;
-
-        readonly int _id;
-
-        InstanceId()
-        {
-        }
+        public int Id { get; }
 
         public InstanceId(int id)
         {
-            _id = id;
+            Id = id;
         }
+
+        public bool Equals(InstanceId other)
+            => other is not null && Id == other.Id;
+
+        public override bool Equals(object? obj)
+            => obj is InstanceId other && Equals(other);
+
+        public override int GetHashCode() => Id;
 
         public static bool operator ==(InstanceId left, InstanceId right)
-        {
-            if (ReferenceEquals(left, right)) return true;
-            if (ReferenceEquals(left, null) || ReferenceEquals(right, null)) return false;
-            return left.Id == right.Id;
-        }
+            => left is null ? right is null : left.Equals(right);
 
         public static bool operator !=(InstanceId left, InstanceId right)
-        {
-            return !(left == right);
-        }
+            => !(left == right);
 
-        public override bool Equals(object obj)
-        {
-            return obj is InstanceId id && this == id;
-        }
-
-        public override int GetHashCode()
-        {
-            return Id.GetHashCode();
-        }
+        public override string ToString() => Id.ToString();
     }
 }

@@ -237,8 +237,6 @@ namespace UniLiveViewer.Timeline
         /// <summary>
         /// Editor拡張のDebug用
         /// </summary>
-        /// <param name="pos"></param>
-        /// <param name="eulerAngles"></param>
         public void EditorOnly_SetAnimationClip(InstanceId instanceId, Vector3 pos, Vector3 eulerAngles)
         {
             TrySwitchAnimationClip(instanceId, pos, eulerAngles);

@@ -1,4 +1,4 @@
-﻿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using System.Threading;
 using UniRx;
 using UnityEngine;
@@ -31,7 +31,7 @@ namespace UniLiveViewer.Actor
 
         void Activate(bool isActive);
 
-        void SetRootTransform(Vector3 pos, Quaternion quaternion, Vector3 scale);
+        void SetRootTransform(Vector3 pos, Quaternion quaternion);
 
         void AddRootScalar(float add);
 
