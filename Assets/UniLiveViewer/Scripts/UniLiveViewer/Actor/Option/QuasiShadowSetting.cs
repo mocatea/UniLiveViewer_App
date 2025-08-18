@@ -39,11 +39,23 @@ namespace UniLiveViewer.Timeline
         public float ShadowScale => _shadowScale;
         [SerializeField] float _shadowScale = 1.0f;
 
-        public Preset[] Presets => _preset;
-        [SerializeField] Preset[] _preset;
-
         public float FootRay => _footRay;
         [SerializeField] float _footRay = 0.05f;
+
+        /// <summary>
+        /// 腰上げの影減衰倍率(≒値を上げる程影が小さくなりやすい)
+        /// </summary>
+        public float BodyAttenuationMultiplier => _bodyAttenuationMultiplier;
+        [SerializeField] float _bodyAttenuationMultiplier = 0.4f;
+
+        /// <summary>
+        /// 足上げの影減衰倍率(≒値を上げる程影が小さくなりやすい)
+        /// </summary>
+        public float FootAttenuationMultiplier => _footAttenuationMultiplier;
+        [SerializeField]  float _footAttenuationMultiplier = 1.5f;
+
+        public Preset[] Presets => _preset;
+        [SerializeField] Preset[] _preset;
 
         // TODO: 雑なので改善する
         [Serializable]

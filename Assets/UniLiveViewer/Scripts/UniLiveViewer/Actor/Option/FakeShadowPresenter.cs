@@ -1,4 +1,4 @@
-﻿using MessagePipe;
+using MessagePipe;
 using System;
 using UniLiveViewer.Actor;
 using UniLiveViewer.MessagePipe;
@@ -37,7 +37,7 @@ namespace UniLiveViewer.Timeline
                     if (x.ActorState != ActorState.FIELD) return;
                     if (x.ActorCommand != ActorCommand.UPDATE_SHADOW) return;
                     var presetIndex = (int)_setting.ShadowType;
-                    _fakeShadowService.OnUpdateShadowSettings(_setting.ShadowType, _setting.ShadowScale, _setting.Presets[presetIndex]);
+                    _fakeShadowService.OnUpdateShadowSettings(_setting.ShadowType, _setting.ShadowScale, _setting, presetIndex);
                 }).AddTo(_disposables);
 
             _actorEntity.ActorEntity()
@@ -53,8 +53,8 @@ namespace UniLiveViewer.Timeline
 
             var presetIndex = FileReadAndWriteUtility.UserProfile.CharaShadowType;
             var shadowType = (SHADOWTYPE)presetIndex;
-            var shadowScale = FileReadAndWriteUtility.UserProfile.CharaShadowSize;
-            _fakeShadowService.Setup(shadowType, shadowScale, _setting.Presets[presetIndex]);
+            var userShadowScale = FileReadAndWriteUtility.UserProfile.CharaShadowSize;
+            _fakeShadowService.Setup(shadowType, userShadowScale, _setting, presetIndex);
         }
 
         void ITickable.Tick()
