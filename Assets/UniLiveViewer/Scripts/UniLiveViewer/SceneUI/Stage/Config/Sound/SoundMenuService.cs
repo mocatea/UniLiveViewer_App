@@ -20,6 +20,8 @@ namespace UniLiveViewer.Menu.Config.Sound
 
         public IReadOnlyReactiveProperty<float> SpectrumGain => _spectrumGain;
         readonly ReactiveProperty<float> _spectrumGain = new();
+        public IReadOnlyReactiveProperty<float> SpectrumSmoothness => _spectrumSmoothness;
+        readonly ReactiveProperty<float> _spectrumSmoothness = new();
 
         public IReadOnlyReactiveProperty<float> FootSteps => _footSteps;
         readonly ReactiveProperty<float> _footSteps = new();
@@ -39,6 +41,7 @@ namespace UniLiveViewer.Menu.Config.Sound
             float seVolume,
             float ambientVolume,
             float spectrumGain,
+            float spectrumSmoothness,
             float footStepsVolume)
         {
             // 購読前に初期化
@@ -55,11 +58,14 @@ namespace UniLiveViewer.Menu.Config.Sound
                 _settings.SoundSlider[3].Value = ambientVolume;
                 _settings.SoundText[3].text = $"{(int)ambientVolume}";
 
-                _settings.SoundSlider[4].Value = spectrumGain;
-                _settings.SoundText[4].text = $"{(int)spectrumGain}";
+                _settings.SoundSlider[4].Value = footStepsVolume;
+                _settings.SoundText[4].text = $"{(int)footStepsVolume}";
 
-                _settings.SoundSlider[5].Value = footStepsVolume;
-                _settings.SoundText[5].text = $"{(int)footStepsVolume}";
+                _settings.SoundSlider[8].Value = spectrumGain;
+                _settings.SoundText[8].text = $"{(int)spectrumGain}";
+
+                _settings.SoundSlider[9].Value = spectrumSmoothness;
+                _settings.SoundText[9].text = $"{(int)spectrumSmoothness}";
             }
 
             // スライダー値 0～100(%)
@@ -92,17 +98,22 @@ namespace UniLiveViewer.Menu.Config.Sound
                 .Subscribe(x =>
                 {
                     _settings.SoundText[4].text = $"{(int)x}";
-                    _spectrumGain.Value = x;
-                }).AddTo(_disposables);
-
-            _settings.SoundSlider[5].ValueAsObservable
-                .Subscribe(x =>
-                {
-                    _settings.SoundText[5].text = $"{(int)x}";
                     _footSteps.Value = x;
                 }).AddTo(_disposables);
             //6未実装
             //7未実装
+            _settings.SoundSlider[8].ValueAsObservable
+                .Subscribe(x =>
+                {
+                    _settings.SoundText[8].text = $"{(int)x}";
+                    _spectrumGain.Value = x;
+                }).AddTo(_disposables);
+            _settings.SoundSlider[9].ValueAsObservable
+                .Subscribe(x =>
+                {
+                    _settings.SoundText[9].text = $"{(int)x}";
+                    _spectrumSmoothness.Value = x;
+                }).AddTo(_disposables);
         }
 
         void IDisposable.Dispose()

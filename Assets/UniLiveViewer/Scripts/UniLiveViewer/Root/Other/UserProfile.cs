@@ -27,7 +27,8 @@ namespace UniLiveViewer
         public float SoundSE = 100;
         public float SoundAmbient = 100;
         public float SoundFootSteps = 100;
-        public float SoundSpectrumGain = 10;
+        public float SoundSpectrumGain = 50;
+        public float SoundSpectrumSmoothness = 50;
 
         public bool scene_crs_particle = true;
         public bool scene_crs_laser = true;

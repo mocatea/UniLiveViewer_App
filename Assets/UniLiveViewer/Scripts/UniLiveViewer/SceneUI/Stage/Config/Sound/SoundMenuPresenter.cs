@@ -1,4 +1,4 @@
-﻿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using MessagePipe;
 using System;
 using UniLiveViewer.Timeline;
@@ -35,6 +35,7 @@ namespace UniLiveViewer.Menu.Config.Sound
                 _audioSourceService.SEVolumeRate.Value * 100,
                 _audioSourceService.AmbientVolumeRate.Value * 100,
                 _spectrumConverter.Gain,
+                _spectrumConverter.Smoothness,
                 _audioSourceService.FootStepsVolumeRate.Value * 100);
 
             _soundMenuService.Master
@@ -53,14 +54,18 @@ namespace UniLiveViewer.Menu.Config.Sound
                 .SkipLatestValueOnSubscribe()
                 .Subscribe(_audioSourceService.SetAmbientVolume)
                 .AddTo(_disposables);
-            _soundMenuService.SpectrumGain
-               .SkipLatestValueOnSubscribe()
-               .Subscribe(_spectrumConverter.SetGain)
-               .AddTo(_disposables);
             _soundMenuService.FootSteps
                 .SkipLatestValueOnSubscribe()
                 .Subscribe(_audioSourceService.SetFootStepsVolume)
                 .AddTo(_disposables);
+            _soundMenuService.SpectrumGain
+               .SkipLatestValueOnSubscribe()
+               .Subscribe(_spectrumConverter.SetGain)
+               .AddTo(_disposables);
+            _soundMenuService.SpectrumSmoothness
+               .SkipLatestValueOnSubscribe()
+               .Subscribe(_spectrumConverter.SetSmoothness)
+               .AddTo(_disposables);
         }
 
         void IDisposable.Dispose()
