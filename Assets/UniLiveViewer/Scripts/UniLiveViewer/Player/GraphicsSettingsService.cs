@@ -13,6 +13,7 @@ namespace UniLiveViewer.Player
         DepthOfField _depthOfField;
         Tonemapping _tonemapping;
         Vignette _vignette;
+        UniversalRenderPipelineAsset _urpAsset;
 
         readonly Camera _camera;
         readonly VolumeProfile _volumeProfile;
@@ -31,6 +32,9 @@ namespace UniLiveViewer.Player
             _cameraData = _camera.GetComponent<UniversalAdditionalCameraData>();
             _cachePostProcessing = _cameraData.renderPostProcessing;
             _cameraData.antialiasing = (AntialiasingMode)FileReadAndWriteUtility.UserProfile.Antialiasing;
+
+            _urpAsset = GraphicsSettings.renderPipelineAsset as UniversalRenderPipelineAsset;
+            _urpAsset.msaaSampleCount = FileReadAndWriteUtility.UserProfile.MSAALevel;
 
             if (_volumeProfile.TryGet<Bloom>(out var bloom))
             {
@@ -66,10 +70,26 @@ namespace UniLiveViewer.Player
 
         public void ChangeAntialiasing(AntialiasingMode mode)
         {
-            if (mode == AntialiasingMode.SubpixelMorphologicalAntiAliasing) return;
+            if (_cameraData == null) return;
+            _cameraData.antialiasing = mode;
             FileReadAndWriteUtility.UserProfile.Antialiasing = (int)mode;
             FileReadAndWriteUtility.WriteJson(FileReadAndWriteUtility.UserProfile);
-            _cameraData.antialiasing = mode;
+            IfNeededSwitchPostprocessing();
+        }
+
+        public void ChangeMASS(MSAASamples value)
+        {
+            if (_urpAsset == null) return;
+            _urpAsset.msaaSampleCount = (int)value;//有効値：0,2,4,8
+            FileReadAndWriteUtility.UserProfile.MSAALevel = (int)value;
+            FileReadAndWriteUtility.WriteJson(FileReadAndWriteUtility.UserProfile);
+            IfNeededSwitchPostprocessing();
+        }
+
+        public void ChangeRenderScale(float value)
+        {
+            if (_urpAsset == null) return;
+            _urpAsset.renderScale = value;
             IfNeededSwitchPostprocessing();
         }
 
@@ -133,12 +153,14 @@ namespace UniLiveViewer.Player
 
         void ForceChangePostprocessing(bool isEnable)
         {
+            if (_cameraData == null) return;
             _cachePostProcessing = _cameraData.renderPostProcessing;
             _cameraData.renderPostProcessing = isEnable;
         }
 
         void ResetPostProcessing()
         {
+            if (_cameraData == null) return;
             _cameraData.renderPostProcessing = _cachePostProcessing;
         }
 

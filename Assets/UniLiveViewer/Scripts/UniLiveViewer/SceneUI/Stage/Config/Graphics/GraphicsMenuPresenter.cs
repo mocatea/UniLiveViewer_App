@@ -1,4 +1,4 @@
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using MessagePipe;
 using System;
 using UniLiveViewer.Player;
@@ -35,6 +35,14 @@ namespace UniLiveViewer.Menu.Config.Graphics
             _graphicsMenuService.AntialiasingMode
                 .SkipLatestValueOnSubscribe()
                 .Subscribe(_graphicsSettingsService.ChangeAntialiasing)
+                .AddTo(_disposables);
+            _graphicsMenuService.MASSSamples
+                .SkipLatestValueOnSubscribe()
+                .Subscribe(_graphicsSettingsService.ChangeMASS)
+                .AddTo(_disposables);
+            _graphicsMenuService.RenderScale
+                .SkipLatestValueOnSubscribe()
+                .Subscribe(_graphicsSettingsService.ChangeRenderScale)
                 .AddTo(_disposables);
             _graphicsMenuService.Bloom
                 .SkipLatestValueOnSubscribe()

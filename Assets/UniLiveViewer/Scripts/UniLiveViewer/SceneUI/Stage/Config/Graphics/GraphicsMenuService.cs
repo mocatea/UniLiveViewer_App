@@ -1,7 +1,10 @@
 ﻿using System;
+using UniLiveViewer.Player;
 using UniRx;
+using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using VContainer;
+using static UniLiveViewer.Player.GraphicsExtensions;
 
 namespace UniLiveViewer.Menu.Config.Graphics
 {
@@ -14,6 +17,11 @@ namespace UniLiveViewer.Menu.Config.Graphics
 
         public IReadOnlyReactiveProperty<AntialiasingMode> AntialiasingMode => _antialiasingMode;
         readonly ReactiveProperty<AntialiasingMode> _antialiasingMode = new((AntialiasingMode)FileReadAndWriteUtility.UserProfile.Antialiasing);
+
+        public IReadOnlyReactiveProperty<MSAASamples> MASSSamples => _msaaSamples;
+        readonly ReactiveProperty<MSAASamples> _msaaSamples = new((MSAASamples)FileReadAndWriteUtility.UserProfile.MSAALevel);
+        public IReadOnlyReactiveProperty<float> RenderScale => _renderScale;
+        readonly ReactiveProperty<float> _renderScale = new(1);
 
         public IReadOnlyReactiveProperty<bool> Bloom => _bloom;
         readonly ReactiveProperty<bool> _bloom = new(FileReadAndWriteUtility.UserProfile.IsBloom);
@@ -50,16 +58,14 @@ namespace UniLiveViewer.Menu.Config.Graphics
             // 購読前に初期化
             {
                 _settings.GraphicsText[0].text = $"{_lightIntensity.Value:0.00}";
-
                 _settings.GraphicsText[1].text = $"{_bloomThreshold.Value:0.00}";
-
                 _settings.GraphicsText[2].text = $"{_bloomIntensity.Value:0.0}";
-
                 _settings.GraphicsText[3].text = $"{0:0.00}";
+                _settings.GraphicsText[4].text = _antialiasingMode.Value.AsString();
+                _settings.GraphicsText[5].text = _msaaSamples.Value.AsString();
+                _settings.GraphicsText[6].text = _renderScale.Value.ToString();
             }
 
-
-            _settings.GraphicButton[0].isEnable = _antialiasingMode.Value != UnityEngine.Rendering.Universal.AntialiasingMode.None;
             _settings.GraphicButton[1].isEnable = _bloom.Value;
             _settings.GraphicButton[2].isEnable = _depthOfField.Value;
             _settings.GraphicButton[3].isEnable = _tonemapping.Value;
@@ -88,6 +94,26 @@ namespace UniLiveViewer.Menu.Config.Graphics
                 }).AddTo(_disposables);
             _settings.GraphicSlider[3].ValueAsObservable
                 .Subscribe(x => _bloomColor.Value = x).AddTo(_disposables);
+            _settings.GraphicSlider[4].ValueAsObservable
+                .Subscribe(x =>
+                {
+                    var mode = (AntialiasingMode)x;
+                    _settings.GraphicsText[4].text = mode.AsString();
+                    _antialiasingMode.Value = mode;
+                }).AddTo(_disposables);
+            _settings.GraphicSlider[5].ValueAsObservable
+                .Subscribe(x =>
+                {
+                    var samples = ((int)x).ToMSAALevelFromSlider();
+                    _settings.GraphicsText[5].text = samples.AsString();
+                    _msaaSamples.Value = samples;
+                }).AddTo(_disposables);
+            _settings.GraphicSlider[6].ValueAsObservable
+                .Subscribe(x =>
+                {
+                    _settings.GraphicsText[6].text = x.ToString();
+                    _renderScale.Value = x;
+                }).AddTo(_disposables);
             _settings.OutlineSlider.ValueAsObservable
                 .Subscribe(OnChangeOutline).AddTo(_disposables);
 
@@ -95,20 +121,16 @@ namespace UniLiveViewer.Menu.Config.Graphics
             _settings.GraphicSlider[1].Value = _bloomThreshold.Value;
             _settings.GraphicSlider[2].Value = _bloomIntensity.Value;
             _settings.GraphicSlider[3].Value = _bloomColor.Value;
+            _settings.GraphicSlider[4].Value = (int)_antialiasingMode.Value;
+            _settings.GraphicSlider[5].Value = _msaaSamples.Value.ToMSAASliderValue();
+            _settings.GraphicSlider[6].Value = _renderScale.Value;
             _settings.OutlineSlider.Value = 0.3f;
             _settings.OutlineMat.SetFloat(Edge, _settings.OutlineSlider.Value);
         }
 
         void OnClick(Button_Base btn)
         {
-            if (btn == _settings.GraphicButton[0])
-            {
-                var mode = btn.isEnable ?
-                    UnityEngine.Rendering.Universal.AntialiasingMode.FastApproximateAntialiasing :
-                    UnityEngine.Rendering.Universal.AntialiasingMode.None;
-                _antialiasingMode.Value = mode;
-            }
-            else if (btn == _settings.GraphicButton[1])
+            if (btn == _settings.GraphicButton[1])
             {
                 _bloom.Value = btn.isEnable;
             }

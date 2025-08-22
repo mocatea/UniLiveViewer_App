@@ -19,10 +19,15 @@ namespace UniLiveViewer.Menu
         [SerializeField] TextMesh _pleasePushText;
         [SerializeField] TextMesh _vrmLoadFailureText;
         [SerializeField] TextMesh _actorMaxText;
+
+        [Header("--- ActorInfo ---")]
+        [SerializeField] Transform _actorInfoRoot;
         [SerializeField] TextMesh _actorHeigthText;
         [SerializeField] TextMesh _actorBoneCountText;
         [SerializeField] TextMesh _actorMaterialsCountText;
         [SerializeField] TextMesh _actorPolygonsText;
+        [SerializeField] Button_Base _actorInfoOpenButton;
+        [SerializeField] Button_Base _actorInfoCloseButton;
 
         MenuManager _menuManager;
         [Header("--- Preset or Custom ---")]
@@ -78,6 +83,8 @@ namespace UniLiveViewer.Menu
         /// <summary> 操作受付可能か </summary>
         bool _interactable;
 
+        readonly CompositeDisposable _disposables = new();
+
         PlayableBinderService _playableBinderService;
         PresetResourceData _presetResourceData;
         ActorEntityManagerService _actorEntityManagerService;
@@ -125,30 +132,53 @@ namespace UniLiveViewer.Menu
             //ジャンプリスト
             foreach (var e in _btnJumpList)
             {
-                e.onTrigger += OpenJumplist;
+                e.OnTriggerAsObservable()
+                    .Subscribe(OpenJumplist).AddTo(_disposables);
             }
 
             //その他
-            for (int i = 0; i < _btnChara.Length; i++) _btnChara[i].onTrigger += OnMoveIndexActor;
-            for (int i = 0; i < _btnAnime.Length; i++) _btnAnime[i].onTrigger += OnMoveIndexAnimation;
+            for (int i = 0; i < _btnChara.Length; i++)
+            {
+                _btnChara[i].OnTriggerAsObservable()
+                    .Subscribe(OnMoveIndexActor).AddTo(_disposables);
+            }
+            for (int i = 0; i < _btnAnime.Length; i++)
+            {
+                _btnAnime[i].OnTriggerAsObservable()
+                    .Subscribe(OnMoveIndexAnimation).AddTo(_disposables);
+            }
+            
+            _actorInfoOpenButton.OnTriggerAsObservable()
+                .Subscribe(_ => OnClickActorInfo(true)).AddTo(_disposables);
+            _actorInfoCloseButton.OnTriggerAsObservable()
+                .Subscribe(_ => OnClickActorInfo(false)).AddTo(_disposables);
 
             for (int i = 0; i < _btnOffset.Length; i++)
             {
-                _btnOffset[i].onTrigger += OnClickVMDOffset;
+                _btnOffset[i].OnTriggerAsObservable()
+                    .Subscribe(OnClickVMDOffset)
+                    .AddTo(_disposables);
             }
 
             for (int i = 0; i < _switchChara.Length; i++)
             {
                 _switchChara[i].isEnable = (i == 0);
-                _switchChara[i].onTrigger += OnClickSwitchChara;
+                _switchChara[i].OnTriggerAsObservable()
+                    .Subscribe(OnClickSwitchChara)
+                    .AddTo(_disposables);
             }
             for (int i = 0; i < _switchAnime.Length; i++)
             {
                 _switchAnime[i].isEnable = (i == 0);
-                _switchAnime[i].onTrigger += OnClickSwitchAnime;
+                _switchAnime[i].OnTriggerAsObservable()
+                    .Subscribe(OnClickSwitchAnime)
+                    .AddTo(_disposables);
             }
 
-            _switchReverse.onTrigger += (b) => OnChangeReverseAnimation(b);
+            _switchReverse.OnTriggerAsObservable()
+                    .Subscribe(OnChangeReverseAnimation)
+                    .AddTo(_disposables); 
+
             _switchReverse.isEnable = false;
 
             _sliderOffset.ValueAsObservable
@@ -185,11 +215,17 @@ namespace UniLiveViewer.Menu
                     lookAtAllocator.SetEyeWeight(value);
                 }).AddTo(this);
             //_btnVRMSetting.onTrigger += VRMSetting;
-            _btnVRMDelete.onTrigger += OnClickVRMDelete;
-            _btnVRM10Mode.onTrigger += OnClickVRMMode;
-            _btnDeleteAll.onTrigger += OnClickDeleteAllActors;
-            _btnFacialActive.onTrigger += OnClickFacialExpression;
-            _btnLipSyncActive.onTrigger += OnClickFacialExpression;
+
+            _btnVRMDelete.OnTriggerAsObservable()
+                .Subscribe(OnClickVRMDelete).AddTo(_disposables);
+            _btnVRM10Mode.OnTriggerAsObservable()
+                .Subscribe(OnClickVRMMode).AddTo(_disposables);
+            _btnDeleteAll.OnTriggerAsObservable()
+                .Subscribe(OnClickDeleteAllActors).AddTo(_disposables);
+            _btnFacialActive.OnTriggerAsObservable()
+                .Subscribe(OnClickFacialExpression).AddTo(_disposables);
+            _btnLipSyncActive.OnTriggerAsObservable()
+                .Subscribe(OnClickFacialExpression).AddTo(_disposables);
 
             _btnVRM10Mode.isEnable = FileReadAndWriteUtility.UserProfile.IsVRM10;
 
@@ -210,6 +246,8 @@ namespace UniLiveViewer.Menu
 
             if (_vmdAnchor.gameObject.activeSelf) _vmdAnchor.gameObject.SetActive(false);
             if (_vrmOptionAnchor.gameObject.activeSelf) _vrmOptionAnchor.gameObject.SetActive(false);
+
+            ChangeActorInfoPanel(true);
 
             _interactable = true;
         }
@@ -356,6 +394,19 @@ namespace UniLiveViewer.Menu
             }
             _menuManager.jumpList.Close();
             EvaluateAnimationIndex(0);
+        }
+
+        void OnClickActorInfo(bool isOpen)
+        {
+            ChangeActorInfoPanel(isOpen);
+            _audioSourceService.PlayOneShot(AudioSE.ButtonClick);
+        }
+
+        void ChangeActorInfoPanel(bool isOpen)
+        {
+            _actorInfoRoot.gameObject.SetActive(isOpen);
+            _actorInfoOpenButton.gameObject.SetActive(!isOpen);
+            _actorInfoCloseButton.gameObject.SetActive(isOpen);
         }
 
         void OnMoveIndexActor(Button_Base btn)
@@ -655,6 +706,11 @@ namespace UniLiveViewer.Menu
                 _publisher.Publish(message);
             }
             _audioSourceService.PlayOneShot(AudioSE.ButtonClick);
+        }
+
+        public void Dispose()
+        {
+            _disposables.Dispose();
         }
 
         void DebugInput()

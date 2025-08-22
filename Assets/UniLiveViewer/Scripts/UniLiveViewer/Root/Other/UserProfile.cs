@@ -1,4 +1,5 @@
-﻿using UnityEngine.Rendering.Universal;
+﻿using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 namespace UniLiveViewer
 {
@@ -16,6 +17,7 @@ namespace UniLiveViewer
         //public bool StepSE = true;//廃止
 
         public int Antialiasing = (int)AntialiasingMode.None;
+        public int MSAALevel = (int)MSAASamples.MSAA4x;
         public bool IsBloom = true;
         public float BloomThreshold = 0.95f;
         public float BloomIntensity = 5.0f;
