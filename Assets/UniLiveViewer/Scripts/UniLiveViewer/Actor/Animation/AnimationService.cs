@@ -159,6 +159,7 @@ namespace UniLiveViewer.Actor.Animation
 
         public async UniTask OnChangeScale(CancellationToken cancellation)
         {
+            if (_currentMode != CurrentMode.CUSTOM) return;
             await _vmdPlayer.ReplayMotionAsync(cancellation);
             await _vmdPlayer.ReplayExpressionAsync(cancellation);
         }
