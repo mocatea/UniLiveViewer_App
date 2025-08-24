@@ -49,7 +49,7 @@ namespace NanaCiel
             }
 
             // LODGroupに属さないメッシュも数える
-            var lodRenderers = new System.Collections.Generic.HashSet<Renderer>();
+            var lodRenderers = new HashSet<Renderer>();
             foreach (var lodGroup in obj.GetComponentsInChildren<LODGroup>(true))
             {
                 foreach (var lod in lodGroup.GetLODs())
@@ -93,30 +93,20 @@ namespace NanaCiel
         {
             if (!root) return 0;
 
-            var guidSet = new HashSet<string>();
+            var matSet = new HashSet<Material>();
             var renderers = root.GetComponentsInChildren<Renderer>(includeInactive);
             foreach (var r in renderers)
             {
                 var mats = r.sharedMaterials;
                 for (int i = 0; i < mats.Length; i++)
                 {
-                    var m = mats[i];
-                    if (!m) continue;
-
-                    var path = AssetDatabase.GetAssetPath(m);
-                    if (!string.IsNullOrEmpty(path))
+                    if (mats[i] != null)
                     {
-                        var guid = AssetDatabase.AssetPathToGUID(path);
-                        if (!string.IsNullOrEmpty(guid)) guidSet.Add(guid);
-                    }
-                    else
-                    {
-                        // アセットでない(ランタイム生成)マテリアルはインスタンスIDで区別
-                        guidSet.Add($"runtime:{m.GetInstanceID()}");
+                        matSet.Add(mats[i]);
                     }
                 }
             }
-            return guidSet.Count;
+            return matSet.Count;
         }
     }
 }
