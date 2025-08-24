@@ -38,6 +38,7 @@ namespace UniLiveViewer.Menu.Config.Stage
 
         void IStageMenuService.OnEnable()
         {
+            _settings.Texts[0].text = $"SpotLight_{Enum.GetName(typeof(StageEnums.StageLight), _lightIndex)}";
             _settings.LightColorButton.isEnable = FileReadAndWriteUtility.UserProfile.scene_gym_whitelight;
             // 明示的通知で初期化
             _stageLightIndex.OnNext(_lightIndex);
