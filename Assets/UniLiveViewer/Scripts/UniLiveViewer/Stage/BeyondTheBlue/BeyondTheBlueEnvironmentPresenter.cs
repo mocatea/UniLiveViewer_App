@@ -1,0 +1,45 @@
+﻿using Cysharp.Threading.Tasks;
+using MessagePipe;
+using System;
+using UniLiveViewer.Menu.Config.Stage;
+using UniRx;
+using VContainer;
+using VContainer.Unity;
+
+namespace UniLiveViewer.Stage.BeyondTheBlue
+{
+    public class BeyondTheBlueEnvironmentPresenter : IStartable, IDisposable
+    {
+        readonly IStageMenuService _stageMenuServie;
+        readonly BeyondTheBlueEnvironmentService _environmentService;
+
+        readonly CompositeDisposable _disposable = new();
+
+        [Inject]
+        public BeyondTheBlueEnvironmentPresenter(
+            IStageMenuService stageMenuServie,
+            BeyondTheBlueEnvironmentService environmentService)
+        {
+            _stageMenuServie = stageMenuServie;
+            _environmentService = environmentService;
+        }
+
+        void IStartable.Start()
+        {
+            if (_stageMenuServie is BeyondTheBlueMenuServie menuServie)
+            {
+                menuServie.IsGodRayAsObservable
+                    .Subscribe(_environmentService.OnClickGodRay)
+                    .AddTo(_disposable);
+                menuServie.WaterLevel
+                    .Subscribe(_environmentService.OnChangeWaterLevel)
+                    .AddTo(_disposable);
+            }
+        }
+
+        void IDisposable.Dispose()
+        {
+            _disposable.Dispose();
+        }
+    }
+}

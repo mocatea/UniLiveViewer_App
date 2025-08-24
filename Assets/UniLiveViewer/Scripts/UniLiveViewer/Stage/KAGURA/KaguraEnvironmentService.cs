@@ -58,7 +58,7 @@ namespace UniLiveViewer.Stage.Kagura
             FileReadAndWriteUtility.WriteJson(FileReadAndWriteUtility.UserProfile);
         }
 
-        public void OnClickFog(float v)
+        public void OnChangeFog(float v)
         {
             RenderSettings.fogDensity = v;
         }

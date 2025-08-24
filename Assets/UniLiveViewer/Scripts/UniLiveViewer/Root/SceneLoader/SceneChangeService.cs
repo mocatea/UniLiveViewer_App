@@ -11,6 +11,8 @@ namespace UniLiveViewer.SceneLoader
         KAGURA_LIVE,
         VIEWER,
         GYMNASIUM,
+        BEYOND_THE_BLUE,
+        SNOW_FIELD,
         FANTASY_VILLAGE,
     }
 
@@ -39,6 +41,8 @@ namespace UniLiveViewer.SceneLoader
                 { SceneType.KAGURA_LIVE, new KaguraLiveScene() },
                 { SceneType.VIEWER, new ViewerScene() },
                 { SceneType.GYMNASIUM, new GymnasiumScene() },
+                { SceneType.BEYOND_THE_BLUE, new BeyondTheBlueScene() },
+                { SceneType.SNOW_FIELD, new SnowFieldScene() },
                 { SceneType.FANTASY_VILLAGE, new FantasyVillageScene() }
             };
 

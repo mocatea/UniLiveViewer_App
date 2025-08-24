@@ -1,4 +1,4 @@
-﻿using UniLiveViewer.SceneLoader;
+using UniLiveViewer.SceneLoader;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -13,6 +13,8 @@ namespace UniLiveViewer.Menu.Config.Stage
         [SerializeField] KaguraLiveMenuSettings _kaguraLiveMenuSettings;
         [SerializeField] ViewerMenuSettings _viewerMenuSettings;
         [SerializeField] GymnasiumMenuSettings _gymnasiumMenuSettings;
+        [SerializeField] BeyondTheBlueMenuSettings _beyondTheBlueMenuSettings;
+        [SerializeField] SnowFieldMenuSettings _snowFieldMenuSettings;
         [SerializeField] FantasyVillageMenuSettings _fantasyVillageMenuSettings;
 
         protected override void Configure(IContainerBuilder builder)
@@ -39,6 +41,16 @@ namespace UniLiveViewer.Menu.Config.Stage
                 builder.RegisterComponent(_gymnasiumMenuSettings);
                 builder.Register<IStageMenuService, GymnasiumMenuServie>(Lifetime.Singleton);
             }
+            else if (SceneChangeService.GetSceneType == SceneType.BEYOND_THE_BLUE)
+            {
+                builder.RegisterComponent(_beyondTheBlueMenuSettings);
+                builder.Register<IStageMenuService, BeyondTheBlueMenuServie>(Lifetime.Singleton);
+            }
+            else if (SceneChangeService.GetSceneType == SceneType.SNOW_FIELD)
+            {
+                builder.RegisterComponent(_snowFieldMenuSettings);
+                builder.Register<IStageMenuService, SnowFieldMenuServie>(Lifetime.Singleton);
+            }
             else if (SceneChangeService.GetSceneType == SceneType.FANTASY_VILLAGE)
             {
                 builder.RegisterComponent(_fantasyVillageMenuSettings);
@@ -55,6 +67,8 @@ namespace UniLiveViewer.Menu.Config.Stage
             _kaguraLiveMenuSettings.gameObject.SetActive(false);
             _viewerMenuSettings.gameObject.SetActive(false);
             _gymnasiumMenuSettings.gameObject.SetActive(false);
+            _beyondTheBlueMenuSettings.gameObject.SetActive(false);
+            _snowFieldMenuSettings.gameObject.SetActive(false);
             _fantasyVillageMenuSettings.gameObject.SetActive(false);
 
             if (SceneChangeService.GetSceneType == SceneType.CANDY_LIVE)
@@ -72,6 +86,14 @@ namespace UniLiveViewer.Menu.Config.Stage
             else if (SceneChangeService.GetSceneType == SceneType.GYMNASIUM)
             {
                 _gymnasiumMenuSettings.gameObject.SetActive(true);
+            }
+            else if (SceneChangeService.GetSceneType == SceneType.BEYOND_THE_BLUE)
+            {
+                _beyondTheBlueMenuSettings.gameObject.SetActive(true);
+            }
+            else if (SceneChangeService.GetSceneType == SceneType.SNOW_FIELD)
+            {
+                _snowFieldMenuSettings.gameObject.SetActive(true);
             }
             else if (SceneChangeService.GetSceneType == SceneType.FANTASY_VILLAGE)
             {

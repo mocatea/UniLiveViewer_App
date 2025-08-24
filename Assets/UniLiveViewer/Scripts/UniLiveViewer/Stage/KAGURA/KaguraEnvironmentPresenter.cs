@@ -26,19 +26,19 @@ namespace UniLiveViewer.Stage.Kagura
 
         void IStartable.Start()
         {
-            if (_stageMenuServie is KaguraLiveMenuServie kaguraLiveMenuServie)
+            if (_stageMenuServie is KaguraLiveMenuServie menuServie)
             {
-                kaguraLiveMenuServie.IsParticleAsObservable
+                menuServie.IsParticleAsObservable
                     .Subscribe(_environmentService.OnClickParticle)
                     .AddTo(_disposable);
-                kaguraLiveMenuServie.IsReflectionAsObservable
+                menuServie.IsReflectionAsObservable
                     .Subscribe(_environmentService.OnClickReflection)
                     .AddTo(_disposable);
-                kaguraLiveMenuServie.IsSeaWavesAsObservable
+                menuServie.IsSeaWavesAsObservable
                     .Subscribe(_environmentService.OnClickSeaWaves)
                     .AddTo(_disposable);
-                kaguraLiveMenuServie.FogDensity
-                    .Subscribe(_environmentService.OnClickFog)
+                menuServie.FogDensity
+                    .Subscribe(_environmentService.OnChangeFog)
                     .AddTo(_disposable);
             }
         }

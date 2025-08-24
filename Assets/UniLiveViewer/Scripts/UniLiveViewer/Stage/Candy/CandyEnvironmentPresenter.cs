@@ -26,21 +26,21 @@ namespace UniLiveViewer.Stage.Candy
 
         void IStartable.Start()
         {
-            if (_stageMenuServie is CandyLiveMenuServie candyLiveMenuServie)
+            if (_stageMenuServie is CandyLiveMenuServie menuServie)
             {
-                candyLiveMenuServie.IsParticleAsObservable
+                menuServie.IsParticleAsObservable
                     .Subscribe(_environmentService.OnClickParticle)
                     .AddTo(_disposable);
-                candyLiveMenuServie.IsLaserGunAsObservable
+                menuServie.IsLaserGunAsObservable
                     .Subscribe(_environmentService.OnClickLaserGun)
                     .AddTo(_disposable);
-                candyLiveMenuServie.IsReflectionAsObservable
+                menuServie.IsReflectionAsObservable
                     .Subscribe(_environmentService.OnClickReflection)
                     .AddTo(_disposable);
-                candyLiveMenuServie.IsSonicBoomAsObservable
+                menuServie.IsSonicBoomAsObservable
                     .Subscribe(_environmentService.OnClickSonicBoom)
                     .AddTo(_disposable);
-                candyLiveMenuServie.IsPlayManualAsObservable
+                menuServie.IsPlayManualAsObservable
                     .Subscribe(_environmentService.OnClickPlayManual)
                     .AddTo(_disposable);
             }

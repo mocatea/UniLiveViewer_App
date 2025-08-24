@@ -1,4 +1,4 @@
-﻿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using MessagePipe;
 using System;
 using UniLiveViewer.Menu.Config.Stage;
@@ -35,15 +35,17 @@ namespace UniLiveViewer.Stage.Gymnasium
                 .AddTo(_disposable);
 
             // 一旦Downcast、乱用しすぎたらイベント集約パターンにする
-            if (_stageMenuServie is GymnasiumMenuServie gymnasiumMenuServie)
+            if (_stageMenuServie is GymnasiumMenuServie menuServie)
             {
-                gymnasiumMenuServie.StageLightIndexAsObservable
+                menuServie.StageLightIndexAsObservable
                     .Subscribe(_environmentService.OnChangeStageLight)
                     .AddTo(_disposable);
-                gymnasiumMenuServie.StageLightIsWhiteAsObservable
+                menuServie.StageLightIsWhiteAsObservable
                     .Subscribe(_environmentService.OnClickWhiteLightColor)
                     .AddTo(_disposable);
             }
+
+            _environmentService.Begin();
         }
 
         void ITickable.Tick()

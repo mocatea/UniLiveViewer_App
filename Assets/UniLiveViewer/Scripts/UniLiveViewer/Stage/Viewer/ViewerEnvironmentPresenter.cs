@@ -1,4 +1,4 @@
-﻿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using MessagePipe;
 using System;
 using UniLiveViewer.Menu.Config.Stage;
@@ -26,18 +26,18 @@ namespace UniLiveViewer.Stage.Viewer
 
         void IStartable.Start()
         {
-            if (_stageMenuServie is ViewerMenuServie viewerMenuServie)
+            if (_stageMenuServie is ViewerMenuServie menuServie)
             {
-                viewerMenuServie.ParticleMoveIndexAsObservable
+                menuServie.ParticleMoveIndexAsObservable
                     .Subscribe(_environmentService.OnClickParticle)
                     .AddTo(_disposable);
-                viewerMenuServie.WormHolleMoveIndexAsObservable
+                menuServie.WormHolleMoveIndexAsObservable
                     .Subscribe(_environmentService.OnClickWormHole)
                     .AddTo(_disposable);
-                viewerMenuServie.SkyboxMoveIndexAsObservable
+                menuServie.SkyboxMoveIndexAsObservable
                     .Subscribe(_environmentService.OnClickSkyBox)
                     .AddTo(_disposable);
-                viewerMenuServie.IsFloorLEDAsObservable
+                menuServie.IsFloorLEDAsObservable
                     .Subscribe(_environmentService.OnClickFloorLED)
                     .AddTo(_disposable);
             }
