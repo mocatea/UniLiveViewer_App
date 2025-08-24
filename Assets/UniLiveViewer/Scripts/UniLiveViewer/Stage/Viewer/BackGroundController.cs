@@ -6,7 +6,6 @@ namespace UniLiveViewer.Stage
     // TODO: service化、settingがあれば
     public class BackGroundController : MonoBehaviour
     {
-        [SerializeField] int currntMaster = 0;
         [SerializeField] int currntCubemap = 0;
         [SerializeField] int currntHole = 0;
         [SerializeField] int currntParticle = 0;

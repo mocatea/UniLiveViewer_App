@@ -71,18 +71,6 @@ namespace UniLiveViewer.Actor
             _lookAtService = lookAtService;
         }
 
-        /// <summary>
-        /// デバッグ用
-        /// </summary>
-        /// <param name="cancellation"></param>
-        /// <returns></returns>
-        async UniTask IActorEntity.EditorOnlySetupAsync(Transform firstParent, CancellationToken cancellation)
-        {
-#if UNITY_EDITOR
-            //何もしない
-#endif
-        }
-
         public async UniTask SetupAsync(Transform firstParent, CancellationToken cancellation)
         {
             await SetupInternalAsync(firstParent, cancellation);

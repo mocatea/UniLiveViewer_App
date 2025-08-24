@@ -87,20 +87,6 @@ namespace UniLiveViewer.Actor
             _lookAtService = lookAtService;
         }
 
-        /// <summary>
-        /// デバッグ用
-        /// </summary>
-        /// <param name="cancellation"></param>
-        /// <returns></returns>
-        async UniTask IActorEntity.EditorOnlySetupAsync(Transform firstParent, CancellationToken cancellation)
-        {
-            return;
-#if UNITY_EDITOR
-            var fullPath = UnityEditor.EditorUtility.OpenFilePanel("Open VRM", "", "vrm");
-            await SetupAsync(firstParent, cancellation);
-#endif
-        }
-
         public async UniTask SetupAsync(Transform firstParent, CancellationToken cancellation)
         {
             try
@@ -121,7 +107,7 @@ namespace UniLiveViewer.Actor
 
                 _publisher.Publish(new VRMLoadResultData(this));
             }
-            catch (Exception ex)
+            catch
             {
                 _publisher.Publish(new VRMLoadResultData(null));
             }
@@ -252,7 +238,7 @@ namespace UniLiveViewer.Actor
             var globalScale = Vector3.zero;
 
             _overrideAnchor = overrideTarget;
-            
+
             switch (setState)
             {
                 case ActorState.NULL:

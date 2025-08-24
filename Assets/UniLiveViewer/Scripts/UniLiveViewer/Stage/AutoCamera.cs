@@ -17,11 +17,6 @@ namespace UniLiveViewer.Stage
 
         public bool _isUpdate = true;
         [Header("＜共通＞")]
-        /// <summary> 
-        /// 撮影禁止角度
-        /// 下向きすぎると地面やスカートにめり込むので更新なし
-        /// </summary>
-        [SerializeField] float _prohibitedAngle = 135f;
         [SerializeField] int _interval = 5000;
         [SerializeField] SWITCHTYPE _switchType = SWITCHTYPE.ALL;//カメラ候補を切り替えるモード
         [SerializeField] Camera[] _cameras;

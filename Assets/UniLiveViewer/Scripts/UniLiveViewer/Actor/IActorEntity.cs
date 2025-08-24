@@ -22,11 +22,6 @@ namespace UniLiveViewer.Actor
 
         IReactiveProperty<ActorState> ActorState();
 
-        /// <summary>
-        /// デバッグ用
-        /// </summary>
-        UniTask EditorOnlySetupAsync(Transform firstParent, CancellationToken cancellation);
-
         UniTask SetupAsync(Transform firstParent, CancellationToken cancellation);
 
         void Activate(bool isActive);

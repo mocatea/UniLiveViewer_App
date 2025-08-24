@@ -64,7 +64,7 @@ namespace NanaCiel
             {
                 await task;
             }
-            catch (OperationCanceledException e)
+            catch
             {
                 //想定なので握りつぶす
             }

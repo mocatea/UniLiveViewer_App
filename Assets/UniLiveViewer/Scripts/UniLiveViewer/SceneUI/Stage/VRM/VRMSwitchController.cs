@@ -31,9 +31,9 @@ namespace UniLiveViewer.Menu
 
         //ファイルアクセスとサムネの管理
         FileAccessManager _fileManager;
-        RootAudioSourceService _audioSourceService;
-        TextureAssetManager _textureAssetManager;
-        IPublisher<VRMMenuShowMessage> _publisher;
+        //RootAudioSourceService _audioSourceService;
+        //TextureAssetManager _textureAssetManager;
+        //IPublisher<VRMMenuShowMessage> _publisher;
 
         public async UniTask InitializeAsync(
             FileAccessManager fileAccessManager,
@@ -43,9 +43,9 @@ namespace UniLiveViewer.Menu
             CancellationToken cancellation)
         {
             _fileManager = fileAccessManager;
-            _audioSourceService = audioSourceService;
-            _textureAssetManager = textureAssetManager;
-            _publisher = publisher;
+            //_audioSourceService = audioSourceService;
+            //_textureAssetManager = textureAssetManager;
+            //_publisher = publisher;
             //コールバック登録・・・2ページ目
             //_btnApply.onTrigger += (btn) => PrefabApply(btn, cancellation).Forget();
             //_prefabEditor.onCurrentUpdate += () => { _audioSourceService.PlayOneShot(AudioSE.ButtonClick); };
@@ -120,7 +120,7 @@ namespace UniLiveViewer.Menu
         /// 設定の確定
         /// </summary>
         /// <param name="btn"></param>
-        async UniTask PrefabApply(Button_Base btn, CancellationToken cancellation)
+        /*async UniTask PrefabApply(Button_Base btn, CancellationToken cancellation)
         {
             //cancellation.ThrowIfCancellationRequested();
 
@@ -184,5 +184,6 @@ namespace UniLiveViewer.Menu
                 _textDirectory[1].text = "VRM Copy Error...";
             }
         }
+        */
     }
 }

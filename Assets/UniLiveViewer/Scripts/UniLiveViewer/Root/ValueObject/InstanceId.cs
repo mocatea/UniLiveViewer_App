@@ -19,7 +19,7 @@ namespace UniLiveViewer.ValueObject
         public bool Equals(InstanceId other)
             => other is not null && Id == other.Id;
 
-        public override bool Equals(object? obj)
+        public override bool Equals(object obj)
             => obj is InstanceId other && Equals(other);
 
         public override int GetHashCode() => Id;
