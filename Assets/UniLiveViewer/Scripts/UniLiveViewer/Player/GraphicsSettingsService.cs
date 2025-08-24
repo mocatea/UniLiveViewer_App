@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using VContainer;
@@ -72,6 +72,10 @@ namespace UniLiveViewer.Player
         {
             if (_cameraData == null) return;
             _cameraData.antialiasing = mode;
+            if (mode == AntialiasingMode.SubpixelMorphologicalAntiAliasing)
+            {
+                _cameraData.antialiasingQuality = AntialiasingQuality.Low;//SMAA専用設定
+            }
             FileReadAndWriteUtility.UserProfile.Antialiasing = (int)mode;
             FileReadAndWriteUtility.WriteJson(FileReadAndWriteUtility.UserProfile);
             IfNeededSwitchPostprocessing();
@@ -80,7 +84,11 @@ namespace UniLiveViewer.Player
         public void ChangeMASS(MSAASamples value)
         {
             if (_urpAsset == null) return;
-            _urpAsset.msaaSampleCount = (int)value;//有効値：0,2,4,8
+            if (value == MSAASamples.MSAA4x || value == MSAASamples.MSAA8x)
+            {
+                value = MSAASamples.MSAA2x;//上限とする
+            }
+            _urpAsset.msaaSampleCount = (int)value;
             FileReadAndWriteUtility.UserProfile.MSAALevel = (int)value;
             FileReadAndWriteUtility.WriteJson(FileReadAndWriteUtility.UserProfile);
             IfNeededSwitchPostprocessing();
@@ -88,6 +96,8 @@ namespace UniLiveViewer.Player
 
         public void ChangeRenderScale(float value)
         {
+            Debug.LogError("RenderScaleはQuestでは使用しない予定");// 負荷もあるがRendertexture異常、恐らくシーン再ロード必要
+            return;
             if (_urpAsset == null) return;
             _urpAsset.renderScale = value;
             IfNeededSwitchPostprocessing();

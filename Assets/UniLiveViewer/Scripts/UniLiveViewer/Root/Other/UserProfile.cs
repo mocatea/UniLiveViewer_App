@@ -16,8 +16,8 @@ namespace UniLiveViewer
         public bool TouchVibration = true;
         //public bool StepSE = true;//廃止
 
-        public int Antialiasing = (int)AntialiasingMode.None;
-        public int MSAALevel = (int)MSAASamples.MSAA4x;
+        public int Antialiasing = (int)AntialiasingMode.SubpixelMorphologicalAntiAliasing;
+        public int MSAALevel = (int)MSAASamples.MSAA2x;
         public bool IsBloom = true;
         public float BloomThreshold = 0.95f;
         public float BloomIntensity = 5.0f;
