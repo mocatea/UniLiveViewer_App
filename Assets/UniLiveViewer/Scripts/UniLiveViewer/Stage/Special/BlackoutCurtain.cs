@@ -10,19 +10,20 @@ namespace UniLiveViewer.Stage
     /// </summary>
     public class BlackoutCurtain : MonoBehaviour
     {
-        [SerializeField] LoadAnimation loadAnimation;
-        [SerializeField] Renderer renderer_Cutoff;
-        [SerializeField] Renderer renderer_Brack;
-        [SerializeField] TextMesh[] vmdError = new TextMesh[2];
+        readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
+        readonly int ScalaId = Shader.PropertyToID("_Scala");
 
-        [SerializeField] AnimationCurve curve;
-        public static BlackoutCurtain instance;
+        [SerializeField] LoadAnimation _loadAnimation;
+        [SerializeField] Renderer _cutoffRenderer;
+        [SerializeField] Renderer _brackRenderer;
 
+        [SerializeField] TextMesh[] _vmdErrorText = new TextMesh[2];
+
+        [SerializeField] AnimationCurve _animationCurve;
 
         MaterialPropertyBlock _materialPropertyBlock;
         Color _color;
         CancellationToken _cancellation;
-
 
         void Start()
         {
@@ -31,22 +32,20 @@ namespace UniLiveViewer.Stage
             //不透明黒
             _color = new Color(0, 0, 0, 1);
             _materialPropertyBlock = new MaterialPropertyBlock();
-            renderer_Brack.GetPropertyBlock(_materialPropertyBlock);
-            _materialPropertyBlock.SetColor("_BaseColor", _color);
-            renderer_Brack.SetPropertyBlock(_materialPropertyBlock);
+            _brackRenderer.GetPropertyBlock(_materialPropertyBlock);
+            _materialPropertyBlock.SetColor(BaseColorId, _color);
+            _brackRenderer.SetPropertyBlock(_materialPropertyBlock);
 
-            renderer_Brack.enabled = true;
-            renderer_Cutoff.enabled = false;
+            _brackRenderer.enabled = true;
+            _cutoffRenderer.enabled = false;
 
-            foreach (var e in vmdError)
+            foreach (var textMesh in _vmdErrorText)
             {
-                if (e.gameObject.activeSelf) e.gameObject.SetActive(false);
+                if (textMesh.gameObject.activeSelf) textMesh.gameObject.SetActive(false);
             }
 
             // 演出開始
-            loadAnimation.gameObject.SetActive(true);
-
-            instance = this;
+            _loadAnimation.gameObject.SetActive(true);
         }
 
         /// <summary>
@@ -65,25 +64,24 @@ namespace UniLiveViewer.Stage
         /// <summary>
         /// 演出終了
         /// </summary>
-        /// <returns></returns>
         public async UniTaskVoid Ending()
         {
             await UniTask.Delay(300, cancellationToken: _cancellation);
 
             //まずloadingアニメーションを消す
-            loadAnimation.gameObject.SetActive(false);
+            _loadAnimation.gameObject.SetActive(false);
             await UniTask.Yield(PlayerLoopTiming.Update, _cancellation);
 
             //暗転から徐々に再開
-            _color = _materialPropertyBlock.GetColor("_BaseColor");
+            _color = _materialPropertyBlock.GetColor(BaseColorId);
             _color.a = 1;//不透明
 
             while (_color.a >= 0.0f)
             {
                 _color.a -= Time.deltaTime;
 
-                _materialPropertyBlock.SetColor("_BaseColor", _color);
-                renderer_Brack.SetPropertyBlock(_materialPropertyBlock);
+                _materialPropertyBlock.SetColor(BaseColorId, _color);
+                _brackRenderer.SetPropertyBlock(_materialPropertyBlock);
                 await UniTask.Yield(PlayerLoopTiming.Update, _cancellation);
             }
         }
@@ -91,36 +89,32 @@ namespace UniLiveViewer.Stage
         /// <summary>
         /// 暗転させる
         /// </summary>
-        /// <param name="sceneName"></param>
-        /// <returns></returns>
         public async UniTask FadeoutAsync(CancellationToken cancellation)
         {
-            //_playerStateManager.enabled = false;// TODO: 操作不可にしないといけない
-            renderer_Brack.enabled = false;
-            renderer_Cutoff.enabled = true;
-            if (loadAnimation.gameObject.activeSelf) loadAnimation.gameObject.SetActive(false);
+            _brackRenderer.enabled = false;
+            _cutoffRenderer.enabled = true;
+            if (_loadAnimation.gameObject.activeSelf) _loadAnimation.gameObject.SetActive(false);
             await UniTask.Yield(PlayerLoopTiming.Update, _cancellation);
 
             //閉幕演出
             float t = 0;
             while (t < 2.5f)
             {
-                renderer_Cutoff.sharedMaterial.SetFloat("_Scala", curve.Evaluate(t));
+                _cutoffRenderer.sharedMaterial.SetFloat(ScalaId, _animationCurve.Evaluate(t));
                 t += Time.deltaTime;
                 await UniTask.Yield(PlayerLoopTiming.Update, _cancellation);
             }
-            renderer_Brack.enabled = true;
+            _brackRenderer.enabled = true;
             _color.a = 1;//不透明
-            _materialPropertyBlock.SetColor("_BaseColor", _color);
-            renderer_Brack.SetPropertyBlock(_materialPropertyBlock);
+            _materialPropertyBlock.SetColor(BaseColorId, _color);
+            _brackRenderer.SetPropertyBlock(_materialPropertyBlock);
 
-            renderer_Cutoff.sharedMaterial.SetFloat("_Scala", 0);
-            renderer_Cutoff.enabled = false;
+            _cutoffRenderer.sharedMaterial.SetFloat(ScalaId, 0);
+            _cutoffRenderer.enabled = false;
 
             //ローディングアニメーション
-            loadAnimation.gameObject.SetActive(true);
+            _loadAnimation.gameObject.SetActive(true);
             await UniTask.Delay(200, cancellationToken: cancellation);
         }
     }
-
 }

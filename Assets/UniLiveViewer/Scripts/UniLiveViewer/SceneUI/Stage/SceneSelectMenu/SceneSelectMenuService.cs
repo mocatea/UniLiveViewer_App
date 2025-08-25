@@ -13,18 +13,21 @@ namespace UniLiveViewer.Menu.SceneSelect
         readonly SceneChangeService _sceneChangeService;
         readonly TimelineService _timelineService;
         readonly RootAudioSourceService _rootAudioSourceService;
+        readonly BlackoutCurtain _blackoutCurtain;
 
         [Inject]
         public SceneSelectMenuService(
             MenuRootService menuRootService,
             SceneChangeService sceneChangeService,
             TimelineService timelineService,
-            RootAudioSourceService rootAudioSourceService)
+            RootAudioSourceService rootAudioSourceService,
+            BlackoutCurtain blackoutCurtain)
         {
             _menuRootService = menuRootService;
             _sceneChangeService = sceneChangeService;
             _timelineService = timelineService;
             _rootAudioSourceService = rootAudioSourceService;
+            _blackoutCurtain = blackoutCurtain;
         }
 
         public async UniTask OnChangeSceneAsync(SceneType sceneType)
@@ -40,7 +43,7 @@ namespace UniLiveViewer.Menu.SceneSelect
             _menuRootService.OnMenuSwitching();//開いてる想定なので閉じる
 
             _rootAudioSourceService.PlayOneShot(AudioSE.SceneTransition);
-            await BlackoutCurtain.instance.FadeoutAsync(dummy);
+            await _blackoutCurtain.FadeoutAsync(dummy);
             await _sceneChangeService.ChangeAsync(sceneType, dummy);
         }
     }

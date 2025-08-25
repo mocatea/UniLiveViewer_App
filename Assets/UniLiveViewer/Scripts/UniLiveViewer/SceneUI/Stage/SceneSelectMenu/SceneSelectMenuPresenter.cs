@@ -1,5 +1,7 @@
 ﻿using Cysharp.Threading.Tasks;
+using MessagePipe;
 using System;
+using UniLiveViewer.MessagePipe;
 using UniRx;
 using VContainer;
 using VContainer.Unity;
@@ -8,6 +10,7 @@ namespace UniLiveViewer.Menu.SceneSelect
 {
     public class SceneSelectMenuPresenter : IStartable, IDisposable
     {
+        readonly IPublisher<PlayerInputOperationMessage> _playerInputOperationPublisher;
         readonly SceneSelectMenuService _sceneSelectMenuService;
         readonly SceneSelectMenuSettings _settings;
 
@@ -15,9 +18,11 @@ namespace UniLiveViewer.Menu.SceneSelect
 
         [Inject]
         public SceneSelectMenuPresenter(
+            IPublisher<PlayerInputOperationMessage> playerInputOperationPublisher,
             SceneSelectMenuService sceneSelectMenuService,
             SceneSelectMenuSettings settings)
         {
+            _playerInputOperationPublisher = playerInputOperationPublisher;
             _sceneSelectMenuService = sceneSelectMenuService;
             _settings = settings;
         }
@@ -25,7 +30,11 @@ namespace UniLiveViewer.Menu.SceneSelect
         void IStartable.Start()
         {
             _settings.ChangeSceneAsObservable
-                .Subscribe(x => _sceneSelectMenuService.OnChangeSceneAsync(x).Forget()).AddTo(_disposables);
+                .Subscribe(x =>
+                {
+                    _sceneSelectMenuService.OnChangeSceneAsync(x).Forget();
+                    _playerInputOperationPublisher.Publish(new PlayerInputOperationMessage(false));
+                }).AddTo(_disposables);
         }
 
         void IDisposable.Dispose()

@@ -1,5 +1,6 @@
 ﻿using Cysharp.Threading.Tasks;
 using System;
+using System.Threading;
 using UniLiveViewer.Player;
 using UniRx;
 using VContainer;
@@ -7,7 +8,7 @@ using VContainer.Unity;
 
 namespace UniLiveViewer.Stage
 {
-    public class MenuRootPresenter : IStartable, IDisposable
+    public class MenuRootPresenter : IAsyncStartable, IDisposable
     {
         readonly FileAccessManager _fileAccessManager;
         readonly MenuRootService _menuRootService;
@@ -25,17 +26,20 @@ namespace UniLiveViewer.Stage
             _playerInputService = playerInputService;
         }
 
-        void IStartable.Start()
+        async UniTask IAsyncStartable.StartAsync(CancellationToken cancellation)
         {
+            _menuRootService.Initialize();
+
             _fileAccessManager.EndLoadingAsObservable
-                .Subscribe(_ => _menuRootService.OnLoadEnd())
+                .Delay(TimeSpan.FromSeconds(1))
+                .Subscribe(_ => _menuRootService.OnLoadEndAsync(cancellation).Forget())
                 .AddTo(_disposables);
             _playerInputService.ClickMenuAsObservable()
                 .Where(x => x == PlayerHandType.RHand)
                 .Subscribe(_ => _menuRootService.OnMenuSwitching())
                 .AddTo(_disposables);
 
-            _menuRootService.Initialize();
+            await UniTask.CompletedTask;
         }
 
         void IDisposable.Dispose()

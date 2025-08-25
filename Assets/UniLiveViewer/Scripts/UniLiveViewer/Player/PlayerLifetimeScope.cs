@@ -1,6 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using MessagePipe;
+using System.Collections.Generic;
+using UniLiveViewer.MessagePipe;
 using UniLiveViewer.OVRCustom;
 using UniLiveViewer.Player.HandMenu;
+using UniLiveViewer.Timeline;
 using UnityEngine;
 using UnityEngine.Rendering;
 using VContainer;
@@ -30,6 +33,9 @@ namespace UniLiveViewer.Player
 
         protected override void Configure(IContainerBuilder builder)
         {
+            var options = builder.RegisterMessagePipe();
+            builder.RegisterMessageBroker<PlayerInputOperationMessage>(options);
+
             builder.RegisterInstance(_playerConfigData);
             builder.RegisterComponent<Camera>(Camera.main);
 

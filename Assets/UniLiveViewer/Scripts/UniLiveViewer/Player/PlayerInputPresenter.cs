@@ -1,5 +1,7 @@
-﻿using System;
+﻿using MessagePipe;
+using System;
 using System.Collections.Generic;
+using UniLiveViewer.MessagePipe;
 using UniLiveViewer.OVRCustom;
 using UniRx;
 using UnityEngine;
@@ -15,6 +17,7 @@ namespace UniLiveViewer.Player
         /// </summary>
         bool _isTick = false;
 
+        readonly ISubscriber<PlayerInputOperationMessage> _inputOperationSubscriber;
         readonly FileAccessManager _fileAccessManager;
         readonly PlayerInputService _playerInputService;
         readonly CompositeDisposable _disposables = new();
@@ -22,10 +25,12 @@ namespace UniLiveViewer.Player
 
         [Inject]
         public PlayerInputPresenter(
+            ISubscriber<PlayerInputOperationMessage> subscriber,
             FileAccessManager fileAccessManager,
             PlayerInputService playerInputService,
             List<OVRGrabber_UniLiveViewer> ovrGrabbers)
         {
+            _inputOperationSubscriber = subscriber;
             _fileAccessManager = fileAccessManager;
             _playerInputService = playerInputService;
             _ovrGrabbers = ovrGrabbers;
@@ -35,6 +40,10 @@ namespace UniLiveViewer.Player
         {
             _fileAccessManager.EndLoadingAsObservable
                 .Subscribe(_ => _isTick = true)
+                .AddTo(_disposables);
+
+            _inputOperationSubscriber
+                .Subscribe(x => _isTick = x.IsOperable)
                 .AddTo(_disposables);
 
             // NOTE: 改修するので雑
