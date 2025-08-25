@@ -5,14 +5,14 @@ using VContainer;
 
 namespace UniLiveViewer.Actor.Option
 {
-    public class SnowFootPrintService
+    public class SnowFootprintService
     {
-        readonly SnowFootPrintSettings _settings;
+        readonly SnowFootpintSettings _settings;
         Transform _leftFoot;
         Transform _rightFoot;
 
         [Inject]
-        public SnowFootPrintService(SnowFootPrintSettings settings)
+        public SnowFootprintService(SnowFootpintSettings settings)
         {
             _settings = settings;
         }

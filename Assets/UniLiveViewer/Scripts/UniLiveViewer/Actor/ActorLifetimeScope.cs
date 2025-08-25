@@ -1,4 +1,4 @@
-﻿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using System.Threading;
 using UniLiveViewer.Actor.Animation;
 using UniLiveViewer.Actor.AttachPoint;
@@ -83,7 +83,6 @@ namespace UniLiveViewer.Actor
         [SerializeField] Rigidbody _rigidbody;
         [SerializeField] CapsuleCollider _collider;
         [SerializeField] OVRGrabbableCustom _ovrGrabbable;
-        [SerializeField] AudioSourceService _audioSourceService;
 
         [Header("-----------")]
         [SerializeField] AttachPoint.AttachPoint _attachPoint;
@@ -110,7 +109,6 @@ namespace UniLiveViewer.Actor
             builder.RegisterInstance(_charaInfoDataInstance);
 
             PhysicsConfigure(builder);
-            FootstepConfigure(builder);
 
             if (_charaInfoData.ActorType == ActorType.FBX)
             {
@@ -155,13 +153,6 @@ namespace UniLiveViewer.Actor
             builder.RegisterInstance(_rigidbody);
             builder.RegisterInstance(_collider);
             builder.RegisterEntryPoint<PhysicsPresenter>(Lifetime.Singleton);
-        }
-
-        void FootstepConfigure(IContainerBuilder builder)
-        {
-            builder.RegisterInstance(_audioSourceService);
-            builder.Register<FootStepService>(Lifetime.Singleton);
-            builder.RegisterEntryPoint<FootstepPresenter>(Lifetime.Singleton);
         }
 
         void FBXFacialExpressionConfigure(IContainerBuilder builder)

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UniLiveViewer.Actor;
+using UniLiveViewer.SO;
 using UniRx;
 using UnityEngine;
 using VContainer;

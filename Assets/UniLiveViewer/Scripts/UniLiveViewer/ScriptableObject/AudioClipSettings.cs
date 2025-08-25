@@ -1,44 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UniLiveViewer.SceneLoader;
 using UnityEngine;
-using System.Linq;
 
-namespace UniLiveViewer
+namespace UniLiveViewer.SO
 {
-    public enum AudioSE
-    {
-        ButtonClick,
-        TabClick,
-        SpringMenuItem,
-        MenuOpen,
-        MenuClose,
-        ObjectDelete,
-        AttachSuccess,
-        ChangeItemColor,
-        ActorGrab,
-        ActorRelease,
-        ActorRotation,
-        ActorSummon,
-        SpotlightSwitch,
-        SceneTransition,
-
-        BookClose,
-        BookOpen,
-        BookPagesFlipping,
-        BookPageTurn,
-    }
-
-    public enum AudioHandPsylliumSE
-    {
-        Default,
-        Thunder,
-        Wind,
-        Water,
-        Darkness,
-        Flame,
-        Light
-    }
-
     [CreateAssetMenu(menuName = "MyGame/Audio/AudioClipSettings", fileName = "AudioClipSettings")]
     public class AudioClipSettings : ScriptableObject
     {
@@ -50,6 +16,11 @@ namespace UniLiveViewer
 
         public List<AudioHandPsylliumDataSet> AudioHandPsylliumDataSet => _audioHandPsylliumDataSet;
         [SerializeField] List<AudioHandPsylliumDataSet> _audioHandPsylliumDataSet;
+
+        public FootstepAudioData RaisedFootWaterSplashAudioData => _raisedfootWaterSplashAudioData;
+        [SerializeField] FootstepAudioData _raisedfootWaterSplashAudioData;
+        public FootstepAudioData LoweredFeetWaterSplashAudioData => _loweredFeetWaterSplashAudioData;
+        [SerializeField] FootstepAudioData _loweredFeetWaterSplashAudioData;
 
         public SceneAudioDataSet GetSceneAudioDataSet(SceneType sceneType)
             => _sceneAudioDataSet?.FirstOrDefault(x => x.SceneType == sceneType);
@@ -83,14 +54,7 @@ namespace UniLiveViewer
         public AudioClip AmbientSoundAudioClip => _ambientSoundAudioClip;
         [SerializeField] AudioClip _ambientSoundAudioClip;
 
-        public AudioFootStepsDataSet AudioFootStepsDataSet => _audioFootStepsDataSet;
-        [SerializeField] AudioFootStepsDataSet _audioFootStepsDataSet;
-    }
-
-    [System.Serializable]
-    public class AudioFootStepsDataSet
-    {
-        public IReadOnlyList<AudioClip> AudioClip => _audioClip;
-        [SerializeField] List<AudioClip> _audioClip;
+        public FootstepAudioData FootstepsAudioData => _footstepsAudioData;
+        [SerializeField] FootstepAudioData _footstepsAudioData;
     }
 }

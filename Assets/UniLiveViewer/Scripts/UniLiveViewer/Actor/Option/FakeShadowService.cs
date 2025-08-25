@@ -1,5 +1,6 @@
-using System;
+﻿using System;
 using UniLiveViewer.Actor;
+using UniLiveViewer.Actor.Option;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -24,12 +25,12 @@ namespace UniLiveViewer.Timeline
         QuasiShadowSetting.Preset _preset;
         float _userShadowScale;
 
-        readonly LifetimeScope _parent;
+        readonly Transform _parent;
 
         [Inject]
-        public FakeShadowService(LifetimeScope lifetimeScope)
+        public FakeShadowService(ActorOptionLifetimeScope actorOptionLifetimeScope)
         {
-            _parent = lifetimeScope;
+            _parent = actorOptionLifetimeScope.transform;
         }
 
         public void Setup(SHADOWTYPE shadowType, float userShadowScale, QuasiShadowSetting settings, int presetIndex)
@@ -47,7 +48,7 @@ namespace UniLiveViewer.Timeline
             //bounds.Expand(100);
             //meshFilter.mesh.bounds = bounds;
 
-            _shadowData = new ShadowData(meshRenderer, _parent.transform);
+            _shadowData = new ShadowData(meshRenderer, _parent);
             _shadowData.SetMeshRenderers(false, null, null);
             SetEnable(false);
 
@@ -122,7 +123,6 @@ namespace UniLiveViewer.Timeline
 
             var actorSizeCorrection = _actorEntity.Height / ActorBaseSize;
             var baseScale = _userShadowScale * settingsScala * actorSizeCorrection;
-            Debug.Log($"baseScale:{baseScale} = _userShadowScale:{_userShadowScale} * actorSizeCorrection:{actorSizeCorrection}");
 
             targetMesh.transform.position = shadowPos;
             targetMesh.transform.localScale = Vector3.one * baseScale * shadowScaleFactor;

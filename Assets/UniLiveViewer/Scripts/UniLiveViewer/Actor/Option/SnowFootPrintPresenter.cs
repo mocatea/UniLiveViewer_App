@@ -6,25 +6,25 @@ using VContainer.Unity;
 
 namespace UniLiveViewer.Actor.Option
 {
-    public class SnowFootPrintPresenter : IStartable, IDisposable
+    public class SnowFootprintPresenter : IStartable, IDisposable
     {
         readonly IActorEntity _actorEntity;
-        readonly SnowFootPrintService _snowFootPrintService;
+        readonly SnowFootprintService _snowFootprintService;
         readonly CompositeDisposable _disposables = new();
 
         [Inject]
-        public SnowFootPrintPresenter(
+        public SnowFootprintPresenter(
             IActorEntity actorEntity,
-            SnowFootPrintService snowFootPrintService)
+            SnowFootprintService snowFootprintService)
         {
             _actorEntity = actorEntity;
-            _snowFootPrintService = snowFootPrintService;
+            _snowFootprintService = snowFootprintService;
         }
 
         void IStartable.Start()
         {
             _actorEntity.ActorEntity()
-                .Subscribe(_snowFootPrintService.OnChangeActorEntity)
+                .Subscribe(_snowFootprintService.OnChangeActorEntity)
                 .AddTo(_disposables);
         }
 

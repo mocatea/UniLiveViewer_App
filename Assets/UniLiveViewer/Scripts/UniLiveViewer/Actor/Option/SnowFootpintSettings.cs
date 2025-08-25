@@ -3,7 +3,7 @@ using UnityEngine.Assertions;
 
 namespace UniLiveViewer.Actor.Option
 {
-    public class SnowFootPrintSettings : MonoBehaviour
+    public class SnowFootpintSettings : MonoBehaviour
     {
         // PEPlayer
         public Transform SnowFootPointPrefab => _snowFootPointPrefab;
