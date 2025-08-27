@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace UniLiveViewer.Timeline
+namespace UniLiveViewer.Actor.Option
 {
     public enum SHADOWTYPE
     {

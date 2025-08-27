@@ -1,4 +1,4 @@
-﻿using UniLiveViewer.Timeline;
+﻿using UniLiveViewer.Actor.Option;
 using VContainer;
 
 namespace UniLiveViewer.Menu.Config.Actor

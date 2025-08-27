@@ -1,9 +1,13 @@
-Shader "UniLiveViewer/Transforming Shadow Instancing"
+Shader "UniLiveViewer/TransformingShadow"
 {
     Properties
     {
+        [Enum(UnityEngine.Rendering.CullMode)] _Cull ("Cull", Float) = 2
+        [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend ("Src Blend", Float) = 1   // One
+        [Enum(UnityEngine.Rendering.BlendMode)] _DstBlend ("Dst Blend", Float) = 0   // Zero
+        [Toggle] _ZWrite ("ZWrite", Float) = 1
+
         _Color("Color", Color) = (1, 1, 1, 1)
-        _Alpha("Alpha",Range(0,1)) = 1
         _MainTex("Texture", 2D) = "white" {}
         _Position("Position", Vector) = (0,0,0,0)
         _Scale("Scale",Range(0,2)) = 1
@@ -12,15 +16,18 @@ Shader "UniLiveViewer/Transforming Shadow Instancing"
     SubShader
     {
         Tags { 
-            "RenderType" = "Transparent" 
             "RenderPipeline" = "UniversalPipeline" 
-            "DisableBatching" = "True"
-            "Queue" = "Transparent" //3000
+            "RenderType" = "Opaque" 
+            "Queue" = "Geometry"
         }
-        Cull Off
-        Lighting Off
-        ZWrite Off
-        Blend One OneMinusSrcAlpha
+        Cull [_Cull]
+        ZWrite [_ZWrite]
+        Blend [_SrcBlend] [_DstBlend]
+
+        
+        // Cull Back
+        // ZWrite On
+        // Blend One Zero
         LOD 0
 
         Pass
@@ -54,7 +61,6 @@ Shader "UniLiveViewer/Transforming Shadow Instancing"
                 
             half4 _Position;
             half _Scale;
-            half _Alpha;
 
             v2f vert(appdata v)
             {
@@ -84,7 +90,6 @@ Shader "UniLiveViewer/Transforming Shadow Instancing"
                 UNITY_SETUP_INSTANCE_ID(i);
                 half4 col = tex2D(_MainTex, i.uv);
                 half4 color = UNITY_ACCESS_INSTANCED_PROP(Props, _Color);
-                color.a = _Alpha;
                 col *= color;
                 return col;
             }

@@ -1,8 +1,8 @@
 ﻿using MessagePipe;
 using System;
 using UniLiveViewer.Actor;
+using UniLiveViewer.Actor.Option;
 using UniLiveViewer.MessagePipe;
-using UniLiveViewer.Timeline;
 using UniRx;
 using VContainer;
 using VContainer.Unity;

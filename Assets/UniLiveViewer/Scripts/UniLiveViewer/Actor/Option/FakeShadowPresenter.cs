@@ -1,12 +1,11 @@
-using MessagePipe;
+﻿using MessagePipe;
 using System;
-using UniLiveViewer.Actor;
 using UniLiveViewer.MessagePipe;
 using UniRx;
 using VContainer;
 using VContainer.Unity;
 
-namespace UniLiveViewer.Timeline
+namespace UniLiveViewer.Actor.Option
 {
     public class FakeShadowPresenter : IStartable, ITickable, IDisposable
     {
@@ -31,6 +30,11 @@ namespace UniLiveViewer.Timeline
 
         void IStartable.Start()
         {
+            var presetIndex = FileReadAndWriteUtility.UserProfile.CharaShadowType;
+            var shadowType = (SHADOWTYPE)presetIndex;
+            var userShadowScale = FileReadAndWriteUtility.UserProfile.CharaShadowSize;
+            _fakeShadowService.Setup(shadowType, userShadowScale, _setting, presetIndex);
+
             _allSubscriber
                 .Subscribe(x =>
                 {
@@ -50,11 +54,6 @@ namespace UniLiveViewer.Timeline
             _actorEntity.RootScalar()
                 .Subscribe(_fakeShadowService.OnChangeRootScalar)
                 .AddTo(_disposables);
-
-            var presetIndex = FileReadAndWriteUtility.UserProfile.CharaShadowType;
-            var shadowType = (SHADOWTYPE)presetIndex;
-            var userShadowScale = FileReadAndWriteUtility.UserProfile.CharaShadowSize;
-            _fakeShadowService.Setup(shadowType, userShadowScale, _setting, presetIndex);
         }
 
         void ITickable.Tick()

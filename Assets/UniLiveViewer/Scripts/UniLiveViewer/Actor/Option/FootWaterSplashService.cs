@@ -4,7 +4,6 @@ using System.Threading;
 using UniLiveViewer.SO;
 using UnityEngine;
 using VContainer;
-using static UnityEngine.ParticleSystem;
 
 namespace UniLiveViewer.Actor.Option
 {
@@ -84,10 +83,10 @@ namespace UniLiveViewer.Actor.Option
 
         Vector3 CalculateParticleSize => Vector3.one * 0.25f * (_actorHeight / 1.5f) * _actorRootScalar;
 
-        public async UniTask OnTickAsync(CancellationToken cancellation)
+        public async UniTask OnLateTickAsync(CancellationToken cancellation)
         {
             if (_lFootState == null || _rFootState == null) return;
-
+            
             HitCheckAsync(_lFootState, cancellation).Forget();
             HitCheckAsync(_rFootState, cancellation).Forget();
 
@@ -115,7 +114,7 @@ namespace UniLiveViewer.Actor.Option
             {
                 foot.ReuseCooldownTime -= Time.deltaTime;
             }
-            
+
             await UniTask.CompletedTask;
         }
 
