@@ -31,8 +31,9 @@ namespace UniLiveViewer.Stage.BeyondTheBlue
                 menuServie.IsGodRayAsObservable
                     .Subscribe(_environmentService.OnClickGodRay)
                     .AddTo(_disposable);
-                menuServie.WaterLevel
-                    .Subscribe(_environmentService.OnChangeWaterLevel)
+                menuServie.WaterColor
+                    .SkipLatestValueOnSubscribe()
+                    .Subscribe(_environmentService.OnChangeWaterColor)
                     .AddTo(_disposable);
             }
         }

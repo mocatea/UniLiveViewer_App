@@ -4,33 +4,31 @@ namespace UniLiveViewer.Stage.BeyondTheBlue
 {
     public class BeyondTheBlueEnvironmentService : MonoBehaviour
     {
+        readonly int EmissionId = Shader.PropertyToID("_Emission");
+
         Transform _godRay;
-        Transform _waterLevel;
+        MeshRenderer _waterMeshRenderer;
 
         void Start()
         {
             _godRay = GameObject.FindGameObjectWithTag("GodRay").transform;
-            _waterLevel = GameObject.FindGameObjectWithTag("WaterLevel").transform;
+            var go = GameObject.FindGameObjectWithTag("WaterLevel").transform;
+            _waterMeshRenderer = go.GetComponent<MeshRenderer>();
 
             _godRay.gameObject.SetActive(true);
-
-            var next = _waterLevel.transform.position;
-            next.y = 0.3f;
-            _waterLevel.transform.position = next;
+            OnChangeWaterColor(0.58f);//水色
         }
 
         public void OnClickGodRay(bool isEnable)
         {
             if (_godRay == null) return;
-
             _godRay.gameObject.SetActive(isEnable);
         }
 
-        public void OnChangeWaterLevel(float h)
+        public void OnChangeWaterColor(float v)
         {
-            var next = _waterLevel.transform.position;
-            next.y = h;
-            _waterLevel.transform.position = next;
+            if (_waterMeshRenderer == null) return;
+            _waterMeshRenderer.material.SetColor(EmissionId, Color.HSVToRGB(v, 0.7f, 0.12f));
         }
     }
 }

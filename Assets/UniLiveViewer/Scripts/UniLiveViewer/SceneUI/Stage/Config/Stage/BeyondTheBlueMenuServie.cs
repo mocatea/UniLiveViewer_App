@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using UniRx;
 using VContainer;
 
@@ -9,8 +9,8 @@ namespace UniLiveViewer.Menu.Config.Stage
         public IObservable<bool> IsGodRayAsObservable => _isGodRay;
         readonly Subject<bool> _isGodRay = new();
 
-        public IReactiveProperty<float> WaterLevel => _waterLevel;
-        readonly ReactiveProperty<float> _waterLevel = new();
+        public IReactiveProperty<float> WaterColor => _waterColor;
+        readonly ReactiveProperty<float> _waterColor = new(0.58f);//水色
 
 
         readonly BeyondTheBlueMenuSettings _settings;
@@ -31,13 +31,12 @@ namespace UniLiveViewer.Menu.Config.Stage
                 .Select(x => x.isEnable)
                 .Subscribe(OnClickGodRay).AddTo(_disposables);
 
-            _settings.WaterLevelSlider.ValueAsObservable
-                .Subscribe(OnChangeWaterLevel).AddTo(_disposables);
+            _settings.WaterColorSlider.ValueAsObservable
+                .Subscribe(OnChangeWaterColor).AddTo(_disposables);
 
 
             _settings.GodRayButton.isEnable = true;
-            _waterLevel.Value = 0.3f;
-            _settings.Texts[0].text = $"{_waterLevel.Value.ToString("0.00")} m";
+            _settings.WaterColorSlider.Value = _waterColor.Value;
         }
 
         void IStageMenuService.OnEnable()
@@ -50,10 +49,9 @@ namespace UniLiveViewer.Menu.Config.Stage
             _isGodRay.OnNext(isEnable);
         }
 
-        public void OnChangeWaterLevel(float level)
+        public void OnChangeWaterColor(float level)
         {
-            _settings.Texts[0].text = $"{level.ToString("0.00")} m";
-            _waterLevel.Value = level;
+            _waterColor.Value = level;
         }
 
         void IStageMenuService.Dispose()

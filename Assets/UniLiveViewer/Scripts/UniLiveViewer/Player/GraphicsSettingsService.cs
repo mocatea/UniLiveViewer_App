@@ -1,8 +1,7 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using VContainer;
-using static UnityEngine.Rendering.DebugUI;
 
 namespace UniLiveViewer.Player
 {
