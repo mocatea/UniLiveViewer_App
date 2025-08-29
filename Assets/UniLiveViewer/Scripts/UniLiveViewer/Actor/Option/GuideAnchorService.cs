@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 
@@ -7,24 +8,32 @@ namespace UniLiveViewer.Actor.Option
     public class GuideAnchorService
     {
         const string Path = "Prefabs/GuideAnchor/GuideBody";
+        readonly int ColorId = Shader.PropertyToID("_Color");
 
-        GameObject _anchor;
+        MeshRenderer _renderer;
+        MaterialPropertyBlock _propertyBlock;
         ActorEntity _actorEntity;
+        Color _initColor;
 
-        readonly LifetimeScope _parent;
+        readonly Transform _parent;
 
         [Inject]
         public GuideAnchorService(LifetimeScope lifetimeScope)
         {
-            _parent = lifetimeScope;
+            _parent = lifetimeScope.transform;
         }
 
         public void Setup()
         {
-            if (_anchor != null) return;
-            _anchor = GameObject.Instantiate(Resources.Load<GameObject>(Path));
-            _anchor.transform.parent = _parent.transform;
-            _anchor.transform.localPosition = Vector3.zero;
+            if (_renderer != null) return;
+            var go = GameObject.Instantiate(Resources.Load<GameObject>(Path), _parent);
+            _renderer = go.GetComponent<MeshRenderer>();
+            _renderer.transform.localPosition = Vector3.zero;
+
+            _initColor = _renderer.material.GetColor(ColorId);
+            _propertyBlock = new();
+            _renderer.GetPropertyBlock(_propertyBlock);
+
             SetEnable(false);
         }
 
@@ -33,18 +42,37 @@ namespace UniLiveViewer.Actor.Option
             _actorEntity = actorEntity;
         }
 
+        public void OnPointerEnter()
+        {
+            _propertyBlock.SetColor(ColorId, Color.red);
+            _renderer.SetPropertyBlock(_propertyBlock);
+        }
+
+        public void OnPointerExit()
+        {
+            _propertyBlock.SetColor(ColorId, _initColor);
+            _renderer.SetPropertyBlock(_propertyBlock);
+        }
+
         public void SetEnable(bool isEnable)
         {
-            if (_anchor == null || _anchor.activeSelf == isEnable) return;
-            _anchor.SetActive(isEnable);
+            if (_renderer == null || _renderer.gameObject.activeSelf == isEnable) return;
+            _renderer.gameObject.SetActive(isEnable);
         }
 
         public void OnTick()
         {
-            if (_anchor == null || _anchor.activeSelf == false) return;
+            if (_renderer == null || _renderer.gameObject.activeSelf == false) return;
             if (_actorEntity == null) return;
-            var direction = _actorEntity.BoneMap[HumanBodyBones.Head].position - _anchor.transform.position;
-            _anchor.transform.forward = direction;
+            var direction = _actorEntity.BoneMap[HumanBodyBones.Head].position - _renderer.transform.position;
+            _renderer.transform.forward = direction;
+        }
+
+        public void Dispose()
+        {
+            if (_renderer.gameObject == null) return;
+            GameObject.Destroy(_renderer.material);
+            GameObject.Destroy(_renderer.gameObject);
         }
     }
 }

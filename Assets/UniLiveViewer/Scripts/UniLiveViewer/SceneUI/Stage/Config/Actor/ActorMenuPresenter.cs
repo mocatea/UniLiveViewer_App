@@ -57,7 +57,6 @@ namespace UniLiveViewer.Menu.Config.Actor
             _settings.FallingShadowSlider.EndDriveAsObservable
                 .Subscribe(_ => OnFallingShadowSizeChangeCommitted()).AddTo(_disposables);
 
-
             _settings.InitialActorSizeSlider.SetValueWithoutNotify(FileReadAndWriteUtility.UserProfile.InitCharaSize);
             _settings.InitialActorSizeText.text = $"{FileReadAndWriteUtility.UserProfile.InitCharaSize:0.00}";
 

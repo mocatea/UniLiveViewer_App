@@ -25,6 +25,7 @@ namespace UniLiveViewer.Timeline
 
         protected override void Configure(IContainerBuilder builder)
         {
+            // TODO: そろそろ整理する
             var options = builder.RegisterMessagePipe();
             builder.RegisterMessageBroker<VRMLoadResultData>(options);
             builder.RegisterMessageBroker<AllActorOperationMessage>(options);
@@ -34,6 +35,7 @@ namespace UniLiveViewer.Timeline
             builder.RegisterMessageBroker<ActorStateMessage>(options);
             builder.RegisterMessageBroker<ActorResizeMessage>(options);
             builder.RegisterMessageBroker<AttachPointMessage>(options);
+            builder.RegisterMessageBroker<CursorGuideCollisionMessage>(options);
 
             builder.Register<VMDData>(Lifetime.Singleton);
 

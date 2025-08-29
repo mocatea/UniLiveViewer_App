@@ -1,4 +1,4 @@
-using UniLiveViewer.Actor;
+﻿using UniLiveViewer.Actor;
 
 namespace UniLiveViewer.MessagePipe
 {
@@ -20,8 +20,6 @@ namespace UniLiveViewer.MessagePipe
         /// <summary>
         /// ActorState.NULLは全員
         /// </summary>
-        /// <param name="actorState"></param>
-        /// <param name="command"></param>
         public AllActorOperationMessage(ActorState actorState, ActorCommand command)
         {
             _actorState = actorState;
