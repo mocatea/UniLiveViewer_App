@@ -32,17 +32,21 @@ namespace UniLiveViewer.Menu.Config.Graphics
                 .SkipLatestValueOnSubscribe()
                 .Subscribe(_graphicsSettingsService.ChangeLightIntensity)
                 .AddTo(_disposables);
-            _graphicsMenuService.AntialiasingMode
+            _graphicsMenuService.AntialiasingModeValue
                 .SkipLatestValueOnSubscribe()
                 .Subscribe(_graphicsSettingsService.ChangeAntialiasing)
                 .AddTo(_disposables);
-            _graphicsMenuService.MASSSamples
+            _graphicsMenuService.MSAASamplesValue
                 .SkipLatestValueOnSubscribe()
-                .Subscribe(_graphicsSettingsService.ChangeMASS)
+                .Subscribe(_graphicsSettingsService.ChangeMSAA)
                 .AddTo(_disposables);
             _graphicsMenuService.RenderScale
                 .SkipLatestValueOnSubscribe()
                 .Subscribe(_graphicsSettingsService.ChangeRenderScale)
+                .AddTo(_disposables);
+            _graphicsMenuService.OpaqueDownsampling
+                .SkipLatestValueOnSubscribe()
+                .Subscribe(_graphicsSettingsService.ChangeOpaqueDownsampling)
                 .AddTo(_disposables);
             _graphicsMenuService.Bloom
                 .SkipLatestValueOnSubscribe()
@@ -65,6 +69,10 @@ namespace UniLiveViewer.Menu.Config.Graphics
                 .AddTo(_disposables);
             _graphicsMenuService.BloomColor
                 .Subscribe(_graphicsSettingsService.ChangeBloomColor)
+                .AddTo(_disposables);
+
+            _graphicsMenuService.Outline
+                .Subscribe(_graphicsSettingsService.ChangeOutline)
                 .AddTo(_disposables);
         }
 

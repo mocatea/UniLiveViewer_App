@@ -2,11 +2,14 @@
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using VContainer;
+using static UnityEngine.Rendering.DebugUI;
 
 namespace UniLiveViewer.Player
 {
     public class GraphicsSettingsService
     {
+        readonly int EdgeId = Shader.PropertyToID("_Edge");
+
         UniversalAdditionalCameraData _cameraData;
         bool _cachePostProcessing;
         Bloom _bloom;
@@ -17,13 +20,16 @@ namespace UniLiveViewer.Player
 
         readonly Camera _camera;
         readonly VolumeProfile _volumeProfile;
+        readonly PlayerGraphicsSettings _graphicsSettings;
         readonly Light _light;
 
         [Inject]
-        public GraphicsSettingsService(Camera camera, VolumeProfile volumeProfile, Light light)
+        public GraphicsSettingsService(Camera camera, VolumeProfile volumeProfile,
+            PlayerGraphicsSettings graphicsSettings, Light light)
         {
             _camera = camera;
             _volumeProfile = volumeProfile;
+            _graphicsSettings = graphicsSettings;
             _light = light;
         }
 
@@ -81,12 +87,12 @@ namespace UniLiveViewer.Player
             IfNeededSwitchPostprocessing();
         }
 
-        public void ChangeMASS(MSAASamples value)
+        public void ChangeMSAA(MSAASamples value)
         {
             if (_urpAsset == null) return;
-            if (value == MSAASamples.MSAA4x || value == MSAASamples.MSAA8x)
+            if (value == MSAASamples.MSAA8x)
             {
-                value = MSAASamples.MSAA2x;//上限とする
+                value = MSAASamples.MSAA4x;//上限とする
             }
             _urpAsset.msaaSampleCount = (int)value;
             FileReadAndWriteUtility.UserProfile.MSAALevel = (int)value;
@@ -101,6 +107,27 @@ namespace UniLiveViewer.Player
             if (_urpAsset == null) return;
             _urpAsset.renderScale = value;
             IfNeededSwitchPostprocessing();
+        }
+
+        public void ChangeOpaqueDownsampling(Downsampling sampling)
+        {
+            // URPverが古いのでパイプライン切り替え手段しかないが機能しなそうだった
+            // 本来はUniversalRenderPipelineAssetかUniversalRendererDataにopaqueDownsamplingがあるらしい
+            Debug.LogError("OpaqueDownsamplingはQuestでは使用しない予定");
+            return;
+
+            if (sampling == Downsampling.None)
+            {
+                GraphicsSettings.renderPipelineAsset = _graphicsSettings.UrpAssets[0];
+            }
+            else if (sampling == Downsampling._2xBilinear)
+            {
+                GraphicsSettings.renderPipelineAsset = _graphicsSettings.UrpAssets[1];
+            }
+            else if (sampling == Downsampling._4xBilinear)
+            {
+                GraphicsSettings.renderPipelineAsset = _graphicsSettings.UrpAssets[2];
+            }
         }
 
         public void ChangeBloom(bool isEnable)
@@ -153,6 +180,16 @@ namespace UniLiveViewer.Player
             _bloom.tint.overrideState = true;
             _bloom.tint.value = Color.HSVToRGB(v, 0.55f, 1);
             // NOTE: 専用ピッカー作ったら保存するようにする
+        }
+
+        public void ChangeOutline(float value)
+        {
+            if (0 < value)
+            {
+                _graphicsSettings.OutlineRender.SetActive(true);
+                _graphicsSettings.OutlineMat.SetFloat(EdgeId, value);
+            }
+            else _graphicsSettings.OutlineRender.SetActive(false);
         }
 
         public void OnChangePassthrough(bool isEnablePassthrough)

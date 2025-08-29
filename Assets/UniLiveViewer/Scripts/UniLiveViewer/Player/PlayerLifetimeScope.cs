@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UniLiveViewer.MessagePipe;
 using UniLiveViewer.OVRCustom;
 using UniLiveViewer.Player.HandMenu;
-using UniLiveViewer.Timeline;
 using UnityEngine;
 using UnityEngine.Rendering;
 using VContainer;
@@ -24,6 +23,7 @@ namespace UniLiveViewer.Player
         [SerializeField] PlayerHandMenuAnchorL _playerHandMenuAnchorL;
         [SerializeField] PlayerHandMenuAnchorR _playerHandMenuAnchorR;
         [SerializeField] OVRManager _ovrManager;
+        [SerializeField] PlayerGraphicsSettings _graphicsSettings;
         [SerializeField] PassthroughService _passthroughService;
         [SerializeField] PlayerHandMenuSettings _playerHandMenuSettings;
         /// <summary>
@@ -63,6 +63,7 @@ namespace UniLiveViewer.Player
         {
             builder.RegisterInstance(_volumeProfile);
             builder.RegisterComponent(_passthroughService);
+            builder.RegisterComponent(_graphicsSettings);
             builder.Register<GraphicsSettingsService>(Lifetime.Singleton);
             builder.RegisterEntryPoint<GraphicsSettingsPresenter>();
         }

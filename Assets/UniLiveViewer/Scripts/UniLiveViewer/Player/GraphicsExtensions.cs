@@ -1,7 +1,5 @@
-﻿using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
-using VContainer;
 
 namespace UniLiveViewer.Player
 {
@@ -39,6 +37,30 @@ namespace UniLiveViewer.Player
             if (value == MSAASamples.MSAA2x) return "x2";
             if (value == MSAASamples.MSAA4x) return "x4";
             if (value == MSAASamples.MSAA8x) return "x8";
+            return "";
+        }
+
+        public static Downsampling ToDownsamplingFromSlider(this int value)
+        {
+            if (value == 0) return Downsampling.None;
+            if (value == 1) return Downsampling._2xBilinear;
+            if (value == 2) return Downsampling._4xBilinear;
+            return Downsampling.None;
+        }
+
+        public static int ToDownsamplingSliderValue(this Downsampling value)
+        {
+            if (value == Downsampling.None) return 0;
+            if (value == Downsampling._2xBilinear) return 1;
+            if (value == Downsampling._4xBilinear) return 2;
+            return 0;
+        }
+
+        public static string AsString(this Downsampling value)
+        {
+            if (value == Downsampling.None) return "None";
+            if (value == Downsampling._2xBilinear) return "x2";
+            if (value == Downsampling._4xBilinear) return "x4";
             return "";
         }
     }
