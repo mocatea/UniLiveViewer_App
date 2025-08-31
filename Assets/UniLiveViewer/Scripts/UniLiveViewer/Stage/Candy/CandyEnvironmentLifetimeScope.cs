@@ -4,13 +4,14 @@ using VContainer.Unity;
 
 namespace UniLiveViewer.Stage.Candy
 {
-    [RequireComponent(typeof(CandyEnvironmentService))]
     public class CandyEnvironmentLifetimeScope : LifetimeScope
     {
+        [SerializeField] CandyEnvironmentSettings _settings;
+
         protected override void Configure(IContainerBuilder builder)
         {
-            builder.RegisterComponent(GetComponent<CandyEnvironmentService>());
-
+            builder.RegisterComponent(_settings);
+            builder.Register<CandyEnvironmentService>(Lifetime.Singleton);
             builder.RegisterEntryPoint<CandyEnvironmentPresenter>();
         }
     }

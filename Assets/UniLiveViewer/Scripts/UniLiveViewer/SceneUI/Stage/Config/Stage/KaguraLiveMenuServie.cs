@@ -33,9 +33,13 @@ namespace UniLiveViewer.Menu.Config.Stage
 
         void IStageMenuService.Initialize()
         {
-            _settings.ParticleButton.onTrigger += (btn) => OnClickParticle(btn.isEnable);
-            _settings.ReflectionButton.onTrigger += (btn) => OnClickReflection(btn.isEnable);
-            _settings.SeaWavesButton.onTrigger += (btn) => OnClickSeaWaves(btn.isEnable);
+            _settings.ParticleButton.OnTriggerAsObservable()
+                .Subscribe(x => OnClickParticle(x.isEnable)).AddTo(_disposables);
+            _settings.ReflectionButton.OnTriggerAsObservable()
+                .Subscribe(x => OnClickReflection(x.isEnable)).AddTo(_disposables);
+            _settings.SeaWavesButton.OnTriggerAsObservable()
+                .Subscribe(x => OnClickSeaWaves(x.isEnable)).AddTo(_disposables);
+
 
             _settings.FogSlider.ValueAsObservable
                 .Subscribe(x => _fogDensity.Value = x).AddTo(_disposables);
@@ -69,9 +73,6 @@ namespace UniLiveViewer.Menu.Config.Stage
 
         void IStageMenuService.Dispose()
         {
-            _settings.ParticleButton.onTrigger -= (btn) => OnClickParticle(btn.isEnable);
-            _settings.ReflectionButton.onTrigger -= (btn) => OnClickReflection(btn.isEnable);
-            _settings.SeaWavesButton.onTrigger -= (btn) => OnClickSeaWaves(btn.isEnable);
             _disposables.Dispose();
         }
     }

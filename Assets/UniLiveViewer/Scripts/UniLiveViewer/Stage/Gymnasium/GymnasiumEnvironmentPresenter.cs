@@ -1,4 +1,4 @@
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using MessagePipe;
 using System;
 using UniLiveViewer.Menu.Config.Stage;
@@ -31,6 +31,7 @@ namespace UniLiveViewer.Stage.Gymnasium
         void IStartable.Start()
         {
             _playableBinderService.StageActorCount
+                .SkipLatestValueOnSubscribe()
                 .Subscribe(_environmentService.OnChangeSummonedCount)
                 .AddTo(_disposable);
 
@@ -44,8 +45,6 @@ namespace UniLiveViewer.Stage.Gymnasium
                     .Subscribe(_environmentService.OnClickWhiteLightColor)
                     .AddTo(_disposable);
             }
-
-            _environmentService.Begin();
         }
 
         void ITickable.Tick()

@@ -1,4 +1,4 @@
-﻿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using MessagePipe;
 using System;
 using UniLiveViewer.Menu.Config.Stage;
@@ -28,6 +28,10 @@ namespace UniLiveViewer.Stage.BeyondTheBlue
         {
             if (_stageMenuServie is BeyondTheBlueMenuServie menuServie)
             {
+                menuServie.PropSet
+                    .SkipLatestValueOnSubscribe()
+                    .Subscribe(_environmentService.OnClickPropSet)
+                    .AddTo(_disposable);
                 menuServie.IsGodRayAsObservable
                     .Subscribe(_environmentService.OnClickGodRay)
                     .AddTo(_disposable);

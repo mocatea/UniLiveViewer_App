@@ -1,34 +1,45 @@
 ﻿using UnityEngine;
+using VContainer;
 
 namespace UniLiveViewer.Stage.BeyondTheBlue
 {
-    public class BeyondTheBlueEnvironmentService : MonoBehaviour
+    public class BeyondTheBlueEnvironmentService
     {
-        readonly int EmissionId = Shader.PropertyToID("_Emission");
+        readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
 
-        Transform _godRay;
-        MeshRenderer _waterMeshRenderer;
+        readonly BeyondTheBlueEnvironmentSettings _settings;
 
-        void Start()
+        [Inject]
+        public BeyondTheBlueEnvironmentService(BeyondTheBlueEnvironmentSettings settings)
         {
-            _godRay = GameObject.FindGameObjectWithTag("GodRay").transform;
-            var go = GameObject.FindGameObjectWithTag("WaterLevel").transform;
-            _waterMeshRenderer = go.GetComponent<MeshRenderer>();
+            _settings = settings;
+        }
 
-            _godRay.gameObject.SetActive(true);
-            OnChangeWaterColor(0.58f);//水色
+        public void OnClickPropSet(int index)
+        {
+            for (int i = 0; i < _settings.PropSets.Length; i++)
+            {
+                _settings.PropSets[i].gameObject.SetActive(i == index);
+            }
         }
 
         public void OnClickGodRay(bool isEnable)
         {
-            if (_godRay == null) return;
-            _godRay.gameObject.SetActive(isEnable);
+            _settings.GodRay.gameObject.SetActive(isEnable);
         }
 
         public void OnChangeWaterColor(float v)
         {
-            if (_waterMeshRenderer == null) return;
-            _waterMeshRenderer.material.SetColor(EmissionId, Color.HSVToRGB(v, 0.7f, 0.12f));
+            Debug.Log("色味が揃わないので一旦なし");
+            return;
+
+            foreach (var renderer in _settings.Waters)
+            {
+                var preColor = renderer.material.GetColor(BaseColorId);
+                var nextColor = Color.HSVToRGB(v, 0.7f, 0.12f);
+                nextColor.a = preColor.a;
+                renderer.material.SetColor(BaseColorId, nextColor);
+            }
         }
     }
 }

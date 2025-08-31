@@ -1,3 +1,5 @@
+﻿using System;
+using UniRx;
 using UnityEngine;
 using VContainer;
 
@@ -9,6 +11,7 @@ namespace UniLiveViewer.Menu.Config.Stage
 
         readonly FantasyVillageMenuSettings _settings;
         readonly RootAudioSourceService _audioSourceService;
+        readonly CompositeDisposable _disposables = new();
 
         [Inject]
         public FantasyVillageMenuServie(FantasyVillageMenuSettings settings, RootAudioSourceService audioSourceService)
@@ -19,7 +22,8 @@ namespace UniLiveViewer.Menu.Config.Stage
 
         void IStageMenuService.Initialize()
         {
-            _settings.DirectionalLightButton.onTrigger += (btn) => OnClick(btn.isEnable);
+            _settings.DirectionalLightButton.OnTriggerAsObservable()
+                .Subscribe(x => OnClick(x.isEnable)).AddTo(_disposables);
 
             _actionObj[0] = GameObject.FindGameObjectWithTag("MainLight").transform;
         }
@@ -42,7 +46,7 @@ namespace UniLiveViewer.Menu.Config.Stage
 
         void IStageMenuService.Dispose()
         {
-            _settings.DirectionalLightButton.onTrigger -= (btn) => OnClick(btn.isEnable);
+            _disposables.Dispose();
         }
     }
 }

@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using VContainer;
@@ -65,6 +65,8 @@ namespace UniLiveViewer.Player
                 _vignette = vignette;
                 _vignette.active = false;
             }
+            ChangeOutline(0.3f);
+
             IfNeededSwitchPostprocessing();
         }
 

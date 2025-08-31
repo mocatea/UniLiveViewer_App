@@ -1,7 +1,4 @@
-using System;
-using System.ComponentModel;
-using UnityEngine;
-using VContainer;
+﻿using VContainer;
 
 namespace UniLiveViewer.Stage.Gymnasium
 {
@@ -13,12 +10,6 @@ namespace UniLiveViewer.Stage.Gymnasium
         public GymnasiumEnvironmentService(StageLightChangeService stageLightChangeService)
         {
             _stageLightChangeService = stageLightChangeService;
-        }
-
-        public void Begin()
-        {
-            _stageLightChangeService.OnChangeStageLight(StageEnums.StageLightDefaultIndex);
-            _stageLightChangeService.OnChangeLightColor(FileReadAndWriteUtility.UserProfile.scene_gym_whitelight);
         }
 
         public void OnChangeSummonedCount(int count)

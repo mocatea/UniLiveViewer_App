@@ -24,6 +24,7 @@ namespace UniLiveViewer.Menu.Config.Stage
 
         readonly ViewerMenuSettings _settings;
         readonly RootAudioSourceService _audioSourceService;
+        readonly CompositeDisposable _disposables = new();
 
         [Inject]
         public ViewerMenuServie(ViewerMenuSettings settings, RootAudioSourceService audioSourceService)
@@ -34,34 +35,26 @@ namespace UniLiveViewer.Menu.Config.Stage
 
         void IStageMenuService.Initialize()
         {
-            _settings.LedButton.onTrigger += (btn) => OnClickFloorLED(btn.isEnable);
+            _settings.LedButton.OnTriggerAsObservable()
+                    .Subscribe(x => OnClickFloorLED(x.isEnable)).AddTo(_disposables);
+
             _backGroundCon = GameObject.FindGameObjectWithTag("BackGroundController").GetComponent<BackGroundController>();
 
-            for (int i = 0; i < _settings.ParticleButtons.Length; i++)
-            {
-                _settings.ParticleButtons[i].onTrigger += (btn) =>
-                {
-                    // これやらんと発火時はLengthの値になる
-                    var moveIndex = btn == _settings.ParticleButtons[0] ? -1 : 1;
-                    OnClickParticle(moveIndex);
-                };
-            }
-            for (int i = 0; i < _settings.WormHolleButtons.Length; i++)
-            {
-                _settings.WormHolleButtons[i].onTrigger += (btn) =>
-                {
-                    var moveIndex = btn == _settings.WormHolleButtons[0] ? -1 : 1;
-                    OnClickWormHolle(moveIndex);
-                };
-            }
-            for (int i = 0; i < _settings.SkyBoxButtons.Length; i++)
-            {
-                _settings.SkyBoxButtons[i].onTrigger += (btn) =>
-                {
-                    var moveIndex = btn == _settings.SkyBoxButtons[0] ? -1 : 1;
-                    OnClickSkyBox(moveIndex);
-                };
-            }
+
+            _settings.ParticleButtons[0].OnTriggerAsObservable()
+                    .Subscribe(_ => OnClickParticle(-1)).AddTo(_disposables);
+            _settings.ParticleButtons[1].OnTriggerAsObservable()
+                    .Subscribe(_ => OnClickParticle(1)).AddTo(_disposables);
+
+            _settings.WormHolleButtons[0].OnTriggerAsObservable()
+                    .Subscribe(_ => OnClickWormHolle(-1)).AddTo(_disposables);
+            _settings.WormHolleButtons[1].OnTriggerAsObservable()
+                    .Subscribe(_ => OnClickWormHolle(1)).AddTo(_disposables);
+
+            _settings.SkyBoxButtons[0].OnTriggerAsObservable()
+                    .Subscribe(_ => OnClickSkyBox(-1)).AddTo(_disposables);
+            _settings.SkyBoxButtons[1].OnTriggerAsObservable()
+                    .Subscribe(_ => OnClickSkyBox(1)).AddTo(_disposables);
         }
 
         void IStageMenuService.OnEnable()
@@ -73,7 +66,7 @@ namespace UniLiveViewer.Menu.Config.Stage
         {
             if (!_backGroundCon) return;
             _audioSourceService.PlayOneShot(AudioSE.ButtonClick);
-            _settings.Texts[0].text = "Particle_" + _backGroundCon.GetParticleName(moveIndex);
+            _settings.Texts[0].text = _backGroundCon.GetParticleName(moveIndex);
             _particleMoveIndex.OnNext(moveIndex);
         }
 
@@ -81,7 +74,7 @@ namespace UniLiveViewer.Menu.Config.Stage
         {
             if (!_backGroundCon) return;
             _audioSourceService.PlayOneShot(AudioSE.ButtonClick);
-            _settings.Texts[1].text = "WormHolle_" + _backGroundCon.GetWormHolleName(moveIndex);
+            _settings.Texts[1].text = _backGroundCon.GetWormHolleName(moveIndex);
             _wormHolleMoveIndex.OnNext(moveIndex);
         }
 
@@ -89,7 +82,7 @@ namespace UniLiveViewer.Menu.Config.Stage
         {
             if (!_backGroundCon) return;
             _audioSourceService.PlayOneShot(AudioSE.ButtonClick);
-            _settings.Texts[2].text = "SkyBox_" + _backGroundCon.GetCubemapName(moveIndex);
+            _settings.Texts[2].text = _backGroundCon.GetCubemapName(moveIndex);
             _skyboxMoveIndex.OnNext(moveIndex);
         }
 
@@ -101,20 +94,7 @@ namespace UniLiveViewer.Menu.Config.Stage
 
         void IStageMenuService.Dispose()
         {
-            _settings.LedButton.onTrigger -= (btn) => OnClickFloorLED(btn.isEnable);
-
-            for (int i = 0; i < _settings.ParticleButtons.Length; i++)
-            {
-                _settings.ParticleButtons[i].onTrigger -= (btn) => OnClickParticle(0);
-            }
-            for (int i = 0; i < _settings.WormHolleButtons.Length; i++)
-            {
-                _settings.WormHolleButtons[i].onTrigger -= (btn) => OnClickWormHolle(0);
-            }
-            for (int i = 0; i < _settings.SkyBoxButtons.Length; i++)
-            {
-                _settings.SkyBoxButtons[i].onTrigger -= (btn) => OnClickSkyBox(0);
-            }
+            _disposables.Dispose();
         }
     }
 }

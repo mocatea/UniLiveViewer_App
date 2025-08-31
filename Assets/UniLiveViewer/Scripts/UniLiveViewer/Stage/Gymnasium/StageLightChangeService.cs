@@ -1,27 +1,32 @@
-﻿using System.Linq;
-using UnityEngine;
+using VContainer;
 
 namespace UniLiveViewer.Stage.Gymnasium
 {
-    // 作りイマイチ
-    public class StageLightChangeService : MonoBehaviour
+    public class StageLightChangeService
     {
-        [SerializeField] Transform[] _lights = new Transform[5];
         bool _isWhite;
-        int _currnt;
-        IStageLight[] _stagelights;
-        int _charaCount;
+        int _currntIndex;
+        int _actorCount;
 
-        void Awake()
+        readonly GymnasiumEnvironmentSettings _settings;
+
+        [Inject]
+        public StageLightChangeService(GymnasiumEnvironmentSettings settings)
         {
+            _settings = settings;
+
             _isWhite = FileReadAndWriteUtility.UserProfile.scene_gym_whitelight;
-            _currnt = StageEnums.StageLightDefaultIndex;
+            _currntIndex = StageEnums.StageLightDefaultIndex;
+        }
+
+        public void OnChangeStageLight(int index)
+        {
+            _currntIndex = index;
             UpdateStageLight();
 
-            _stagelights = _lights
-                .Select(t => t.GetComponent<IStageLight>())
-                .Where(stageLight => stageLight != null)
-                .ToArray();
+            //各要素反映
+            OnChangeSummonedCount(_actorCount);
+            OnChangeLightColor(_isWhite);
         }
 
         /// <summary>
@@ -29,30 +34,20 @@ namespace UniLiveViewer.Stage.Gymnasium
         /// </summary>
         void UpdateStageLight()
         {
-            for (int i = 0; i < _lights.Length; i++)
+            for (int i = 0; i < _settings.Lights.Length; i++)
             {
-                _lights[i].gameObject.SetActive(i == _currnt);
+                _settings.Lights[i].gameObject.SetActive(i == _currntIndex);
             }
-        }
-
-        public void OnChangeStageLight(int index)
-        {
-            _currnt = index;
-            UpdateStageLight();
-
-            //各要素反映
-            OnChangeSummonedCount(_charaCount);
-            OnChangeLightColor(_isWhite);
         }
 
         /// <summary>
         /// 召喚数更新時
         /// </summary>
-        public void OnChangeSummonedCount(int count)
+        public void OnChangeSummonedCount(int actorCount)
         {
-            _charaCount = count;
-            if (_stagelights.Length <= _currnt) return;
-            _stagelights[_currnt].ChangeCount(count);
+            _actorCount = actorCount;
+            if (_settings.Stagelights.Length <= _currntIndex) return;
+            _settings.Stagelights[_currntIndex].ChangeCount(actorCount);
         }
 
         /// <summary>
@@ -62,14 +57,14 @@ namespace UniLiveViewer.Stage.Gymnasium
         public void OnChangeLightColor(bool isWhite)
         {
             _isWhite = isWhite;
-            if (_stagelights.Length <= _currnt) return;
-            _stagelights[_currnt].ChangeColor(isWhite);
+            if (_settings.Stagelights.Length <= _currntIndex) return;
+            _settings.Stagelights[_currntIndex].ChangeColor(isWhite);
         }
 
         public void OnTick()
         {
-            if (_stagelights.Length <= _currnt) return;
-            _stagelights[_currnt].OnUpdate();
+            if (_settings.Stagelights.Length <= _currntIndex) return;
+            _settings.Stagelights[_currntIndex].OnUpdate();
         }
     }
 }

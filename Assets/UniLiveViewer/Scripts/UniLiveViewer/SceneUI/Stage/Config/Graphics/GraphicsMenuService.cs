@@ -45,7 +45,7 @@ namespace UniLiveViewer.Menu.Config.Graphics
         readonly ReactiveProperty<float> _bloomColor = new(0.65f);//水色
 
         public IReadOnlyReactiveProperty<float> Outline => _outline;
-        readonly ReactiveProperty<float> _outline = new(0);
+        readonly ReactiveProperty<float> _outline = new(0.3f);
 
         readonly RootAudioSourceService _audioSourceService;
         readonly GraphicsMenuSettings _settings;

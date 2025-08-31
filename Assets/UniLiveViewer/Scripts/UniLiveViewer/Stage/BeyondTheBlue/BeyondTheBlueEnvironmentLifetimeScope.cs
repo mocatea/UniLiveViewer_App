@@ -4,12 +4,14 @@ using VContainer.Unity;
 
 namespace UniLiveViewer.Stage.BeyondTheBlue
 {
-    [RequireComponent(typeof(BeyondTheBlueEnvironmentService))]
     public class BeyondTheBlueEnvironmentLifetimeScope : LifetimeScope
     {
+        [SerializeField] BeyondTheBlueEnvironmentSettings _settings;
+
         protected override void Configure(IContainerBuilder builder)
         {
-            builder.RegisterComponent(GetComponent<BeyondTheBlueEnvironmentService>());
+            builder.RegisterComponent(_settings);
+            builder.Register<BeyondTheBlueEnvironmentService>(Lifetime.Singleton);
 
             builder.RegisterEntryPoint<BeyondTheBlueEnvironmentPresenter>();
         }

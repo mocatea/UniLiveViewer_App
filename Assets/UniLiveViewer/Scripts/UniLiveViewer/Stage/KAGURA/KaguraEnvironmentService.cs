@@ -1,59 +1,47 @@
 ﻿using UnityEngine;
+using VContainer;
 
 namespace UniLiveViewer.Stage.Kagura
 {
-    public class KaguraEnvironmentService : MonoBehaviour
+    public class KaguraEnvironmentService
     {
-        Transform _particle;
-        Transform _reflection;
-        Transform _waterAnchor;
+        readonly KaguraEnvironmentSettings _sttings;
 
-        void Start()
+        [Inject]
+        public KaguraEnvironmentService(KaguraEnvironmentSettings sttings)
         {
-            _particle = GameObject.FindGameObjectWithTag("Particle").transform;
-            _reflection = GameObject.FindGameObjectWithTag("ReflectionProbe").transform;
-            _waterAnchor = GameObject.FindGameObjectWithTag("WaterAnchor").transform;
-
-            _particle.gameObject.SetActive(FileReadAndWriteUtility.UserProfile.scene_kagura_particle);
-            _reflection.gameObject.SetActive(FileReadAndWriteUtility.UserProfile.scene_kagura_sea);
-            _waterAnchor.transform.GetChild(0).gameObject.SetActive(FileReadAndWriteUtility.UserProfile.scene_kagura_reflection);
+            _sttings = sttings;
         }
 
         public void OnClickParticle(bool isEnable)
         {
-            if (_particle == null) return;
-
-            _particle.gameObject.SetActive(isEnable);
+            _sttings.Particle.gameObject.SetActive(isEnable);
             FileReadAndWriteUtility.UserProfile.scene_kagura_particle = isEnable;
             FileReadAndWriteUtility.WriteJson(FileReadAndWriteUtility.UserProfile);
         }
 
         public void OnClickReflection(bool isEnable)
         {
-            if (_reflection == null) return;
-
-            _reflection.gameObject.SetActive(isEnable);
+            _sttings.Reflection.gameObject.SetActive(isEnable);
             FileReadAndWriteUtility.UserProfile.scene_kagura_reflection = isEnable;
             FileReadAndWriteUtility.WriteJson(FileReadAndWriteUtility.UserProfile);
         }
 
         public void OnClickSeaWaves(bool isEnable)
         {
-            if (_waterAnchor == null) return;
-
             // 反転で切り替え
-            if (_waterAnchor.GetChild(0).gameObject.activeSelf)
+            if (_sttings.WaterAnchor.GetChild(0).gameObject.activeSelf)
             {
-                _waterAnchor.GetChild(0).gameObject.SetActive(false);
-                _waterAnchor.GetChild(1).gameObject.SetActive(true);
+                _sttings.WaterAnchor.GetChild(0).gameObject.SetActive(false);
+                _sttings.WaterAnchor.GetChild(1).gameObject.SetActive(true);
             }
-            else if (_waterAnchor.GetChild(1).gameObject.activeSelf)
+            else if (_sttings.WaterAnchor.GetChild(1).gameObject.activeSelf)
             {
-                _waterAnchor.GetChild(1).gameObject.SetActive(false);
-                _waterAnchor.GetChild(0).gameObject.SetActive(true);
+                _sttings.WaterAnchor.GetChild(1).gameObject.SetActive(false);
+                _sttings.WaterAnchor.GetChild(0).gameObject.SetActive(true);
             }
 
-            _waterAnchor.gameObject.SetActive(isEnable);
+            _sttings.WaterAnchor.gameObject.SetActive(isEnable);
             FileReadAndWriteUtility.UserProfile.scene_kagura_sea = isEnable;
             FileReadAndWriteUtility.WriteJson(FileReadAndWriteUtility.UserProfile);
         }

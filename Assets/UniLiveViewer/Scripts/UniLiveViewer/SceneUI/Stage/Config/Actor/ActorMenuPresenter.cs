@@ -62,7 +62,7 @@ namespace UniLiveViewer.Menu.Config.Actor
 
             var shadowType = (SHADOWTYPE)FileReadAndWriteUtility.UserProfile.CharaShadowType;
             _quasiShadowSetting.ShadowType = shadowType;
-            _settings.FallingShadowTypeText.text = $"FootShadow:\n{shadowType}";
+            _settings.FallingShadowTypeText.text = $"{shadowType}";
 
             _settings.FallingShadowSlider.SetValueWithoutNotify(FileReadAndWriteUtility.UserProfile.CharaShadowSize);
             _quasiShadowSetting.SetShadowScale(FileReadAndWriteUtility.UserProfile.CharaShadowSize);
@@ -96,7 +96,7 @@ namespace UniLiveViewer.Menu.Config.Actor
 
         void OnChangeFallingShadowType(SHADOWTYPE type)
         {
-            _settings.FallingShadowTypeText.text = $"FootShadow:\n{type}";
+            _settings.FallingShadowTypeText.text = $"{type}";
             _actorMenuService.ApplyFallingShadowTypeValue(type);
 
             //json保存後に通知

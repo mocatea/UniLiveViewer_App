@@ -24,10 +24,10 @@ EditorBuildSettings:
     path: Assets/UniLiveViewer/_GitIgnore/Scene/FantasyVillage.unity
     guid: 43c2367f7308bb549af16752c594cd9f
   - enabled: 1
-    path: Assets/_Test/_Test2/HorizonLine_Test.unity
+    path: Assets/_Test/Test2/HorizonLine_Test.unity
     guid: 580646930c0a3a740b09c0a4244cbb72
   - enabled: 1
-    path: Assets/_Test/_Test2/SnowField_Test.unity
+    path: Assets/_Test/Test2/SnowField_Test.unity
     guid: 39ca20f7151f3574980944ebd89100d9
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 61c208025619b1f4580060058fdb9fd3, type: 2}

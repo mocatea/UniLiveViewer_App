@@ -15,6 +15,8 @@ namespace UniLiveViewer.Menu.Config.Stage
         readonly GymnasiumMenuSettings _settings;
         readonly RootAudioSourceService _audioSourceService;
 
+        readonly CompositeDisposable _disposables = new();
+
         [Inject]
         public GymnasiumMenuServie(GymnasiumMenuSettings settings, RootAudioSourceService audioSourceService)
         {
@@ -24,21 +26,19 @@ namespace UniLiveViewer.Menu.Config.Stage
 
         void IStageMenuService.Initialize()
         {
-            _settings.LightColorButton.onTrigger += (btn) => OnClickLightColor(btn.isEnable);
+            _settings.LightColorButton.OnTriggerAsObservable()
+                .Subscribe(x => OnClickLightColor(x.isEnable))
+                .AddTo(_disposables);
 
-            for (int i = 0; i < _settings.SpotLightButtons.Length; i++)
-            {
-                _settings.SpotLightButtons[i].onTrigger += (btn) =>
-                {
-                    var index = btn == _settings.SpotLightButtons[0] ? 0 : 1;// やらんと発火時はLength値になる
-                    OnClickSpotLight(index);
-                };
-            }
+            _settings.SpotLightButtons[0].OnTriggerAsObservable()
+                    .Subscribe(_ => OnClickSpotLight(-1)).AddTo(_disposables);
+            _settings.SpotLightButtons[1].OnTriggerAsObservable()
+                    .Subscribe(_ => OnClickSpotLight(1)).AddTo(_disposables);
         }
 
         void IStageMenuService.OnEnable()
         {
-            _settings.Texts[0].text = $"SpotLight_{Enum.GetName(typeof(StageEnums.StageLight), _lightIndex)}";
+            _settings.Texts[0].text = $"{Enum.GetName(typeof(StageEnums.StageLight), _lightIndex)}";
             _settings.LightColorButton.isEnable = FileReadAndWriteUtility.UserProfile.scene_gym_whitelight;
             // 明示的通知で初期化
             _stageLightIndex.OnNext(_lightIndex);
@@ -53,27 +53,21 @@ namespace UniLiveViewer.Menu.Config.Stage
 
         // 雑
         int _lightIndex = StageEnums.StageLightDefaultIndex;
-        void OnClickSpotLight(int index)
+        void OnClickSpotLight(int moveIndex)
         {
             _audioSourceService.PlayOneShot(AudioSE.SpotlightSwitch);
-
-            var moveIndex = index == 0 ? -1 : 1;
             _lightIndex += moveIndex;
             var max = Enum.GetValues(typeof(StageEnums.StageLight)).Length;
             if (max <= _lightIndex) _lightIndex = 0;
             else if (_lightIndex < 0) _lightIndex = max - 1;
 
-            _settings.Texts[0].text = $"SpotLight_{Enum.GetName(typeof(StageEnums.StageLight), _lightIndex)}";
+            _settings.Texts[0].text = $"{Enum.GetName(typeof(StageEnums.StageLight), _lightIndex)}";
             _stageLightIndex.OnNext(_lightIndex);
         }
 
         void IStageMenuService.Dispose()
         {
-            _settings.LightColorButton.onTrigger -= (btn) => OnClickLightColor(btn.isEnable);
-            for (int i = 0; i < _settings.SpotLightButtons.Length; i++)
-            {
-                _settings.SpotLightButtons[i].onTrigger -= (btn) => OnClickSpotLight(i);
-            }
+            _disposables.Dispose();
         }
     }
 }

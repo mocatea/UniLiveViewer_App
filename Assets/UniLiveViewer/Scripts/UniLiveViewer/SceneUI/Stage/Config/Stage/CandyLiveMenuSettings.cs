@@ -1,4 +1,3 @@
-﻿using UniLiveViewer.SceneLoader;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -18,7 +17,7 @@ namespace UniLiveViewer.Menu.Config.Stage
         [SerializeField] Button_Base _sonicBoomButton;
 
         public Button_Base PlayManualButton => _playManualButton;
-        [SerializeField] Button_Base _playManualButton ;
+        [SerializeField] Button_Base _playManualButton;
 
         void Awake()
         {

@@ -4,12 +4,14 @@ using VContainer.Unity;
 
 namespace UniLiveViewer.Stage.Kagura
 {
-    [RequireComponent(typeof(KaguraEnvironmentService))]
     public class KaguraEnvironmentLifetimeScope : LifetimeScope
     {
+        [SerializeField] KaguraEnvironmentSettings _settings;
+
         protected override void Configure(IContainerBuilder builder)
         {
-            builder.RegisterComponent(GetComponent<KaguraEnvironmentService>());
+            builder.RegisterComponent(_settings);
+            builder.Register<KaguraEnvironmentService>(Lifetime.Singleton);
 
             builder.RegisterEntryPoint<KaguraEnvironmentPresenter>();
         }

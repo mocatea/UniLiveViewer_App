@@ -6,12 +6,14 @@ namespace UniLiveViewer.Menu.Config.Stage
 {
     public class BeyondTheBlueMenuServie : IStageMenuService
     {
+        public IReactiveProperty<int> PropSet => _propSet;
+        readonly ReactiveProperty<int> _propSet = new(1);
+
         public IObservable<bool> IsGodRayAsObservable => _isGodRay;
         readonly Subject<bool> _isGodRay = new();
 
         public IReactiveProperty<float> WaterColor => _waterColor;
         readonly ReactiveProperty<float> _waterColor = new(0.58f);//水色
-
 
         readonly BeyondTheBlueMenuSettings _settings;
         readonly RootAudioSourceService _audioSourceService;
@@ -27,6 +29,11 @@ namespace UniLiveViewer.Menu.Config.Stage
 
         void IStageMenuService.Initialize()
         {
+            _settings.PropSetButtons[0].OnTriggerAsObservable()
+                    .Subscribe(_ => OnClickPropSetButton(-1)).AddTo(_disposables);
+            _settings.PropSetButtons[1].OnTriggerAsObservable()
+                    .Subscribe(_ => OnClickPropSetButton(1)).AddTo(_disposables);
+
             _settings.GodRayButton.OnTriggerAsObservable()
                 .Select(x => x.isEnable)
                 .Subscribe(OnClickGodRay).AddTo(_disposables);
@@ -34,13 +41,24 @@ namespace UniLiveViewer.Menu.Config.Stage
             _settings.WaterColorSlider.ValueAsObservable
                 .Subscribe(OnChangeWaterColor).AddTo(_disposables);
 
-
             _settings.GodRayButton.isEnable = true;
             _settings.WaterColorSlider.Value = _waterColor.Value;
+
+            _settings.PropSetText.text = _propSet.Value == 0 ? "None" : _propSet.Value.ToString();
         }
 
         void IStageMenuService.OnEnable()
         {
+
+        }
+
+        void OnClickPropSetButton(int moveIndex)
+        {
+            _audioSourceService.PlayOneShot(AudioSE.ButtonClick);
+            _propSet.Value = Math.Clamp(_propSet.Value + moveIndex, 0, 4);
+
+            var text = _propSet.Value == 0 ? "None" : _propSet.Value.ToString();
+            _settings.PropSetText.text = text;
         }
 
         void OnClickGodRay(bool isEnable)

@@ -23,6 +23,7 @@ namespace UniLiveViewer.Menu.Config.Stage
 
         readonly CandyLiveMenuSettings _settings;
         readonly RootAudioSourceService _audioSourceService;
+        readonly CompositeDisposable _disposables = new();
 
         [Inject]
         public CandyLiveMenuServie(CandyLiveMenuSettings settings, RootAudioSourceService audioSourceService)
@@ -33,11 +34,16 @@ namespace UniLiveViewer.Menu.Config.Stage
 
         void IStageMenuService.Initialize()
         {
-            _settings.ParticleButton.onTrigger += (btn) => OnClickParticle(btn.isEnable);
-            _settings.LaserGunButton.onTrigger += (btn) => OnClickLaserGun(btn.isEnable);
-            _settings.ReflectionButton.onTrigger += (btn) => OnClickReflection(btn.isEnable);
-            _settings.SonicBoomButton.onTrigger += (btn) => OnClickSonicBoom(btn.isEnable);
-            _settings.PlayManualButton.onTrigger += (btn) => OnClickPlayManual(btn.isEnable);
+            _settings.ParticleButton.OnTriggerAsObservable()
+                .Subscribe(x => OnClickParticle(x.isEnable)).AddTo(_disposables);
+            _settings.LaserGunButton.OnTriggerAsObservable()
+                .Subscribe(x => OnClickLaserGun(x.isEnable)).AddTo(_disposables);
+            _settings.ReflectionButton.OnTriggerAsObservable()
+                .Subscribe(x => OnClickReflection(x.isEnable)).AddTo(_disposables);
+            _settings.SonicBoomButton.OnTriggerAsObservable()
+                .Subscribe(x => OnClickSonicBoom(x.isEnable)).AddTo(_disposables);
+            _settings.PlayManualButton.OnTriggerAsObservable()
+                .Subscribe(x => OnClickPlayManual(x.isEnable)).AddTo(_disposables);
         }
 
         void IStageMenuService.OnEnable()
@@ -81,11 +87,7 @@ namespace UniLiveViewer.Menu.Config.Stage
 
         void IStageMenuService.Dispose()
         {
-            _settings.ParticleButton.onTrigger -= (btn) => OnClickParticle(btn.isEnable);
-            _settings.LaserGunButton.onTrigger -= (btn) => OnClickLaserGun(btn.isEnable);
-            _settings.ReflectionButton.onTrigger -= (btn) => OnClickReflection(btn.isEnable);
-            _settings.SonicBoomButton.onTrigger -= (btn) => OnClickSonicBoom(btn.isEnable);
-            _settings.PlayManualButton.onTrigger -= (btn) => OnClickPlayManual(btn.isEnable);
+            _disposables.Dispose();
         }
     }
 }

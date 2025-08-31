@@ -1,43 +1,35 @@
-﻿using UnityEngine;
+﻿using VContainer;
 
 namespace UniLiveViewer.Stage.Viewer
 {
-    public class ViewerEnvironmentService : MonoBehaviour
+    public class ViewerEnvironmentService
     {
-        Transform _floorLED;
-        BackGroundController _backGroundCon;
+        readonly ViewerEnvironmentSettings _settings;
 
-        void Start()
+        [Inject]
+        public ViewerEnvironmentService(ViewerEnvironmentSettings settings)
         {
-            _floorLED = GameObject.FindGameObjectWithTag("FloorLED").transform;
-            _backGroundCon = GameObject.FindGameObjectWithTag("BackGroundController").GetComponent<BackGroundController>();
-
-            _floorLED.gameObject.SetActive(FileReadAndWriteUtility.UserProfile.scene_view_led);
+            _settings = settings;
         }
 
         public void OnClickParticle(int moveIndex)
         {
-            if (_backGroundCon == null) return;
-            _backGroundCon.SetParticle(moveIndex);
+            _settings.BackGroundCon.SetParticle(moveIndex);
         }
 
         public void OnClickWormHole(int moveIndex)
         {
-            if (_backGroundCon == null) return;
-            _backGroundCon.SetWormHole(moveIndex);
+            _settings.BackGroundCon.SetWormHole(moveIndex);
         }
 
         public void OnClickSkyBox(int moveIndex)
         {
-            if (_backGroundCon == null) return;
-            _backGroundCon.SetCubemap(moveIndex);
+            _settings.BackGroundCon.SetCubemap(moveIndex);
         }
 
         public void OnClickFloorLED(bool isEnable)
         {
-            if (_floorLED == null) return;
-
-            _floorLED.gameObject.SetActive(isEnable);
+            _settings.FloorLED.gameObject.SetActive(isEnable);
             FileReadAndWriteUtility.UserProfile.scene_view_led = isEnable;
             FileReadAndWriteUtility.WriteJson(FileReadAndWriteUtility.UserProfile);
         }
