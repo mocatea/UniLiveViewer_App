@@ -12,7 +12,7 @@ namespace UniLiveViewer.Actor.Option
 
         void OnChangeRootScalar(float rootScalar);
 
-        void OnUpdateShadowType(SHADOWTYPE shadowType, QuasiShadowSetting.Preset preset);
+        void OnUpdateShadowType(SHADOWTYPE shadowType, QuasiShadowSetting.Preset preset, float userShadowScale);
 
         void OnUpdate(QuasiShadowSetting.Preset preset, QuasiShadowSetting setting);
 

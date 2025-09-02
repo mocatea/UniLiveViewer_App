@@ -49,7 +49,7 @@ namespace UniLiveViewer.Actor.Option
             _settings = settings;
             _preset = settings.Presets[presetIndex];
 
-            _fakeShadow.OnUpdateShadowType(shadowType, settings.Presets[presetIndex]);
+            _fakeShadow.OnUpdateShadowType(shadowType, settings.Presets[presetIndex], userShadowScale);
         }
 
         public void OnTick()

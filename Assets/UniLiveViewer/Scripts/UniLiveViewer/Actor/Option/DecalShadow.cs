@@ -19,8 +19,6 @@ namespace UniLiveViewer.Actor.Option
 
         public void Setup(Transform parent, SHADOWTYPE shadowType, QuasiShadowSetting.Preset preset, float userShadowScale)
         {
-            _userShadowScale = userShadowScale;
-
             var prefab = Resources.Load<GameObject>(PrefabPath);
             var templateMat = prefab.GetComponent<DecalProjector>().material;
 
@@ -32,7 +30,7 @@ namespace UniLiveViewer.Actor.Option
                 _map.Add((null, shadow));
             }
 
-            OnUpdateShadowType(shadowType, preset);
+            OnUpdateShadowType(shadowType, preset, userShadowScale);
         }
 
         public void OnChangeActorEntity(ActorEntity actorEntity)
@@ -61,8 +59,10 @@ namespace UniLiveViewer.Actor.Option
         public void OnChangeRootScalar(float rootScalar) => _rootScalar = rootScalar;
 
 
-        public void OnUpdateShadowType(SHADOWTYPE shadowType, QuasiShadowSetting.Preset preset)
+        public void OnUpdateShadowType(SHADOWTYPE shadowType, QuasiShadowSetting.Preset preset, float userShadowScale)
         {
+            _userShadowScale = userShadowScale;
+
             _isEnable = shadowType != SHADOWTYPE.NONE;
             for (int i = 0; i < _map.Count; i++)
             {
