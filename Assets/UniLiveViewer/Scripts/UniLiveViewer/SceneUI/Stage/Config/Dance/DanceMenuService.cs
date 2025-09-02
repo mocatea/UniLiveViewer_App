@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using UniRx;
+using UnityEngine;
 using VContainer;
 
 namespace UniLiveViewer.Menu.Config.Dance
@@ -7,6 +9,7 @@ namespace UniLiveViewer.Menu.Config.Dance
     {
         readonly DanceMenuSettings _settings;
         readonly RootAudioSourceService _audioSourceService;
+        readonly CompositeDisposable _disposables = new();
 
         [Inject]
         public DanceMenuService(
@@ -20,7 +23,8 @@ namespace UniLiveViewer.Menu.Config.Dance
         public void Initialize()
         {
             _settings.VMDSmoothButton.isEnable = FileReadAndWriteUtility.UserProfile.IsSmoothVMD;
-            _settings.VMDSmoothButton.onTrigger += OnChangeVMDSmooth;
+            _settings.VMDSmoothButton.OnTriggerAsObservable()
+                .Subscribe(OnChangeVMDSmooth).AddTo(_disposables);
 
             _settings.VMDScaleSlider.Value = FileReadAndWriteUtility.UserProfile.VMDScale;
         }
@@ -41,6 +45,11 @@ namespace UniLiveViewer.Menu.Config.Dance
         {
             FileReadAndWriteUtility.UserProfile.VMDScale = float.Parse(_settings.VMDScaleSlider.Value.ToString("f3"));
             FileReadAndWriteUtility.WriteJson(FileReadAndWriteUtility.UserProfile);
+        }
+
+        public void Dispose()
+        {
+            _disposables.Dispose();
         }
     }
 }

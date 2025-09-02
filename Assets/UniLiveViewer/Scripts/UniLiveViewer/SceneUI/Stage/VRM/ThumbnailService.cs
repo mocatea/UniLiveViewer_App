@@ -154,7 +154,7 @@ namespace UniLiveViewer.Menu
                 var spr = _textureAssetManager.Thumbnails[clampedData[index]];
                 if (spr)
                 {
-                    var targetSprite = _buttons[index].collisionChecker.colorSetting[0].targetSprite;
+                    var targetSprite = _buttons[index].collisionChecker.ColorSetting[0].targetSprite;
                     targetSprite.sprite = spr;
                     targetSprite.drawMode = SpriteDrawMode.Simple; // 形状編集に必須
                 }

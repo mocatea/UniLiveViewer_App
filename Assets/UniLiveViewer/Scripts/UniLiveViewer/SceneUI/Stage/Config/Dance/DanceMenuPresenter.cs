@@ -32,6 +32,7 @@ namespace UniLiveViewer.Menu.Config.Dance
         void IDisposable.Dispose()
         {
             _disposables.Dispose();
+            _danceMenuService.Dispose();
         }
     }
 }

@@ -31,6 +31,7 @@ namespace UniLiveViewer.Menu.Config.Common
         void IDisposable.Dispose()
         {
             _disposables.Dispose();
+            _commonMenuService.Dispose();
         }
     }
 }
