@@ -1,7 +1,5 @@
-﻿using System;
 using UnityEngine;
 using UnityEngine.Assertions;
-using VContainer;
 
 namespace UniLiveViewer.Stage.BeyondTheBlue
 {
@@ -39,7 +37,7 @@ namespace UniLiveViewer.Stage.BeyondTheBlue
             _godRay.gameObject.SetActive(true);
 
             var initIndex = 1;
-            for(int i = 0;i< _propSets.Length; i++)
+            for (int i = 0; i < _propSets.Length; i++)
             {
                 _propSets[i].gameObject.SetActive(i == initIndex);
             }

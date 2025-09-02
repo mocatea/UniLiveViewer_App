@@ -9,7 +9,6 @@ namespace UniLiveViewer.SceneLoader
     /// </summary>
     public class TitleScene : IScene
     {
-        const int BufferTime = 5000;
         const string SceneName = "TitleScene";
 
         public TitleScene()
@@ -21,7 +20,7 @@ namespace UniLiveViewer.SceneLoader
             //完全非同期は無理
             var async = SceneManager.LoadSceneAsync(SceneName);
             async.allowSceneActivation = false;
-            await UniTask.Delay(BufferTime, cancellationToken: token);
+            await UniTask.Delay(SceneConstant.TransitionBufferTime, cancellationToken: token);
             async.allowSceneActivation = true;
         }
 

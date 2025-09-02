@@ -26,7 +26,7 @@ namespace UniLiveViewer.Stage
         {
             _fileAccessManager.EndLoadingAsObservable
                 .Delay(TimeSpan.FromSeconds(1)) // 明転早すぎると困るので最低1秒は待つ
-                .Subscribe(_ => _blackoutCurtain.Ending().Forget())
+                .Subscribe(_ => _blackoutCurtain.Opening())
                 .AddTo(_disposables);
         }
 

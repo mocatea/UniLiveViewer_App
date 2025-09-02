@@ -6,7 +6,6 @@ namespace UniLiveViewer.SceneLoader
 {
     public class BeyondTheBlueScene : IScene
     {
-        const int BufferTime = 5000;
         const string SceneName = "HorizonLine_Test";
         public BeyondTheBlueScene()
         {
@@ -17,10 +16,10 @@ namespace UniLiveViewer.SceneLoader
             //完全非同期は無理
             var async = SceneManager.LoadSceneAsync(SceneName);
             async.allowSceneActivation = false;
-            await UniTask.Delay(BufferTime, cancellationToken: token);
+            await UniTask.Delay(SceneConstant.TransitionBufferTime, cancellationToken: token);
             async.allowSceneActivation = true;
         }
 
-        string IScene.GetVisualName() => "★Beyond The Blue★";
+        string IScene.GetVisualName() => "Beyond The Blue";
     }
 }

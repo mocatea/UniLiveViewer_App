@@ -43,7 +43,7 @@ namespace UniLiveViewer.Menu.SceneSelect
             _menuRootService.OnMenuSwitching();//開いてる想定なので閉じる
 
             _rootAudioSourceService.PlayOneShot(AudioSE.SceneTransition);
-            await _blackoutCurtain.FadeoutAsync(dummy);
+            _blackoutCurtain.Closing();
             await _sceneChangeService.ChangeAsync(sceneType, dummy);
         }
     }
