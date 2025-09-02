@@ -6,6 +6,8 @@ namespace UniLiveViewer.Menu.Config.Stage
 {
     public class BeyondTheBlueMenuServie : IStageMenuService
     {
+        const int PropSetCount = 4;
+
         public IReactiveProperty<int> PropSet => _propSet;
         readonly ReactiveProperty<int> _propSet = new(1);
 
@@ -55,7 +57,9 @@ namespace UniLiveViewer.Menu.Config.Stage
         void OnClickPropSetButton(int moveIndex)
         {
             _audioSourceService.PlayOneShot(AudioSE.ButtonClick);
-            _propSet.Value = Math.Clamp(_propSet.Value + moveIndex, 0, 4);
+            _propSet.Value += moveIndex;
+            if (_propSet.Value < 0) _propSet.Value = PropSetCount;
+            else if (_propSet.Value > PropSetCount) _propSet.Value = 0;
 
             var text = _propSet.Value == 0 ? "None" : _propSet.Value.ToString();
             _settings.PropSetText.text = text;

@@ -91,9 +91,9 @@ namespace UniLiveViewer.Player
         public void ChangeMSAA(MSAASamples value)
         {
             if (_urpAsset == null) return;
-            if (value == MSAASamples.MSAA8x)
+            if (value == MSAASamples.MSAA4x || value == MSAASamples.MSAA8x)
             {
-                value = MSAASamples.MSAA4x;//上限とする
+                value = MSAASamples.MSAA2x;//上限とする
             }
             _urpAsset.msaaSampleCount = (int)value;
             FileReadAndWriteUtility.UserProfile.MSAALevel = (int)value;

@@ -19,7 +19,7 @@ namespace UniLiveViewer.Menu.Config.Graphics
 
         public IReadOnlyReactiveProperty<MSAASamples> MSAASamplesValue => _msaaSamples;
         readonly ReactiveProperty<MSAASamples> _msaaSamples = new((MSAASamples)FileReadAndWriteUtility.UserProfile.MSAALevel);
-        readonly MSAASamples[] _msaaOptions = new MSAASamples[] { MSAASamples.None, MSAASamples.MSAA2x, MSAASamples.MSAA4x };// なんで数値飛んでるのメンド
+        readonly MSAASamples[] _msaaOptions = new MSAASamples[] { MSAASamples.None, MSAASamples.MSAA2x/*, MSAASamples.MSAA4x*/ };// なんで数値飛んでるのメンド
 
         public IReadOnlyReactiveProperty<float> RenderScale => _renderScale;
         readonly ReactiveProperty<float> _renderScale = new(1);
@@ -184,7 +184,7 @@ namespace UniLiveViewer.Menu.Config.Graphics
             var isHeavyLoad = antialiasingMode == AntialiasingMode.SubpixelMorphologicalAntiAliasing;
 
             _settings.AntialiasingText.text = antialiasingMode.AsString();
-            _settings.AntialiasingText.color = isHeavyLoad ? Color.red : Color.white;
+            _settings.AntialiasingText.color = isHeavyLoad ? Color.yellow : Color.white;
             
             if(antialiasingMode == AntialiasingMode.None)
             {
@@ -205,9 +205,7 @@ namespace UniLiveViewer.Menu.Config.Graphics
 
         void ChangeTextMSAASamples(MSAASamples msaaSamples)
         {
-            var isAttentionLoad = msaaSamples == MSAASamples.MSAA4x;
             _settings.MSAAText.text = msaaSamples.AsString();
-            _settings.MSAAText.color = isAttentionLoad ? Color.yellow : Color.white;
         }
 
         void IDisposable.Dispose()
