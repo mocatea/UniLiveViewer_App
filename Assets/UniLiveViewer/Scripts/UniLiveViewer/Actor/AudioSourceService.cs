@@ -1,29 +1,40 @@
 ﻿using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace UniLiveViewer.Actor
 {
     /// <summary>
     /// 足音用
     /// </summary>
-    [RequireComponent(typeof(AudioSource))]
     public class AudioSourceService : MonoBehaviour
     {
-        AudioSource _audioSource;
+        [SerializeField] AudioSource[] _audioSources;
+        int _current = 0;
 
         void Awake()
         {
-            _audioSource = GetComponent<AudioSource>();
-            _audioSource.volume = 1;
+            Assert.IsNotNull(_audioSources);
+            foreach (var audioSource in _audioSources)
+            {
+                Assert.IsNotNull(audioSource);
+                audioSource.volume = 1;
+            }
         }
 
         public void SetVolume(float volume)
         {
-            _audioSource.volume = volume;
+            foreach (var audioSource in _audioSources)
+            {
+                audioSource.volume = volume;
+            }
         }
 
-        public void PlayOneShot(AudioClip audioClip)
+        public void PlayOneShot(AudioClip audioClip,Vector3 pos)
         {
-            _audioSource.PlayOneShot(audioClip);
+            _audioSources[_current].transform.position = pos;
+            _audioSources[_current].PlayOneShot(audioClip);
+            _current++;
+            if (_audioSources.Length <= _current) _current = 0;
         }
     }
 }

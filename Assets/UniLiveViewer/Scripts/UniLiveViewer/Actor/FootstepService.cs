@@ -48,9 +48,6 @@ namespace UniLiveViewer.Actor
         {
             if (_actorEntity == null) return;
 
-            //TODO: ステージ別で音
-            //if (SceneChangeService.GetSceneType != SceneType.GYMNASIUM) return;
-
             for (int i = 0; i < _footMap.Count; i++)
             {
                 CheckFootContact(_footMap[i]);
@@ -80,12 +77,11 @@ namespace UniLiveViewer.Actor
 
         void PlaySound(Vector3 hitPoint)
         {
-            _audioSourceService.transform.position = hitPoint;
             var index = UnityEngine.Random.Range(0, _footstepsAudioData.AudioClip.Count);
-            _audioSourceService.PlayOneShot(_footstepsAudioData.AudioClip[index]);
+            _audioSourceService.PlayOneShot(_footstepsAudioData.AudioClip[index], hitPoint);
         }
 
-        public class FootMap
+        class FootMap
         {
             public Transform FootBone { get; private set; }
             public bool IsHitCache { get; private set; }

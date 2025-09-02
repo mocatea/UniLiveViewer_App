@@ -17,6 +17,8 @@ namespace UniLiveViewer.SO
         public List<AudioHandPsylliumDataSet> AudioHandPsylliumDataSet => _audioHandPsylliumDataSet;
         [SerializeField] List<AudioHandPsylliumDataSet> _audioHandPsylliumDataSet;
 
+        public FootstepAudioData FootWaterMoveAudioData => _footWaterMoveAudioData;
+        [SerializeField] FootstepAudioData _footWaterMoveAudioData;
         public FootstepAudioData RaisedFootWaterSplashAudioData => _raisedfootWaterSplashAudioData;
         [SerializeField] FootstepAudioData _raisedfootWaterSplashAudioData;
         public FootstepAudioData LoweredFeetWaterSplashAudioData => _loweredFeetWaterSplashAudioData;

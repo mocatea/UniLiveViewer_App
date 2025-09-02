@@ -26,9 +26,6 @@ namespace UniLiveViewer.Actor.Option
 
         void FootActionConfigure(IContainerBuilder builder)
         {
-            builder.Register<FootstepService>(Lifetime.Singleton);
-            builder.RegisterEntryPoint<FootstepPresenter>(Lifetime.Singleton);
-
             if (SceneChangeService.GetSceneType == SceneType.BEYOND_THE_BLUE)
             {
                 builder.RegisterComponent(_footWaterSplashSettings);
@@ -40,6 +37,14 @@ namespace UniLiveViewer.Actor.Option
                 builder.RegisterComponent(_snowFootprintSettings);
                 builder.Register<SnowFootprintService>(Lifetime.Singleton);
                 builder.RegisterEntryPoint<SnowFootprintPresenter>();
+
+                builder.Register<FootstepService>(Lifetime.Singleton);
+                builder.RegisterEntryPoint<FootstepPresenter>(Lifetime.Singleton);
+            }
+            else
+            {
+                builder.Register<FootstepService>(Lifetime.Singleton);
+                builder.RegisterEntryPoint<FootstepPresenter>(Lifetime.Singleton);
             }
         }
     }
