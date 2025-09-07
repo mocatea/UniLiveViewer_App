@@ -1,12 +1,17 @@
 ﻿using Cysharp.Threading.Tasks;
+using MessagePipe;
 using System.Collections.Generic;
 using System.Threading;
+using UniLiveViewer.MessagePipe;
 using UniLiveViewer.SO;
 using UnityEngine;
 using VContainer;
 
 namespace UniLiveViewer.Actor.Option
 {
+    /// <summary>
+    /// 水上スプラッシュと水音を管理
+    /// </summary>
     public class FootWaterSplashService
     {
         const int AudioMilliseconds = 1500;//およそ
@@ -26,13 +31,15 @@ namespace UniLiveViewer.Actor.Option
         readonly FootstepAudioData _footWaterMoveAudioData;
         readonly FootstepAudioData _raisedfootAudioData;
         readonly FootstepAudioData _loweredFeetAudioData;
+        readonly IPublisher<WaterRippleMessage> _publisher;
 
         [Inject]
         public FootWaterSplashService(
             ActorOptionLifetimeScope actorOptionLifetimeScope,
             FootWaterSplashSettings settings,
             AudioSourceService audioSourceService,
-            AudioClipSettings setting)
+            AudioClipSettings setting,
+            IPublisher<WaterRippleMessage> publisher)
         {
             _parent = actorOptionLifetimeScope.transform;
             _settings = settings;
@@ -40,6 +47,7 @@ namespace UniLiveViewer.Actor.Option
             _footWaterMoveAudioData = setting.FootWaterMoveAudioData;
             _raisedfootAudioData = setting.RaisedFootWaterSplashAudioData;
             _loweredFeetAudioData = setting.LoweredFeetWaterSplashAudioData;
+            _publisher = publisher;
         }
 
         public void OnChangeActorEntity(ActorEntity actorEntity)
@@ -95,8 +103,8 @@ namespace UniLiveViewer.Actor.Option
         {
             if (_lFootState == null || _rFootState == null) return;
 
-            WaterMoeCheck(_lFootState);
-            WaterMoeCheck(_rFootState);
+            WaterMoveCheck(_lFootState);
+            WaterMoveCheck(_rFootState);
             HitCheckAsync(_lFootState, cancellation).Forget();
             HitCheckAsync(_rFootState, cancellation).Forget();
 
@@ -106,7 +114,7 @@ namespace UniLiveViewer.Actor.Option
             await UniTask.CompletedTask;
         }
 
-        void WaterMoeCheck(FootState foot)
+        void WaterMoveCheck(FootState foot)
         {
             if (0 < foot.WaterMoveCooldownTime)
             {
@@ -135,6 +143,7 @@ namespace UniLiveViewer.Actor.Option
 
                 UnderwaterMovement(foot.Foot.position);
                 foot.WaterMoveCooldownTime = WaterMoveReuseDelayTime;
+                _publisher.Publish(new WaterRippleMessage(foot.Foot.position));
             }
         }
 
@@ -181,7 +190,7 @@ namespace UniLiveViewer.Actor.Option
             pos.y = waterLevel;
             SpawnAsync(pos, Quaternion.Euler(euler), isRaisedFeet, cancellation).Forget();
             foot.SplashCooldownTime = SplashReuseDelayTime;
-
+            _publisher.Publish(new WaterRippleMessage(pos));
             await UniTask.CompletedTask;
         }
 

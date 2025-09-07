@@ -1,6 +1,7 @@
 ﻿using MessagePipe;
 using UniLiveViewer.Actor.Option;
 using UniLiveViewer.MessagePipe;
+using UniLiveViewer.SceneLoader;
 using UniLiveViewer.Stage;
 using UnityEngine;
 using UnityEngine.Playables;
@@ -36,6 +37,10 @@ namespace UniLiveViewer.Timeline
             builder.RegisterMessageBroker<ActorResizeMessage>(options);
             builder.RegisterMessageBroker<AttachPointMessage>(options);
             builder.RegisterMessageBroker<CursorGuideCollisionMessage>(options);
+            if (SceneChangeService.GetSceneType == SceneType.BEYOND_THE_BLUE)
+            {
+                builder.RegisterMessageBroker<WaterRippleMessage>(options);
+            }
 
             builder.Register<VMDData>(Lifetime.Singleton);
 

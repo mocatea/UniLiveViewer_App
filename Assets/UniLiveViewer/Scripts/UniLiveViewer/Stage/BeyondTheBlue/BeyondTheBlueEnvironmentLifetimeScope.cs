@@ -12,7 +12,6 @@ namespace UniLiveViewer.Stage.BeyondTheBlue
         {
             builder.RegisterComponent(_settings);
             builder.Register<BeyondTheBlueEnvironmentService>(Lifetime.Singleton);
-
             builder.RegisterEntryPoint<BeyondTheBlueEnvironmentPresenter>();
         }
     }
