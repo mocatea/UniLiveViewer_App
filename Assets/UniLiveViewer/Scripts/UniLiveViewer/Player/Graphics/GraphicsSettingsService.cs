@@ -1,9 +1,10 @@
-﻿using UnityEngine;
+﻿using Oculus.Platform;
+using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using VContainer;
 
-namespace UniLiveViewer.Player
+namespace UniLiveViewer.Player.Graphics
 {
     public class GraphicsSettingsService
     {
@@ -11,7 +12,8 @@ namespace UniLiveViewer.Player
 
         UniversalAdditionalCameraData _cameraData;
         bool _cachePostProcessing;
-        Bloom _bloom;
+
+        IBloom _bloom;
         DepthOfField _depthOfField;
         Tonemapping _tonemapping;
         Vignette _vignette;
@@ -41,14 +43,19 @@ namespace UniLiveViewer.Player
             _urpAsset = GraphicsSettings.renderPipelineAsset as UniversalRenderPipelineAsset;
             _urpAsset.msaaSampleCount = FileReadAndWriteUtility.UserProfile.MSAALevel;
 
+            _urpAsset.supportsHDR = true;
+            //_camera.allowHDR = true; //supportsHDRを切り替えればこちらも自動で切り替わる
+
             if (_volumeProfile.TryGet<Bloom>(out var bloom))
             {
-                _bloom = bloom;
-                _bloom.active = FileReadAndWriteUtility.UserProfile.IsBloom;
-                _bloom.threshold.value = FileReadAndWriteUtility.UserProfile.BloomThreshold;
-                _bloom.intensity.value = FileReadAndWriteUtility.UserProfile.BloomIntensity;
-                _bloom.tint.overrideState = true;
-                _bloom.tint.value = Color.HSVToRGB(0.65f, 0.55f, 1);//水色
+                bloom.active = false;//念のため無効化
+                var useTint = false;
+                // 軽量Bloomを使う
+                _bloom = new MobileBloom(_graphicsSettings.CustomBloomRenderFeature);
+                _bloom.Initialize(useTint, Color.HSVToRGB(0.65f, 0.55f, 1));//水色
+
+                //_bloom = new StandardBloom(bloom);
+                //_bloom.Initialize(Color.HSVToRGB(0.65f, 0.55f, 1));//水色
             }
             if (_volumeProfile.TryGet<DepthOfField>(out var depthOfField))
             {
@@ -133,10 +140,41 @@ namespace UniLiveViewer.Player
 
         public void ChangeBloom(bool isEnable)
         {
-            _bloom.active = isEnable;
+            _bloom.SetActive(isEnable);
+
             FileReadAndWriteUtility.UserProfile.IsBloom = isEnable;
             FileReadAndWriteUtility.WriteJson(FileReadAndWriteUtility.UserProfile);
             IfNeededSwitchPostprocessing();
+        }
+
+        public void ChangeBloomResolutionScale(float v)
+        {
+            _bloom.ChangeResolutionScale(v);
+        }
+
+        public void ChangeBloomThreshold(float v)
+        {
+            _bloom.ChangeThreshold(v);
+            FileReadAndWriteUtility.UserProfile.BloomThreshold = v;
+            FileReadAndWriteUtility.WriteJson(FileReadAndWriteUtility.UserProfile);
+        }
+
+        public void ChangeBloomIntensity(float v)
+        {
+            _bloom.ChangeIntensity(v);            
+            FileReadAndWriteUtility.UserProfile.BloomIntensity = v;
+            FileReadAndWriteUtility.WriteJson(FileReadAndWriteUtility.UserProfile);
+        }
+        public void ChangeUseBloomColor(bool isEnable)
+        {
+            _bloom.ChangeUseTint(isEnable);
+            IfNeededSwitchPostprocessing();
+        }
+
+        public void ChangeBloomColor(float v)
+        {
+            _bloom.ChangeTint(Color.HSVToRGB(v, 0.55f, 1));//水色
+            // MEMO: 専用ピッカー作ったら保存するようにする？
         }
 
         public void ChangeDepthOfField(bool isEnable)
@@ -155,42 +193,20 @@ namespace UniLiveViewer.Player
             IfNeededSwitchPostprocessing();
         }
 
-        public void ChangeVignette(bool isEnable)
-        {
-            _vignette.active = isEnable;
-            IfNeededSwitchPostprocessing();
-        }
-
-        public void ChangeBloomThreshold(float v)
-        {
-            _bloom.threshold.value = v;
-            FileReadAndWriteUtility.UserProfile.BloomThreshold = v;
-            FileReadAndWriteUtility.WriteJson(FileReadAndWriteUtility.UserProfile);
-        }
-
-        public void ChangeBloomIntensity(float v)
-        {
-            _bloom.intensity.value = v;
-            FileReadAndWriteUtility.UserProfile.BloomIntensity = v;
-            FileReadAndWriteUtility.WriteJson(FileReadAndWriteUtility.UserProfile);
-        }
-
-        public void ChangeBloomColor(float v)
-        {
-            //_bloom.tint = new ColorParameter(Color.HSVToRGB(v, 0.5f, 1), overrideState: true);何故か機能しない
-            _bloom.tint.overrideState = true;
-            _bloom.tint.value = Color.HSVToRGB(v, 0.55f, 1);
-            // NOTE: 専用ピッカー作ったら保存するようにする
-        }
-
         public void ChangeOutline(float value)
         {
             if (0 < value)
             {
-                _graphicsSettings.OutlineRender.SetActive(true);
+                _graphicsSettings.OutlineRenderFeature.SetActive(true);
                 _graphicsSettings.OutlineMat.SetFloat(EdgeId, value);
             }
-            else _graphicsSettings.OutlineRender.SetActive(false);
+            else _graphicsSettings.OutlineRenderFeature.SetActive(false);
+        }
+
+        public void ChangeVignette(bool isEnable)
+        {
+            _vignette.active = isEnable;
+            IfNeededSwitchPostprocessing();
         }
 
         public void OnChangePassthrough(bool isEnablePassthrough)
@@ -217,7 +233,8 @@ namespace UniLiveViewer.Player
             var isEnable = false;
 
             if (_cameraData.antialiasing != AntialiasingMode.None) isEnable = true;
-            if (_bloom.active) isEnable = true;
+
+            if (_bloom.IsActive()) isEnable = true;
             if (_depthOfField.active) isEnable = true;
             if (_tonemapping.active) isEnable = true;
             if (_vignette.active) isEnable = true;

@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using VContainer;
 using VContainer.Unity;
+using UniLiveViewer.Player.Graphics;
 
 namespace UniLiveViewer.Player
 {

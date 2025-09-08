@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.Rendering.Universal;
@@ -13,8 +13,11 @@ namespace UniLiveViewer.Player
         [SerializeField] UniversalRendererData _frd;
         public Material OutlineMat => _outlineMat;
         [SerializeField] Material _outlineMat;
-        public ScriptableRendererFeature OutlineRender => _outlineRender;
-        [SerializeField] ScriptableRendererFeature _outlineRender;
+
+        public MobileFriendlyBloomFeature CustomBloomRenderFeature => _customBloomRenderFeature;
+        [SerializeField] MobileFriendlyBloomFeature _customBloomRenderFeature;
+        public ScriptableRendererFeature OutlineRenderFeature => _outlineRenderFeature;
+        [SerializeField] ScriptableRendererFeature _outlineRenderFeature;
 
         void Awake()
         {
@@ -28,15 +31,19 @@ namespace UniLiveViewer.Player
             }
 
             //レンダーパイプラインからoutlineオブジェクトを取得    
-            foreach (var renderObj in _frd.rendererFeatures)
+            foreach (var rendererFeature in _frd.rendererFeatures)
             {
-                if (renderObj.name == "Outline")
+                if (rendererFeature.name == "MobileFriendlyBloomFeature"
+                    && rendererFeature is MobileFriendlyBloomFeature bloom)
                 {
-                    _outlineRender = renderObj;
-                    break;
+                    _customBloomRenderFeature = bloom;
+                }
+                else if (rendererFeature.name == "Outline")
+                {
+                    _outlineRenderFeature = rendererFeature;
                 }
             }
-            _outlineRender.SetActive(false);
+            _outlineRenderFeature.SetActive(false);
         }
     }
 }

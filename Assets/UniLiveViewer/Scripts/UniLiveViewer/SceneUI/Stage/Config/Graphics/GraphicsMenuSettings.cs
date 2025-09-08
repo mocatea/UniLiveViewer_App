@@ -29,6 +29,9 @@ namespace UniLiveViewer.Menu.Config.Graphics
         public IReadOnlyList<TextMesh> GraphicsText => _graphicsText;
         [SerializeField] List<TextMesh> _graphicsText;
 
+        public Transform BloomClolorGroup => _bloomColorGroup;
+        [SerializeField] Transform _bloomColorGroup;
+
         void Awake()
         {
             Assert.IsNotNull(_graphicButton);
@@ -39,6 +42,7 @@ namespace UniLiveViewer.Menu.Config.Graphics
             Assert.IsNotNull(_antialiasinginfoText);
             Assert.IsNotNull(_graphicSlider);
             Assert.IsNotNull(_graphicsText);
+            Assert.IsNotNull(_bloomColorGroup);
 
             foreach (var button in _graphicButton)
             {

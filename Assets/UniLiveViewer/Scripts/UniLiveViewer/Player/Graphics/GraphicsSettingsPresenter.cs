@@ -1,9 +1,9 @@
-using System;
+﻿using System;
 using UniRx;
 using VContainer;
 using VContainer.Unity;
 
-namespace UniLiveViewer.Player
+namespace UniLiveViewer.Player.Graphics
 {
     public class GraphicsSettingsPresenter : IStartable, IDisposable
     {

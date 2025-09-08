@@ -1,7 +1,7 @@
 using Cysharp.Threading.Tasks;
 using MessagePipe;
 using System;
-using UniLiveViewer.Player;
+using UniLiveViewer.Player.Graphics;
 using UniRx;
 using VContainer;
 using VContainer.Unity;
@@ -52,6 +52,27 @@ namespace UniLiveViewer.Menu.Config.Graphics
                 .SkipLatestValueOnSubscribe()
                 .Subscribe(_graphicsSettingsService.ChangeBloom)
                 .AddTo(_disposables);
+            _graphicsMenuService.BloomResolutionScale
+                .SkipLatestValueOnSubscribe()
+                .Subscribe(_graphicsSettingsService.ChangeBloomResolutionScale)
+                .AddTo(_disposables);
+            _graphicsMenuService.BloomThreshold
+                .SkipLatestValueOnSubscribe()
+                .Subscribe(_graphicsSettingsService.ChangeBloomThreshold)
+                .AddTo(_disposables);
+            _graphicsMenuService.BloomIntensity
+                .SkipLatestValueOnSubscribe()
+                .Subscribe(_graphicsSettingsService.ChangeBloomIntensity)
+                .AddTo(_disposables);
+            _graphicsMenuService.UseBloomColor
+                .SkipLatestValueOnSubscribe()
+                .Subscribe(_graphicsSettingsService.ChangeUseBloomColor)
+                .AddTo(_disposables);
+            _graphicsMenuService.BloomColor
+                .SkipLatestValueOnSubscribe()
+                .Subscribe(_graphicsSettingsService.ChangeBloomColor)
+                .AddTo(_disposables);
+
             _graphicsMenuService.DepthOfField
                 .SkipLatestValueOnSubscribe()
                 .Subscribe(_graphicsSettingsService.ChangeDepthOfField)
@@ -59,16 +80,6 @@ namespace UniLiveViewer.Menu.Config.Graphics
             _graphicsMenuService.Tonemapping
                 .SkipLatestValueOnSubscribe()
                 .Subscribe(_graphicsSettingsService.ChangeTonemapping)
-                .AddTo(_disposables);
-
-            _graphicsMenuService.BloomThreshold
-                .Subscribe(_graphicsSettingsService.ChangeBloomThreshold)
-                .AddTo(_disposables);
-            _graphicsMenuService.BloomIntensity
-                .Subscribe(_graphicsSettingsService.ChangeBloomIntensity)
-                .AddTo(_disposables);
-            _graphicsMenuService.BloomColor
-                .Subscribe(_graphicsSettingsService.ChangeBloomColor)
                 .AddTo(_disposables);
 
             _graphicsMenuService.Outline

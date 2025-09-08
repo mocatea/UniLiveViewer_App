@@ -1,7 +1,7 @@
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
-namespace UniLiveViewer.Player
+namespace UniLiveViewer.Player.Graphics
 {
     public static class GraphicsExtensions
     {

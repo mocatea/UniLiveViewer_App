@@ -1,11 +1,10 @@
 ﻿using System;
-using UniLiveViewer.Player;
 using UniRx;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using VContainer;
-using static UniLiveViewer.Player.GraphicsExtensions;
+using static UniLiveViewer.Player.Graphics.GraphicsExtensions;
 
 namespace UniLiveViewer.Menu.Config.Graphics
 {
@@ -30,19 +29,25 @@ namespace UniLiveViewer.Menu.Config.Graphics
         public IReadOnlyReactiveProperty<bool> Bloom => _bloom;
         readonly ReactiveProperty<bool> _bloom = new(FileReadAndWriteUtility.UserProfile.IsBloom);
 
-        public IReadOnlyReactiveProperty<bool> DepthOfField => _depthOfField;
-        readonly ReactiveProperty<bool> _depthOfField = new(FileReadAndWriteUtility.UserProfile.IsDepthOfField);
-
-        public IReadOnlyReactiveProperty<bool> Tonemapping => _tonemapping;
-        readonly ReactiveProperty<bool> _tonemapping = new(FileReadAndWriteUtility.UserProfile.IsTonemapping);
+        public IReadOnlyReactiveProperty<float> BloomResolutionScale => _bloomResolutionScale;
+        readonly ReactiveProperty<float> _bloomResolutionScale = new(1);
 
         public IReadOnlyReactiveProperty<float> BloomThreshold => _bloomThreshold;
         readonly ReactiveProperty<float> _bloomThreshold = new(FileReadAndWriteUtility.UserProfile.BloomThreshold);
 
         public IReadOnlyReactiveProperty<float> BloomIntensity => _bloomIntensity;
         readonly ReactiveProperty<float> _bloomIntensity = new(FileReadAndWriteUtility.UserProfile.BloomIntensity);
+        public IReadOnlyReactiveProperty<bool> UseBloomColor => _useBloomColor;
+        readonly ReactiveProperty<bool> _useBloomColor = new();
+
         public IReadOnlyReactiveProperty<float> BloomColor => _bloomColor;
         readonly ReactiveProperty<float> _bloomColor = new(0.65f);//水色
+
+        public IReadOnlyReactiveProperty<bool> DepthOfField => _depthOfField;
+        readonly ReactiveProperty<bool> _depthOfField = new(FileReadAndWriteUtility.UserProfile.IsDepthOfField);
+
+        public IReadOnlyReactiveProperty<bool> Tonemapping => _tonemapping;
+        readonly ReactiveProperty<bool> _tonemapping = new(FileReadAndWriteUtility.UserProfile.IsTonemapping);
 
         public IReadOnlyReactiveProperty<float> Outline => _outline;
         readonly ReactiveProperty<float> _outline = new(0.3f);
@@ -70,7 +75,8 @@ namespace UniLiveViewer.Menu.Config.Graphics
                 _settings.GraphicsText[3].text = $"";//無し
                 _settings.GraphicsText[4].text = _renderScale.Value.ToString();
                 _settings.GraphicsText[5].text = _opaqueDownsampling.Value.AsString();
-                _settings.GraphicsText[6].text = $"{0:0.00}";
+                _settings.GraphicsText[6].text = $"{_outline.Value:0.00}";
+                _settings.GraphicsText[7].text = $"{_bloomResolutionScale.Value:0.00}";
                 ChangeTextAntialiasingMode(_antialiasingMode.Value);
                 ChangeTextMSAASamples(_msaaSamples.Value);
             }
@@ -78,6 +84,8 @@ namespace UniLiveViewer.Menu.Config.Graphics
             _settings.GraphicButton[1].isEnable = _bloom.Value;
             _settings.GraphicButton[2].isEnable = _depthOfField.Value;
             _settings.GraphicButton[3].isEnable = _tonemapping.Value;
+            _settings.GraphicButton[4].isEnable = _useBloomColor.Value;
+            _settings.BloomClolorGroup.gameObject.SetActive(_useBloomColor.Value);
             foreach (var button in _settings.GraphicButton)
             {
                 button.OnTriggerAsObservable()
@@ -131,14 +139,21 @@ namespace UniLiveViewer.Menu.Config.Graphics
                     _settings.GraphicsText[6].text = $"{x:0.00}";
                     _outline.Value = x;
                 }).AddTo(_disposables);
+            _settings.GraphicSlider[7].ValueAsObservable
+                .Subscribe(x =>
+                {
+                    _settings.GraphicsText[7].text = $"{x:0.00}";
+                    _bloomResolutionScale.Value = x;
+                }).AddTo(_disposables);
 
-            _settings.GraphicSlider[0].Value = 1;
+            _settings.GraphicSlider[0].Value = _lightIntensity.Value;
             _settings.GraphicSlider[1].Value = _bloomThreshold.Value;
             _settings.GraphicSlider[2].Value = _bloomIntensity.Value;
             _settings.GraphicSlider[3].Value = _bloomColor.Value;
             _settings.GraphicSlider[4].Value = _renderScale.Value;
             _settings.GraphicSlider[5].Value = _opaqueDownsampling.Value.ToDownsamplingSliderValue();
-            _settings.GraphicSlider[6].Value = 0.3f;
+            _settings.GraphicSlider[6].Value = _outline.Value;
+            _settings.GraphicSlider[7].Value = _bloomResolutionScale.Value;
         }
 
         void OnClick(Button_Base btn)
@@ -154,6 +169,11 @@ namespace UniLiveViewer.Menu.Config.Graphics
             else if (btn == _settings.GraphicButton[3])
             {
                 _tonemapping.Value = btn.isEnable;
+            }
+            else if (btn == _settings.GraphicButton[4])
+            {
+                _useBloomColor.Value = btn.isEnable;
+                _settings.BloomClolorGroup.gameObject.SetActive(btn.isEnable);
             }
             _audioSourceService.PlayOneShot(AudioSE.ButtonClick);
         }
@@ -185,8 +205,8 @@ namespace UniLiveViewer.Menu.Config.Graphics
 
             _settings.AntialiasingText.text = antialiasingMode.AsString();
             _settings.AntialiasingText.color = isHeavyLoad ? Color.yellow : Color.white;
-            
-            if(antialiasingMode == AntialiasingMode.None)
+
+            if (antialiasingMode == AntialiasingMode.None)
             {
                 _settings.AntialiasingInfoText[0].gameObject.SetActive(false);
                 _settings.AntialiasingInfoText[1].gameObject.SetActive(false);
