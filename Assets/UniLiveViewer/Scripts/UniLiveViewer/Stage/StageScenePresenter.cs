@@ -1,4 +1,4 @@
-﻿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using NanaCiel;
 using System;
 using System.Threading;
@@ -18,22 +18,26 @@ namespace UniLiveViewer.Stage
         readonly FileAccessManager _fileAccessManager;
         readonly AnimationAssetManager _animationAssetManager;
         readonly TextureAssetManager _textureAssetManager;
+        readonly StageLightingService _stageLightingService;
 
         [Inject]
         public StageScenePresenter(
             FileAccessManager fileAccessManager,
             AnimationAssetManager animationAssetManager,
             TextureAssetManager textureAssetManager,
-            SceneChangeService sceneChangeService)
+            SceneChangeService sceneChangeService,
+            StageLightingService stageLightingService)
         {
             _sceneChangeService = sceneChangeService;
             _fileAccessManager = fileAccessManager;
             _animationAssetManager = animationAssetManager;
             _textureAssetManager = textureAssetManager;
+            _stageLightingService = stageLightingService;
         }
 
         void IInitializable.Initialize()
         {
+            _stageLightingService.Verify();
             _sceneChangeService.Initialize();
         }
 

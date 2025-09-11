@@ -1,4 +1,4 @@
-using UniLiveViewer.SceneLoader;
+﻿using UniLiveViewer.SceneLoader;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -9,6 +9,7 @@ namespace UniLiveViewer.Menu.Config.Stage
     {
         [SerializeField] StageMenuOnEnableHandler _onEnableHandler;
 
+        [SerializeField] StageCommonMenuSettings _stageCommonSettings;
         [SerializeField] CandyLiveMenuSettings _candyLiveMenuSettings;
         [SerializeField] KaguraLiveMenuSettings _kaguraLiveMenuSettings;
         [SerializeField] ViewerMenuSettings _viewerMenuSettings;
@@ -20,6 +21,8 @@ namespace UniLiveViewer.Menu.Config.Stage
         protected override void Configure(IContainerBuilder builder)
         {
             builder.RegisterComponent(_onEnableHandler);
+            builder.RegisterComponent(_stageCommonSettings);
+            builder.Register<StageCommonMenuService>(Lifetime.Singleton);
 
             if (SceneChangeService.GetSceneType == SceneType.CANDY_LIVE)
             {
@@ -62,43 +65,15 @@ namespace UniLiveViewer.Menu.Config.Stage
 
         void Start()
         {
-            // TODO: 一旦雑にまた考える
-            _candyLiveMenuSettings.gameObject.SetActive(false);
-            _kaguraLiveMenuSettings.gameObject.SetActive(false);
-            _viewerMenuSettings.gameObject.SetActive(false);
-            _gymnasiumMenuSettings.gameObject.SetActive(false);
-            _beyondTheBlueMenuSettings.gameObject.SetActive(false);
-            _snowFieldMenuSettings.gameObject.SetActive(false);
-            _fantasyVillageMenuSettings.gameObject.SetActive(false);
-
-            if (SceneChangeService.GetSceneType == SceneType.CANDY_LIVE)
-            {
-                _candyLiveMenuSettings.gameObject.SetActive(true);
-            }
-            else if (SceneChangeService.GetSceneType == SceneType.KAGURA_LIVE)
-            {
-                _kaguraLiveMenuSettings.gameObject.SetActive(true);
-            }
-            else if (SceneChangeService.GetSceneType == SceneType.VIEWER)
-            {
-                _viewerMenuSettings.gameObject.SetActive(true);
-            }
-            else if (SceneChangeService.GetSceneType == SceneType.GYMNASIUM)
-            {
-                _gymnasiumMenuSettings.gameObject.SetActive(true);
-            }
-            else if (SceneChangeService.GetSceneType == SceneType.BEYOND_THE_BLUE)
-            {
-                _beyondTheBlueMenuSettings.gameObject.SetActive(true);
-            }
-            else if (SceneChangeService.GetSceneType == SceneType.SNOW_FIELD)
-            {
-                _snowFieldMenuSettings.gameObject.SetActive(true);
-            }
-            else if (SceneChangeService.GetSceneType == SceneType.FANTASY_VILLAGE)
-            {
-                _fantasyVillageMenuSettings.gameObject.SetActive(true);
-            }
+            _candyLiveMenuSettings.gameObject.SetActive(IsSceneMatch(SceneType.CANDY_LIVE));
+            _kaguraLiveMenuSettings.gameObject.SetActive(IsSceneMatch(SceneType.KAGURA_LIVE));
+            _viewerMenuSettings.gameObject.SetActive(IsSceneMatch(SceneType.VIEWER));
+            _gymnasiumMenuSettings.gameObject.SetActive(IsSceneMatch(SceneType.GYMNASIUM));
+            _beyondTheBlueMenuSettings.gameObject.SetActive(IsSceneMatch(SceneType.BEYOND_THE_BLUE));
+            _snowFieldMenuSettings.gameObject.SetActive(IsSceneMatch(SceneType.SNOW_FIELD));
+            _fantasyVillageMenuSettings.gameObject.SetActive(IsSceneMatch(SceneType.FANTASY_VILLAGE));
+            // TODO: 構成見直すまでの繋ぎ
+            bool IsSceneMatch(SceneType sceneType) => SceneChangeService.GetSceneType == sceneType;
         }
     }
 }

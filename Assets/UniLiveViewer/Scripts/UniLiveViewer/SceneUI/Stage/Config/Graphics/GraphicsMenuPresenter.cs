@@ -2,6 +2,7 @@ using Cysharp.Threading.Tasks;
 using MessagePipe;
 using System;
 using UniLiveViewer.Player.Graphics;
+using UniLiveViewer.Stage;
 using UniRx;
 using VContainer;
 using VContainer.Unity;
@@ -28,10 +29,6 @@ namespace UniLiveViewer.Menu.Config.Graphics
         {
             _graphicsMenuService.Initialize();
 
-            _graphicsMenuService.LightIntensity
-                .SkipLatestValueOnSubscribe()
-                .Subscribe(_graphicsSettingsService.ChangeLightIntensity)
-                .AddTo(_disposables);
             _graphicsMenuService.AntialiasingModeValue
                 .SkipLatestValueOnSubscribe()
                 .Subscribe(_graphicsSettingsService.ChangeAntialiasing)
@@ -63,6 +60,10 @@ namespace UniLiveViewer.Menu.Config.Graphics
             _graphicsMenuService.BloomIntensity
                 .SkipLatestValueOnSubscribe()
                 .Subscribe(_graphicsSettingsService.ChangeBloomIntensity)
+                .AddTo(_disposables);
+            _graphicsMenuService.BloomScatter
+                .SkipLatestValueOnSubscribe()
+                .Subscribe(_graphicsSettingsService.ChangeBloomScatter)
                 .AddTo(_disposables);
             _graphicsMenuService.UseBloomColor
                 .SkipLatestValueOnSubscribe()

@@ -45,10 +45,5 @@ namespace UniLiveViewer.Stage.Kagura
             FileReadAndWriteUtility.UserProfile.scene_kagura_sea = isEnable;
             FileReadAndWriteUtility.WriteJson(FileReadAndWriteUtility.UserProfile);
         }
-
-        public void OnChangeFog(float v)
-        {
-            RenderSettings.fogDensity = v;
-        }
     }
 }

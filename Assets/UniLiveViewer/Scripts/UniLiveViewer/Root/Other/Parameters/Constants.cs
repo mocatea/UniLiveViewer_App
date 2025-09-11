@@ -11,7 +11,7 @@ namespace UniLiveViewer
         public static int LayerNoUI = LayerMask.NameToLayer("UI");
         public static int LayerNoFieldObject = LayerMask.NameToLayer("FieldObject");
         public static int LayerNoGrabObject = LayerMask.NameToLayer("GrabObject");
-        public static int LayerNoUnRendererFeature = LayerMask.NameToLayer("UnRendererFeature");
+        public static int LayerActorFace = LayerMask.NameToLayer("ActorFace");
 
         //レイヤーマスク(Raycast系はこっち)
         public static int LayerMaskDefault = LayerMask.GetMask("Default");

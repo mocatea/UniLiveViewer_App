@@ -10,6 +10,7 @@ namespace UniLiveViewer.Stage.Title.Kari
     {
         [SerializeField] GameObject[] _prefabs;
         [SerializeField] Material _material;
+        [SerializeField] float hdrIntensity = 2.0f;
         [SerializeField] Transform[] _parents;
 
         [SerializeField] float _range_min = 15;
@@ -65,7 +66,7 @@ namespace UniLiveViewer.Stage.Title.Kari
             {
                 var color = new Color(Random.Range(0.5f, 1.0f), Random.Range(0.5f, 1.0f), Random.Range(0.5f, 1.0f));
                 Color.RGBToHSV(color, out float H, out float S, out float V);
-                var colorFromHSV = Color.HSVToRGB(H, Random.Range(0.5f, 1.0f), Random.Range(0.5f, 1.0f));//一定以上の彩度と明度
+                var colorFromHSV = Color.HSVToRGB(H, Random.Range(0.5f, 1.0f), Random.Range(0.5f, 1.0f)) * hdrIntensity;//一定以上の彩度と明度
                 _propBlock.SetColor("_BaseColor", colorFromHSV);
                 _propBlock.SetColor("_EmissionColor", colorFromHSV);
                 meshRenderers[i].sharedMaterial = _material;

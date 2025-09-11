@@ -22,16 +22,14 @@ namespace UniLiveViewer.Player.Graphics
         readonly Camera _camera;
         readonly VolumeProfile _volumeProfile;
         readonly PlayerGraphicsSettings _graphicsSettings;
-        readonly Light _light;
 
         [Inject]
         public GraphicsSettingsService(Camera camera, VolumeProfile volumeProfile,
-            PlayerGraphicsSettings graphicsSettings, Light light)
+            PlayerGraphicsSettings graphicsSettings)
         {
             _camera = camera;
             _volumeProfile = volumeProfile;
             _graphicsSettings = graphicsSettings;
-            _light = light;
         }
 
         public void Initialize()
@@ -41,6 +39,11 @@ namespace UniLiveViewer.Player.Graphics
             _cameraData.antialiasing = (AntialiasingMode)FileReadAndWriteUtility.UserProfile.Antialiasing;
 
             _urpAsset = GraphicsSettings.renderPipelineAsset as UniversalRenderPipelineAsset;
+            if(_urpAsset == null)
+            {
+                Debug.LogError("_urpAsset is null");
+                return;
+            }
             _urpAsset.msaaSampleCount = FileReadAndWriteUtility.UserProfile.MSAALevel;
 
             _urpAsset.supportsHDR = true;
@@ -48,15 +51,17 @@ namespace UniLiveViewer.Player.Graphics
 
             if (_volumeProfile.TryGet<Bloom>(out var bloom))
             {
-                bloom.active = false;//念のため無効化
+                /*bloom.active = false;//念のため無効化
                 var useTint = false;
                 // 軽量Bloomを使う
                 _bloom = new MobileBloom(_graphicsSettings.CustomBloomRenderFeature);
-                _bloom.Initialize(useTint, Color.HSVToRGB(0.65f, 0.55f, 1));//水色
+                _bloom.Initialize(useTint, Color.HSVToRGB(0.65f, 0.55f, 1));//水色*/
 
-                //_bloom = new StandardBloom(bloom);
-                //_bloom.Initialize(Color.HSVToRGB(0.65f, 0.55f, 1));//水色
+                var useTint = false;
+                _bloom = new StandardBloom(bloom);
+                _bloom.Initialize(useTint, Color.HSVToRGB(0.65f, 0.55f, 1));//水色
             }
+
             if (_volumeProfile.TryGet<DepthOfField>(out var depthOfField))
             {
                 _depthOfField = depthOfField;
@@ -75,11 +80,6 @@ namespace UniLiveViewer.Player.Graphics
             ChangeOutline(0.3f);
 
             IfNeededSwitchPostprocessing();
-        }
-
-        public void ChangeLightIntensity(float v)
-        {
-            _light.intensity = v;
         }
 
         public void ChangeAntialiasing(AntialiasingMode mode)
@@ -165,6 +165,12 @@ namespace UniLiveViewer.Player.Graphics
             FileReadAndWriteUtility.UserProfile.BloomIntensity = v;
             FileReadAndWriteUtility.WriteJson(FileReadAndWriteUtility.UserProfile);
         }
+
+        public void ChangeBloomScatter(float v)
+        {
+            _bloom.ChangeScatter(v);
+        }
+
         public void ChangeUseBloomColor(bool isEnable)
         {
             _bloom.ChangeUseTint(isEnable);

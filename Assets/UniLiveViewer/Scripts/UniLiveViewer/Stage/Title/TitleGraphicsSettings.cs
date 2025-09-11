@@ -10,6 +10,7 @@ namespace UniLiveViewer.Stage.Title
         [SerializeField] Camera _camera;
         UniversalAdditionalCameraData _cameraData;
         UniversalRenderPipelineAsset _urpAsset;
+        [SerializeField] UniversalRendererData _frd;
 
         void Awake()
         {
@@ -24,6 +25,9 @@ namespace UniLiveViewer.Stage.Title
             _cameraData = _camera.GetComponent<UniversalAdditionalCameraData>();
             _cameraData.antialiasing = AntialiasingMode.SubpixelMorphologicalAntiAliasing;
             _cameraData.antialiasingQuality = AntialiasingQuality.High;//SMAA専用設定
+
+            var index = 1;
+            _cameraData.SetRenderer(index);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UniRx;
 using UnityEngine;
 using VContainer;
@@ -22,15 +22,12 @@ namespace UniLiveViewer.Menu.Config.Stage
 
         void IStageMenuService.Initialize()
         {
-            _settings.DirectionalLightButton.OnTriggerAsObservable()
-                .Subscribe(x => OnClick(x.isEnable)).AddTo(_disposables);
-
-            _actionObj[0] = GameObject.FindGameObjectWithTag("MainLight").transform;
+            
         }
 
         void IStageMenuService.OnEnable()
         {
-            _settings.DirectionalLightButton.isEnable = _actionObj[0].gameObject.activeSelf;
+            
         }
 
         void OnClick(bool isEnable)

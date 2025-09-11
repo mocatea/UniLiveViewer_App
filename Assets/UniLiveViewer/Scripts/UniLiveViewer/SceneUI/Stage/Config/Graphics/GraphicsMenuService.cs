@@ -10,9 +10,6 @@ namespace UniLiveViewer.Menu.Config.Graphics
 {
     public class GraphicsMenuService : IDisposable
     {
-        public IReadOnlyReactiveProperty<float> LightIntensity => _lightIntensity;
-        readonly ReactiveProperty<float> _lightIntensity = new(1);
-
         public IReadOnlyReactiveProperty<AntialiasingMode> AntialiasingModeValue => _antialiasingMode;
         readonly ReactiveProperty<AntialiasingMode> _antialiasingMode = new((AntialiasingMode)FileReadAndWriteUtility.UserProfile.Antialiasing);
 
@@ -37,6 +34,10 @@ namespace UniLiveViewer.Menu.Config.Graphics
 
         public IReadOnlyReactiveProperty<float> BloomIntensity => _bloomIntensity;
         readonly ReactiveProperty<float> _bloomIntensity = new(FileReadAndWriteUtility.UserProfile.BloomIntensity);
+
+        public IReadOnlyReactiveProperty<float> BloomScatter => _bloomScatter;
+        readonly ReactiveProperty<float> _bloomScatter = new(0.5f);
+
         public IReadOnlyReactiveProperty<bool> UseBloomColor => _useBloomColor;
         readonly ReactiveProperty<bool> _useBloomColor = new();
 
@@ -69,14 +70,14 @@ namespace UniLiveViewer.Menu.Config.Graphics
         {
             // 購読前に初期化
             {
-                _settings.GraphicsText[0].text = $"{_lightIntensity.Value:0.00}";
-                _settings.GraphicsText[1].text = $"{_bloomThreshold.Value:0.00}";
-                _settings.GraphicsText[2].text = $"{_bloomIntensity.Value:0.0}";
-                _settings.GraphicsText[3].text = $"";//無し
-                _settings.GraphicsText[4].text = _renderScale.Value.ToString();
-                _settings.GraphicsText[5].text = _opaqueDownsampling.Value.AsString();
-                _settings.GraphicsText[6].text = $"{_outline.Value:0.00}";
-                _settings.GraphicsText[7].text = $"{_bloomResolutionScale.Value:0.00}";
+                _settings.GraphicsText[0].text = $"{_bloomThreshold.Value:0.00}";
+                _settings.GraphicsText[1].text = $"{_bloomIntensity.Value:0.0}";
+                _settings.GraphicsText[2].text = $"";//無し
+                _settings.GraphicsText[3].text = _renderScale.Value.ToString();
+                _settings.GraphicsText[4].text = _opaqueDownsampling.Value.AsString();
+                _settings.GraphicsText[5].text = $"{_outline.Value:0.00}";
+                _settings.GraphicsText[6].text = $"{_bloomResolutionScale.Value:0.00}";
+                _settings.GraphicsText[7].text = $"{_bloomScatter.Value:0.00}";
                 ChangeTextAntialiasingMode(_antialiasingMode.Value);
                 ChangeTextMSAASamples(_msaaSamples.Value);
             }
@@ -104,56 +105,56 @@ namespace UniLiveViewer.Menu.Config.Graphics
                 .Subscribe(x =>
                 {
                     _settings.GraphicsText[0].text = $"{x:0.00}";
-                    _lightIntensity.Value = x;
+                    _bloomThreshold.Value = x;
                 }).AddTo(_disposables);
             _settings.GraphicSlider[1].ValueAsObservable
                 .Subscribe(x =>
                 {
-                    _settings.GraphicsText[1].text = $"{x:0.00}";
-                    _bloomThreshold.Value = x;
-                }).AddTo(_disposables);
-            _settings.GraphicSlider[2].ValueAsObservable
-                .Subscribe(x =>
-                {
-                    _settings.GraphicsText[2].text = $"{x:0.0}";
+                    _settings.GraphicsText[1].text = $"{x:0.0}";
                     _bloomIntensity.Value = x;
                 }).AddTo(_disposables);
-            _settings.GraphicSlider[3].ValueAsObservable
+            _settings.GraphicSlider[2].ValueAsObservable
                 .Subscribe(x => _bloomColor.Value = x).AddTo(_disposables);
+            _settings.GraphicSlider[3].ValueAsObservable
+                .Subscribe(x =>
+                {
+                    _settings.GraphicsText[3].text = x.ToString();
+                    _renderScale.Value = x;
+                }).AddTo(_disposables);
             _settings.GraphicSlider[4].ValueAsObservable
                 .Subscribe(x =>
                 {
-                    _settings.GraphicsText[4].text = x.ToString();
-                    _renderScale.Value = x;
+                    var samples = ((int)x).ToDownsamplingFromSlider();
+                    _settings.GraphicsText[4].text = samples.AsString();
+                    _opaqueDownsampling.Value = samples;
                 }).AddTo(_disposables);
             _settings.GraphicSlider[5].ValueAsObservable
                 .Subscribe(x =>
                 {
-                    var samples = ((int)x).ToDownsamplingFromSlider();
-                    _settings.GraphicsText[5].text = samples.AsString();
-                    _opaqueDownsampling.Value = samples;
+                    _settings.GraphicsText[5].text = $"{x:0.00}";
+                    _outline.Value = x;
                 }).AddTo(_disposables);
             _settings.GraphicSlider[6].ValueAsObservable
                 .Subscribe(x =>
                 {
                     _settings.GraphicsText[6].text = $"{x:0.00}";
-                    _outline.Value = x;
+                    _bloomResolutionScale.Value = x;
                 }).AddTo(_disposables);
             _settings.GraphicSlider[7].ValueAsObservable
                 .Subscribe(x =>
                 {
-                    _settings.GraphicsText[7].text = $"{x:0.00}";
-                    _bloomResolutionScale.Value = x;
+                    _settings.GraphicsText[7].text = $"{x:0.0}";
+                    _bloomScatter.Value = x;
                 }).AddTo(_disposables);
 
-            _settings.GraphicSlider[0].Value = _lightIntensity.Value;
-            _settings.GraphicSlider[1].Value = _bloomThreshold.Value;
-            _settings.GraphicSlider[2].Value = _bloomIntensity.Value;
-            _settings.GraphicSlider[3].Value = _bloomColor.Value;
-            _settings.GraphicSlider[4].Value = _renderScale.Value;
-            _settings.GraphicSlider[5].Value = _opaqueDownsampling.Value.ToDownsamplingSliderValue();
-            _settings.GraphicSlider[6].Value = _outline.Value;
-            _settings.GraphicSlider[7].Value = _bloomResolutionScale.Value;
+            _settings.GraphicSlider[0].Value = _bloomThreshold.Value;
+            _settings.GraphicSlider[1].Value = _bloomIntensity.Value;
+            _settings.GraphicSlider[2].Value = _bloomColor.Value;
+            _settings.GraphicSlider[3].Value = _renderScale.Value;
+            _settings.GraphicSlider[4].Value = _opaqueDownsampling.Value.ToDownsamplingSliderValue();
+            _settings.GraphicSlider[5].Value = _outline.Value;
+            _settings.GraphicSlider[6].Value = _bloomResolutionScale.Value;
+            _settings.GraphicSlider[7].Value = _bloomScatter.Value;
         }
 
         void OnClick(Button_Base btn)

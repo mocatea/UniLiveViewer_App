@@ -1,4 +1,4 @@
-﻿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using MessagePipe;
 using System;
 using UniLiveViewer.Menu.Config.Stage;
@@ -11,6 +11,7 @@ namespace UniLiveViewer.Stage.Kagura
     public class KaguraEnvironmentPresenter : IStartable, IDisposable
     {
         readonly IStageMenuService _stageMenuServie;
+        readonly StageLightingService _stageLightingService;
         readonly KaguraEnvironmentService _environmentService;
 
         readonly CompositeDisposable _disposable = new();
@@ -18,9 +19,11 @@ namespace UniLiveViewer.Stage.Kagura
         [Inject]
         public KaguraEnvironmentPresenter(
             IStageMenuService stageMenuServie,
+            StageLightingService stageLightingService,
             KaguraEnvironmentService environmentService)
         {
             _stageMenuServie = stageMenuServie;
+            _stageLightingService = stageLightingService;
             _environmentService = environmentService;
         }
 
@@ -38,7 +41,7 @@ namespace UniLiveViewer.Stage.Kagura
                     .Subscribe(_environmentService.OnClickSeaWaves)
                     .AddTo(_disposable);
                 menuServie.FogDensity
-                    .Subscribe(_environmentService.OnChangeFog)
+                    .Subscribe(_stageLightingService.ChangeFogDensity)
                     .AddTo(_disposable);
             }
         }
