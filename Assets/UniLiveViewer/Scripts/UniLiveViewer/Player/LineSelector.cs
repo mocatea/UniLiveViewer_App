@@ -93,7 +93,7 @@ namespace UniLiveViewer.Player
                 _preHitObj = null;
                 _hitActorStream.OnNext(null);
             }
-            else if(_preHitObj != hitCollider.collider.transform)
+            else if(hitCollider.collider != null && _preHitObj != hitCollider.collider.transform)
             {
                 _preHitObj = hitCollider.collider.transform;
                 _hitActorStream.OnNext(_preHitObj);
