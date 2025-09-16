@@ -1,8 +1,9 @@
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using NanaCiel;
 using System;
 using System.Threading;
 using UniLiveViewer.SceneLoader;
+using UniLiveViewer.SO;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -18,20 +19,23 @@ namespace UniLiveViewer.Stage
         readonly FileAccessManager _fileAccessManager;
         readonly AnimationAssetManager _animationAssetManager;
         readonly TextureAssetManager _textureAssetManager;
+        readonly SceneInitialSettings _sceneInitialSettings;
         readonly StageLightingService _stageLightingService;
 
         [Inject]
         public StageScenePresenter(
+            SceneChangeService sceneChangeService,
             FileAccessManager fileAccessManager,
             AnimationAssetManager animationAssetManager,
             TextureAssetManager textureAssetManager,
-            SceneChangeService sceneChangeService,
+            SceneInitialSettings sceneInitialSettings,
             StageLightingService stageLightingService)
         {
             _sceneChangeService = sceneChangeService;
             _fileAccessManager = fileAccessManager;
             _animationAssetManager = animationAssetManager;
             _textureAssetManager = textureAssetManager;
+            _sceneInitialSettings = sceneInitialSettings;
             _stageLightingService = stageLightingService;
         }
 
@@ -39,6 +43,10 @@ namespace UniLiveViewer.Stage
         {
             _stageLightingService.Verify();
             _sceneChangeService.Initialize();
+
+            var sceneData = _sceneInitialSettings.GetSettingData(SceneChangeService.GetSceneType);
+            _stageLightingService.ChangeLightColor(sceneData.Light.Color);
+            _stageLightingService.ChangeLightIntensity(sceneData.Light.Intensity);
         }
 
         async UniTask IAsyncStartable.StartAsync(CancellationToken cancellation)

@@ -1,8 +1,7 @@
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using MessagePipe;
 using System;
 using UniLiveViewer.Player.Graphics;
-using UniLiveViewer.Stage;
 using UniRx;
 using VContainer;
 using VContainer.Unity;
@@ -69,9 +68,9 @@ namespace UniLiveViewer.Menu.Config.Graphics
                 .SkipLatestValueOnSubscribe()
                 .Subscribe(_graphicsSettingsService.ChangeUseBloomColor)
                 .AddTo(_disposables);
-            _graphicsMenuService.BloomColor
+            _graphicsMenuService.BloomColorHue
                 .SkipLatestValueOnSubscribe()
-                .Subscribe(_graphicsSettingsService.ChangeBloomColor)
+                .Subscribe(_graphicsSettingsService.ChangeBloomColorHue)
                 .AddTo(_disposables);
 
             _graphicsMenuService.DepthOfField

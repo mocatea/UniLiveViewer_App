@@ -10,11 +10,13 @@ namespace UniLiveViewer.Stage
     /// </summary>
     public class StageSceneLifetimeScope : LifetimeScope
     {
+        [SerializeField] SceneInitialSettings _sceneInitialSettings;
         [SerializeField] AudioClipSettings _audioClipSettings;
         [SerializeField] RootAudioSourceService _rootAudioSourceService;
 
         protected override void Configure(IContainerBuilder builder)
         {
+            builder.RegisterInstance(_sceneInitialSettings);
             builder.RegisterInstance(_audioClipSettings);
             builder.RegisterComponent(_rootAudioSourceService);
 

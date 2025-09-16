@@ -29,11 +29,15 @@ namespace UniLiveViewer.Menu.Config.Stage
 
         void IStartable.Start()
         {
-            _stageCommonMenuService.Initialize(_stageLightingService.LightIntensity);
+            _stageCommonMenuService.Initialize(_stageLightingService.LightIntensity, _stageLightingService.LightRotationYow);
             _stageMenuServie.Initialize();
             _stageCommonMenuService.LightIntensity
                 .SkipLatestValueOnSubscribe()
                 .Subscribe(_stageLightingService.ChangeLightIntensity)
+                .AddTo(_disposables);
+            _stageCommonMenuService.LightRotation
+                .SkipLatestValueOnSubscribe()
+                .Subscribe(_stageLightingService.ChangeLightRotation)
                 .AddTo(_disposables);
             _onEnableHandler.OnEnableAsObservable
                 .Subscribe(x => _stageMenuServie.OnEnable())

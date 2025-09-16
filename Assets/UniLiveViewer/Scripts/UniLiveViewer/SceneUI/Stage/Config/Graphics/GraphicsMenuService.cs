@@ -1,4 +1,8 @@
 ﻿using System;
+using UniHumanoid;
+using UniLiveViewer.Player.Graphics;
+using UniLiveViewer.SceneLoader;
+using UniLiveViewer.SO;
 using UniRx;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -24,52 +28,66 @@ namespace UniLiveViewer.Menu.Config.Graphics
         readonly ReactiveProperty<Downsampling> _opaqueDownsampling = new(Downsampling._2xBilinear);
 
         public IReadOnlyReactiveProperty<bool> Bloom => _bloom;
-        readonly ReactiveProperty<bool> _bloom = new(FileReadAndWriteUtility.UserProfile.IsBloom);
+        readonly ReactiveProperty<bool> _bloom = new();
 
         public IReadOnlyReactiveProperty<float> BloomResolutionScale => _bloomResolutionScale;
         readonly ReactiveProperty<float> _bloomResolutionScale = new(1);
 
         public IReadOnlyReactiveProperty<float> BloomThreshold => _bloomThreshold;
-        readonly ReactiveProperty<float> _bloomThreshold = new(FileReadAndWriteUtility.UserProfile.BloomThreshold);
+        readonly ReactiveProperty<float> _bloomThreshold = new();
 
         public IReadOnlyReactiveProperty<float> BloomIntensity => _bloomIntensity;
-        readonly ReactiveProperty<float> _bloomIntensity = new(FileReadAndWriteUtility.UserProfile.BloomIntensity);
+        readonly ReactiveProperty<float> _bloomIntensity = new();
 
         public IReadOnlyReactiveProperty<float> BloomScatter => _bloomScatter;
-        readonly ReactiveProperty<float> _bloomScatter = new(0.5f);
+        readonly ReactiveProperty<float> _bloomScatter = new();
 
         public IReadOnlyReactiveProperty<bool> UseBloomColor => _useBloomColor;
         readonly ReactiveProperty<bool> _useBloomColor = new();
 
-        public IReadOnlyReactiveProperty<float> BloomColor => _bloomColor;
-        readonly ReactiveProperty<float> _bloomColor = new(0.65f);//水色
+        public IReadOnlyReactiveProperty<float> BloomColorHue => _bloomColorHue;
+        readonly ReactiveProperty<float> _bloomColorHue = new();
 
         public IReadOnlyReactiveProperty<bool> DepthOfField => _depthOfField;
         readonly ReactiveProperty<bool> _depthOfField = new(FileReadAndWriteUtility.UserProfile.IsDepthOfField);
 
         public IReadOnlyReactiveProperty<bool> Tonemapping => _tonemapping;
-        readonly ReactiveProperty<bool> _tonemapping = new(FileReadAndWriteUtility.UserProfile.IsTonemapping);
+        readonly ReactiveProperty<bool> _tonemapping = new();
 
         public IReadOnlyReactiveProperty<float> Outline => _outline;
         readonly ReactiveProperty<float> _outline = new(0.3f);
 
         readonly RootAudioSourceService _audioSourceService;
         readonly GraphicsMenuSettings _settings;
+        readonly SceneInitialSettings _sceneInitialSettings;
         readonly CompositeDisposable _disposables = new();
 
         [Inject]
         public GraphicsMenuService(
             RootAudioSourceService audioSourceService,
-            GraphicsMenuSettings settings)
+            GraphicsMenuSettings settings,
+            SceneInitialSettings sceneInitialSettings)
         {
             _audioSourceService = audioSourceService;
             _settings = settings;
+            _sceneInitialSettings = sceneInitialSettings;
         }
 
         public void Initialize()
         {
             // 購読前に初期化
             {
+                var sceneData = _sceneInitialSettings.GetSettingData(SceneChangeService.GetSceneType);
+                var bloomData = sceneData.Bloom;
+                _bloom.Value = bloomData.UseBloom;
+                _bloomThreshold.Value = bloomData.Threshold;
+                _bloomIntensity.Value = bloomData.Intensity;
+                _bloomScatter.Value = bloomData.Scatter;
+                _useBloomColor.Value = bloomData.UseColor;
+                _bloomColorHue.Value = bloomData.Hue;
+
+                _tonemapping.Value = sceneData.Tonemapping;
+
                 _settings.GraphicsText[0].text = $"{_bloomThreshold.Value:0.00}";
                 _settings.GraphicsText[1].text = $"{_bloomIntensity.Value:0.0}";
                 _settings.GraphicsText[2].text = $"";//無し
@@ -114,7 +132,7 @@ namespace UniLiveViewer.Menu.Config.Graphics
                     _bloomIntensity.Value = x;
                 }).AddTo(_disposables);
             _settings.GraphicSlider[2].ValueAsObservable
-                .Subscribe(x => _bloomColor.Value = x).AddTo(_disposables);
+                .Subscribe(x => _bloomColorHue.Value = x).AddTo(_disposables);
             _settings.GraphicSlider[3].ValueAsObservable
                 .Subscribe(x =>
                 {
@@ -149,7 +167,7 @@ namespace UniLiveViewer.Menu.Config.Graphics
 
             _settings.GraphicSlider[0].Value = _bloomThreshold.Value;
             _settings.GraphicSlider[1].Value = _bloomIntensity.Value;
-            _settings.GraphicSlider[2].Value = _bloomColor.Value;
+            _settings.GraphicSlider[2].Value = _bloomColorHue.Value;
             _settings.GraphicSlider[3].Value = _renderScale.Value;
             _settings.GraphicSlider[4].Value = _opaqueDownsampling.Value.ToDownsamplingSliderValue();
             _settings.GraphicSlider[5].Value = _outline.Value;

@@ -15,12 +15,12 @@ namespace UniLiveViewer.Player.Graphics
             _bloom = bloom;
         }
 
-        void IBloom.Initialize(bool useTint, Color color)
+        void IBloom.Initialize(bool useBloom, float threshold, float intensity, float scatter, bool useTint, Color color)
         {
-            _bloom.active = FileReadAndWriteUtility.UserProfile.IsBloom;
-            _bloom.threshold.value = FileReadAndWriteUtility.UserProfile.BloomThreshold;
-            _bloom.intensity.value = FileReadAndWriteUtility.UserProfile.BloomIntensity;
-            //_bloom.scatter.value = 0;
+            _bloom.active = useBloom;
+            _bloom.threshold.value = threshold;
+            _bloom.intensity.value = intensity;
+            _bloom.scatter.value = scatter;
             _bloom.tint.overrideState = useTint;
             _bloom.tint.value = color;
         }

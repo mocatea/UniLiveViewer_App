@@ -18,11 +18,11 @@ namespace UniLiveViewer
 
         public int Antialiasing = (int)AntialiasingMode.SubpixelMorphologicalAntiAliasing;
         public int MSAALevel = (int)MSAASamples.MSAA2x;
-        public bool IsBloom = true;
-        public float BloomThreshold = 0.95f;
-        public float BloomIntensity = 5.0f;
+        //public bool IsBloom = true;
+        //public float BloomThreshold = 0.95f;
+        //public float BloomIntensity = 5.0f;
         public bool IsDepthOfField = false;
-        public bool IsTonemapping = true;
+        //public bool IsTonemapping = true;
 
         public float SoundMaster = 100;
         public float SoundBGM = 100;

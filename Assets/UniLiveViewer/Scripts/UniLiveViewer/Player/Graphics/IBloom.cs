@@ -4,7 +4,7 @@ namespace UniLiveViewer.Player.Graphics
 {
     public interface IBloom
     {
-        void Initialize(bool useTint, Color color);
+        void Initialize(bool useBloom, float threshold, float intensity, float scatter, bool useTint, Color color);
 
         void SetActive(bool isEnable);
 

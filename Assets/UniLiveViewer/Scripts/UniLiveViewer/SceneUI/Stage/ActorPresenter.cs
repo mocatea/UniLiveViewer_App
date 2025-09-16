@@ -128,7 +128,7 @@ namespace UniLiveViewer.Menu
 
         async UniTask ActiveFBXAsync(int index, CancellationToken cancellation)
         {
-            if (SystemInfo.MaxFieldChara <= _playableBinderService.StageActorCount.Value) return;
+            if (SystemInfo.MaxFieldActor <= _playableBinderService.StageActorCount.Value) return;
 
             _actorCurrentMode = CurrentMode.PRESET;
             _publisher.Publish(new VRMMenuShowMessage(-1));
@@ -149,7 +149,7 @@ namespace UniLiveViewer.Menu
 
         async UniTask ActiveVRMAsync(int index, CancellationToken cancellation)
         {
-            if (SystemInfo.MaxFieldChara <= _playableBinderService.StageActorCount.Value) return;
+            if (SystemInfo.MaxFieldActor <= _playableBinderService.StageActorCount.Value) return;
 
             _actorCurrentMode = CurrentMode.CUSTOM;
 

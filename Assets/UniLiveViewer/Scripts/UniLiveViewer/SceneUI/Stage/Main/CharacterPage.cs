@@ -328,7 +328,7 @@ namespace UniLiveViewer.Menu
 
         public void OnUpdateActorCount()
         {
-            _textMeshs[2].text = $"{_playableBinderService.StageActorCount.Value}/{SystemInfo.MaxFieldChara}";
+            _textMeshs[2].text = $"{_playableBinderService.StageActorCount.Value}/{SystemInfo.MaxFieldActor}";
         }
 
         /// <summary>
@@ -459,7 +459,7 @@ namespace UniLiveViewer.Menu
             _vrmLoadFailureText.gameObject.SetActive(false);//非表示で初期化しておく
             _actorMaxText.gameObject.SetActive(false);
 
-            if (SystemInfo.MaxFieldChara <= _playableBinderService.StageActorCount.Value)
+            if (SystemInfo.MaxFieldActor <= _playableBinderService.StageActorCount.Value)
             {
                 _actorMaxText.gameObject.SetActive(true);
                 _audioSourceService.PlayOneShot(AudioSE.ButtonClick);

@@ -15,13 +15,13 @@ namespace UniLiveViewer.Player.Graphics
             _renderFeature = customBloomRenderFeature;
         }
 
-        void IBloom.Initialize(bool useTint, Color color)
+        void IBloom.Initialize(bool useBloom, float threshold, float intensity, float scatter, bool useTint, Color color)
         {
             var setting = _renderFeature.settings;
-            _renderFeature.SetActive(FileReadAndWriteUtility.UserProfile.IsBloom);
-            setting.threshold = FileReadAndWriteUtility.UserProfile.BloomThreshold;
-            setting.intensity = FileReadAndWriteUtility.UserProfile.BloomIntensity;
-            //setting.scatter = 0;
+            _renderFeature.SetActive(useBloom);
+            setting.threshold = threshold;
+            setting.intensity = intensity;
+            setting.scatter = scatter;
             setting.useTint = useTint;
             setting.tint = color;
         }
