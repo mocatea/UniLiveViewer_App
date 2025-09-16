@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UniLiveViewer.SceneLoader;
 using UnityEngine;
@@ -37,6 +37,8 @@ namespace UniLiveViewer
         static int _maxFieldActor;
 
         public static int GetMaxFieldActor(SceneType sceneType) => _current[(int)sceneType];
+        public static bool IsHighSpecDevice => _deviceType == DeviceType.Quest3 
+            || _deviceType == DeviceType.Editor;
         static DeviceType _deviceType = DeviceType.None;
         static int[] _current;
 
