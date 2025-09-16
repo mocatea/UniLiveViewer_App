@@ -1,10 +1,9 @@
-﻿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using NanaCiel;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using UniLiveViewer.Actor;
 using UniLiveViewer.SO;
 using UniRx;
 using UnityEngine;
@@ -17,6 +16,13 @@ namespace UniLiveViewer.Menu
     {
         const int MaxFontWidth = 40;
         const int MaxFontLength = 20;
+
+        /// <summary> 行数 </summary>
+        const int RowButtonLimit = 20;
+        /// <summary> 列間 </summary>
+        const float ColumnSpacing = 0.38f;
+        /// <summary> 行間 </summary>
+        const float RowSpacing = 0.026f;
 
         public enum TARGET
         {
@@ -33,6 +39,7 @@ namespace UniLiveViewer.Menu
 
         [SerializeField] Button_Base Button_BasePrefab;
         [SerializeField] Transform parentAnchor;
+        [SerializeField] Transform _backImageRoot;
         PresetResourceData _presetResourceData;
         ActorEntityManagerService _actorEntityManagerService;
         AnimationAssetManager _animationAssetManager;
@@ -60,40 +67,6 @@ namespace UniLiveViewer.Menu
         }
 
         /// <summary>
-        /// 必要に応じてボタンを追加生成
-        /// </summary>
-        public void IfNeededCreateButton(int needCount)
-        {
-            if (_btnList.Count >= needCount) return;
-
-            const int MAXLINE = 20;//行数
-            const float BETWEEN_ROWS = 0.38f;//列間
-            const float BETWEEN_LINE = 0.026f;//行間
-            float initX = 0, initY = 0;
-
-            Button_Base btn;
-            for (int i = _btnList.Count; i < needCount; i++)
-            {
-                initX = 0.07f + i / MAXLINE * BETWEEN_ROWS;
-                initY = 0.21f - (i % MAXLINE * BETWEEN_LINE);
-
-                btn = Instantiate(Button_BasePrefab);
-                btn.onTrigger += OnClick;
-                btn.transform.SetParent(parentAnchor);
-
-                btn.transform.localRotation = Quaternion.identity;
-                btn.transform.localScale = Vector3.one;
-
-                //Zファイティング対策
-                if ((initX / 3) % 2 == 0) btn.transform.localPosition = new Vector3(initX, initY, 0);
-                else btn.transform.localPosition = new Vector3(initX, initY, -0.01f);
-
-                _btnList.Add(btn);
-                btn = null;
-            }
-        }
-
-        /// <summary>
         /// アクター情報を設定する
         /// </summary>
         public async UniTask SetActorAsync(bool isPreset)
@@ -101,6 +74,7 @@ namespace UniLiveViewer.Menu
             var viewNames = isPreset
                 ? _actorEntityManagerService.FbxViewNames : _actorEntityManagerService.VRMViewNames;
             IfNeededCreateButton(viewNames.Length);
+            IfNeededAdjustBackImage();
 
             for (int i = 0; i < _btnList.Count; i++)
             {
@@ -129,6 +103,7 @@ namespace UniLiveViewer.Menu
             var danceInfoData = isPreset
                 ? _presetResourceData.DanceInfoData.Select(x => x.ViewName).ToList() : _animationAssetManager.VmdList;
             IfNeededCreateButton(danceInfoData.Count);
+            IfNeededAdjustBackImage();
 
             for (int i = 0; i < _btnList.Count; i++)
             {
@@ -155,6 +130,7 @@ namespace UniLiveViewer.Menu
         {
             var lipSyncNames = _animationAssetManager.VmdSyncList;
             IfNeededCreateButton(lipSyncNames.Count);
+            IfNeededAdjustBackImage();
 
             for (int i = 0; i < _btnList.Count; i++)
             {
@@ -183,6 +159,7 @@ namespace UniLiveViewer.Menu
             {
                 var count = _audioClipSettings.AudioBGM.Count;
                 IfNeededCreateButton(count);
+                IfNeededAdjustBackImage();
 
                 for (int i = 0; i < _btnList.Count; i++)
                 {
@@ -204,6 +181,7 @@ namespace UniLiveViewer.Menu
                 //必要ならボタンを生成
                 var count = _audioAssetManager.CustomAudios.Count;
                 IfNeededCreateButton(count);
+                IfNeededAdjustBackImage();
 
                 for (int i = 0; i < _btnList.Count; i++)
                 {
@@ -223,6 +201,45 @@ namespace UniLiveViewer.Menu
             _target = TARGET.AUDIO;
             await UniTask.Delay(400, cancellationToken: this.GetCancellationTokenOnDestroy());
             _audioSourceService.PlayOneShot(AudioSE.SpringMenuItem);
+        }
+
+        /// <summary>
+        /// 必要に応じてボタンを追加生成
+        /// </summary>
+        void IfNeededCreateButton(int needCount)
+        {
+            if (_btnList.Count >= needCount) return;
+
+            float initX = 0, initY = 0;
+
+            Button_Base btn;
+            for (int i = _btnList.Count; i < needCount; i++)
+            {
+                initX = 0.07f + i / RowButtonLimit * ColumnSpacing;
+                initY = 0.21f - (i % RowButtonLimit * RowSpacing);
+
+                btn = Instantiate(Button_BasePrefab);
+                btn.onTrigger += OnClick;
+                btn.transform.SetParent(parentAnchor);
+
+                btn.transform.localRotation = Quaternion.identity;
+                btn.transform.localScale = Vector3.one;
+
+                //Zファイティング対策
+                if ((initX / 3) % 2 == 0) btn.transform.localPosition = new Vector3(initX, initY, 0);
+                else btn.transform.localPosition = new Vector3(initX, initY, -0.01f);
+
+                _btnList.Add(btn);
+                btn = null;
+            }
+        }
+
+        void IfNeededAdjustBackImage()
+        {
+            var scale = _backImageRoot.localScale;
+            var f = (float)_btnList.Count / RowButtonLimit;
+            scale.x = ColumnSpacing * Mathf.Ceil(f);
+            _backImageRoot.localScale = scale;
         }
 
         /// <summary>
