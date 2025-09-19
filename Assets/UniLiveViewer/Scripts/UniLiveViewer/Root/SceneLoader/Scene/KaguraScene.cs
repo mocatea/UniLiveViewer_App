@@ -4,13 +4,13 @@ using UnityEngine.SceneManagement;
 
 namespace UniLiveViewer.SceneLoader
 {
-    public class CandyLiveScene : IScene
+    public class KaguraScene : IScene
     {
-        const string SceneName = "LiveScene";
-        public CandyLiveScene()
+        const string SceneName = "2_KaguraStage";
+        public KaguraScene()
         {
         }
-
+        
         async UniTask IScene.BeginAsync(CancellationToken token)
         {
             //完全非同期は無理
@@ -20,6 +20,6 @@ namespace UniLiveViewer.SceneLoader
             async.allowSceneActivation = true;
         }
 
-        string IScene.GetVisualName() => "CRS Live";
+        string IScene.GetVisualName() => "Kagura Stage";
     }
 }

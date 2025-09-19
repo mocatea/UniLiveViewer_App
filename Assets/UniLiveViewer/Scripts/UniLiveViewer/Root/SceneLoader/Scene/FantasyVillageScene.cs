@@ -21,6 +21,6 @@ namespace UniLiveViewer.SceneLoader
             async.allowSceneActivation = true;
         }
 
-        string IScene.GetVisualName() => "FantasyVillage";
+        string IScene.GetVisualName() => "Fantasy Village";
     }
 }

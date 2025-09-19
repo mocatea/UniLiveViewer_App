@@ -1,16 +1,16 @@
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using System.Threading;
 using UnityEngine.SceneManagement;
 
 namespace UniLiveViewer.SceneLoader
 {
-    public class KaguraLiveScene : IScene
+    public class CRSScene : IScene
     {
-        const string SceneName = "KAGURAScene";
-        public KaguraLiveScene()
+        const string SceneName = "1_CRSStage";
+        public CRSScene()
         {
         }
-        
+
         async UniTask IScene.BeginAsync(CancellationToken token)
         {
             //完全非同期は無理
@@ -20,6 +20,6 @@ namespace UniLiveViewer.SceneLoader
             async.allowSceneActivation = true;
         }
 
-        string IScene.GetVisualName() => "KAGURA Live";
+        string IScene.GetVisualName() => "CRS Stage";
     }
 }

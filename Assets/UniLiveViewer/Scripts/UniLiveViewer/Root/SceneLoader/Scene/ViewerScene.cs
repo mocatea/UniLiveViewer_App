@@ -6,7 +6,7 @@ namespace UniLiveViewer.SceneLoader
 {
     public class ViewerScene : IScene
     {
-        const string SceneName = "ViewerScene";
+        const string SceneName = "3_ViewerStage";
 
         public ViewerScene()
         {
@@ -21,6 +21,6 @@ namespace UniLiveViewer.SceneLoader
             async.allowSceneActivation = true;
         }
 
-        string IScene.GetVisualName() => "ViewerScene";
+        string IScene.GetVisualName() => "Viewer Stage";
     }
 }

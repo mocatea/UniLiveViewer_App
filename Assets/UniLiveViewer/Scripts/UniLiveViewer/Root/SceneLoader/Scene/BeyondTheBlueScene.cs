@@ -6,7 +6,7 @@ namespace UniLiveViewer.SceneLoader
 {
     public class BeyondTheBlueScene : IScene
     {
-        const string SceneName = "HorizonLine_Test";
+        const string SceneName = "5_BeyondTheBlue";
         public BeyondTheBlueScene()
         {
         }
@@ -20,6 +20,6 @@ namespace UniLiveViewer.SceneLoader
             async.allowSceneActivation = true;
         }
 
-        string IScene.GetVisualName() => "Beyond The Blue";
+        string IScene.GetVisualName() => "Beyond the Blue";
     }
 }

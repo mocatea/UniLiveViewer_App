@@ -37,8 +37,8 @@ namespace UniLiveViewer.SceneLoader
             _map = new Dictionary<SceneType, IScene>
             {
                 { SceneType.TITLE, new TitleScene() },
-                { SceneType.CANDY_LIVE, new CandyLiveScene() },
-                { SceneType.KAGURA_LIVE, new KaguraLiveScene() },
+                { SceneType.CANDY_LIVE, new CRSScene() },
+                { SceneType.KAGURA_LIVE, new KaguraScene() },
                 { SceneType.VIEWER, new ViewerScene() },
                 { SceneType.GYMNASIUM, new GymnasiumScene() },
                 { SceneType.BEYOND_THE_BLUE, new BeyondTheBlueScene() },

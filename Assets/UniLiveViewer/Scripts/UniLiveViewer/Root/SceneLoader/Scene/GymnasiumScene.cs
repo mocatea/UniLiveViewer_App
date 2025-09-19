@@ -6,7 +6,7 @@ namespace UniLiveViewer.SceneLoader
 {
     public class GymnasiumScene : IScene
     {
-        const string SceneName = "GymnasiumScene";
+        const string SceneName = "4_Gymnasium";
 
         public GymnasiumScene()
         {
