@@ -1,8 +1,7 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UniLiveViewer.SceneLoader;
 using UnityEngine;
-using UnityEngine.Windows.Speech;
 
 namespace UniLiveViewer
 {
@@ -39,7 +38,7 @@ namespace UniLiveViewer
         public static int GetMaxFieldActor(SceneType sceneType) => _current[(int)sceneType];
         public static bool IsHighSpecDevice => _deviceType == DeviceType.Quest3 
             || _deviceType == DeviceType.Editor;
-        static DeviceType _deviceType = DeviceType.None;
+        static DeviceType _deviceType;
         static int[] _current;
 
         public static void Initialize(SceneType sceneType)
@@ -53,12 +52,14 @@ namespace UniLiveViewer
                 { DeviceType.Editor,MAXACTOR_EDITOR },
             };
 
-            var myPlatform = UnityEngine.SystemInfo.deviceName;
-            if (myPlatform.Contains("Oculus") || myPlatform.Contains("Meta"))
+            var deviceName = UnityEngine.SystemInfo.deviceName;// 'Quest 3'など
+            var deviceModel = UnityEngine.SystemInfo.deviceModel;// 'Oculus Quest'としか返ってこない
+
+            if (deviceModel.Contains("Oculus") || deviceModel.Contains("Meta"))
             {
-                if (myPlatform.Contains("3")) _deviceType = DeviceType.Quest3;
-                else if (myPlatform.Contains("2")) _deviceType = DeviceType.Quest2;
-                else if (myPlatform.Contains("Quest")) _deviceType = DeviceType.Quest1;
+                if (deviceName.Contains("Quest 3")) _deviceType = DeviceType.Quest3;
+                else if (deviceName.Contains("Quest 2")) _deviceType = DeviceType.Quest2;
+                else if (deviceName.Contains("Quest")) _deviceType = DeviceType.Quest1;
             }
             else if(Application.isEditor)
             {

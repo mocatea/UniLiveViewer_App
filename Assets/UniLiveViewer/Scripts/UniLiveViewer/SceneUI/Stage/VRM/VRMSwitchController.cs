@@ -1,6 +1,7 @@
-﻿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using MessagePipe;
 using System.Threading;
+using UniRx;
 using UnityEngine;
 
 namespace UniLiveViewer.Menu
@@ -19,6 +20,10 @@ namespace UniLiveViewer.Menu
 
         [Space(1), Header("＜1ページ＞")]
         [SerializeField] TextMesh[] _textDirectory;
+
+        [SerializeField] Button_Base _btnVRM10Mode;//0.xと1.0切り替え
+        [SerializeField] Button_Base _btnVRMCopy;
+
         [Space(1), Header("＜2ページ＞")]
         [SerializeField] Button_Base _btnApply;
         [SerializeField] PrefabEditor _prefabEditor;
@@ -31,9 +36,10 @@ namespace UniLiveViewer.Menu
 
         //ファイルアクセスとサムネの管理
         FileAccessManager _fileManager;
-        //RootAudioSourceService _audioSourceService;
-        //TextureAssetManager _textureAssetManager;
-        //IPublisher<VRMMenuShowMessage> _publisher;
+        RootAudioSourceService _audioSourceService;
+        TextureAssetManager _textureAssetManager;
+        IPublisher<VRMMenuShowMessage> _publisher;
+        readonly CompositeDisposable _disposables = new();
 
         public async UniTask InitializeAsync(
             FileAccessManager fileAccessManager,
@@ -43,12 +49,18 @@ namespace UniLiveViewer.Menu
             CancellationToken cancellation)
         {
             _fileManager = fileAccessManager;
-            //_audioSourceService = audioSourceService;
-            //_textureAssetManager = textureAssetManager;
-            //_publisher = publisher;
+            _audioSourceService = audioSourceService;
+            _textureAssetManager = textureAssetManager;
+            _publisher = publisher;
             //コールバック登録・・・2ページ目
             //_btnApply.onTrigger += (btn) => PrefabApply(btn, cancellation).Forget();
             //_prefabEditor.onCurrentUpdate += () => { _audioSourceService.PlayOneShot(AudioSE.ButtonClick); };
+
+            _btnVRM10Mode.isEnable = FileReadAndWriteUtility.UserProfile.IsVRM10;
+            _btnVRM10Mode.OnTriggerAsObservable()
+                .Subscribe(OnClickVRMMode).AddTo(_disposables);
+            _btnVRMCopy.OnTriggerAsObservable()
+                .Subscribe(x => OnClickVRMCopyAsync(x, cancellation)).AddTo(_disposables);
 
             await UniTask.CompletedTask;
         }
@@ -167,23 +179,35 @@ namespace UniLiveViewer.Menu
         {
             //_vrmLoaderUI.DeleteVRMPrefab(id);
         }
+        */
 
         /// <summary>
         /// ダウンロードフォルダからVRMをコピーしてくる
         /// </summary>
-        public async void OnClick_VRMCopy()
+        async void OnClickVRMCopyAsync(Button_Base btn, CancellationToken cancellation)
         {
-            var cancel = this.GetCancellationTokenOnDestroy();
             try
             {
-                await _textureAssetManager.CopyVRMtoActorFolderAsync(PathsInfo.GetDownloadFolderPath() + "/", cancel);
+                await _textureAssetManager.CopyVRMtoActorFolderAsync(PathsInfo.GetDownloadFolderPath() + "/", cancellation);
                 _publisher.Publish(new VRMMenuShowMessage(0));
             }
             catch
             {
                 _textDirectory[1].text = "VRM Copy Error...";
             }
+            _audioSourceService.PlayOneShot(AudioSE.ButtonClick);
         }
-        */
+
+        void OnClickVRMMode(Button_Base btn)
+        {
+            FileReadAndWriteUtility.UserProfile.IsVRM10 = btn.isEnable;
+            FileReadAndWriteUtility.WriteJson(FileReadAndWriteUtility.UserProfile);
+            _audioSourceService.PlayOneShot(AudioSE.ButtonClick);
+        }
+
+        public void Dispose()
+        {
+            _disposables.Dispose();
+        }
     }
 }

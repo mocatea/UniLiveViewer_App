@@ -80,6 +80,7 @@ namespace UniLiveViewer.Menu
 
         void IDisposable.Dispose()
         {
+            _vrmSwitchController.Dispose();
             _disposables.Dispose();
         }
     }

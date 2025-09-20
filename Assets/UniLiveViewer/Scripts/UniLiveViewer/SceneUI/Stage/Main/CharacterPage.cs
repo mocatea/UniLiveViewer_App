@@ -61,7 +61,6 @@ namespace UniLiveViewer.Menu
         [Header("--- VRM用 ---")]
         [SerializeField] Button_Base _btnVRMSetting;
         [SerializeField] Button_Base _btnVRMDelete;
-        [SerializeField] Button_Base _btnVRM10Mode;//0.xと1.0切り替え
         [SerializeField] Button_Base _btnFacialActive;
         [SerializeField] Button_Base _btnLipSyncActive;
 
@@ -218,16 +217,12 @@ namespace UniLiveViewer.Menu
 
             _btnVRMDelete.OnTriggerAsObservable()
                 .Subscribe(OnClickVRMDelete).AddTo(_disposables);
-            _btnVRM10Mode.OnTriggerAsObservable()
-                .Subscribe(OnClickVRMMode).AddTo(_disposables);
             _btnDeleteAll.OnTriggerAsObservable()
                 .Subscribe(OnClickDeleteAllActors).AddTo(_disposables);
             _btnFacialActive.OnTriggerAsObservable()
                 .Subscribe(OnClickFacialExpression).AddTo(_disposables);
             _btnLipSyncActive.OnTriggerAsObservable()
                 .Subscribe(OnClickFacialExpression).AddTo(_disposables);
-
-            _btnVRM10Mode.isEnable = FileReadAndWriteUtility.UserProfile.IsVRM10;
 
             //_vrmSelectUI.AddPrefabAsObservable
             //    .Subscribe(x =>
@@ -665,13 +660,6 @@ namespace UniLiveViewer.Menu
                 await UniTask.Delay(1000);
                 _ = Resources.UnloadUnusedAssets();//明示的に消しておく
             });
-        }
-
-        void OnClickVRMMode(Button_Base btn)
-        {
-            FileReadAndWriteUtility.UserProfile.IsVRM10 = btn.isEnable;
-            FileReadAndWriteUtility.WriteJson(FileReadAndWriteUtility.UserProfile);
-            _audioSourceService.PlayOneShot(AudioSE.ButtonClick);
         }
 
         /// <summary>
