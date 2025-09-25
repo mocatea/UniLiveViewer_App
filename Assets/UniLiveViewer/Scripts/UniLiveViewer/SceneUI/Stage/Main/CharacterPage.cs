@@ -561,7 +561,7 @@ namespace UniLiveViewer.Menu
             if (_animationMode == CurrentMode.PRESET)
             {
                 var data = _presetResourceData.DanceInfoData[_clipIndex.Value];
-                var baseMotionName = _isReverse.Value ? data.ViewName + " R" : data.ViewName;
+                var baseMotionName = _isReverse.Value ? data.DisplayName.GetLocalizedString() + " R" : data.DisplayName.GetLocalizedString();
                 _textMeshs[1].SetAutoSizedText(baseMotionName, 0.25f, 40);
 
                 //反転ボタン

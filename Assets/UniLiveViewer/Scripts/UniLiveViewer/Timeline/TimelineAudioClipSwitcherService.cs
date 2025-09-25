@@ -1,4 +1,4 @@
-﻿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using System;
 using System.Linq;
 using System.Threading;
@@ -54,13 +54,12 @@ namespace UniLiveViewer.Timeline
         /// </summary>
         public async UniTask<float> GetCurrentAudioLengthAsync(bool isPreset, CancellationToken cancellation)
         {
-            var AudioClip = await _audioAssetManager.TryGetCurrentAudioClipAsycn(isPreset, cancellation);
-            return AudioClip == null ? 0 : AudioClip.length;
+            return await _audioAssetManager.GetCurrentAudioLengthAsync(isPreset, cancellation);
         }
 
         public async UniTask<string> SetAudioClipAsync(bool isPreset, int moveCurrent, CancellationToken cancellation)
         {
-            var nextAudioClip = await _audioAssetManager.TryGetAudioClipAsync(cancellation, isPreset, moveCurrent);
+            var (nextAudioClip, localizedName) = await _audioAssetManager.TryGetAudioClipAsync(cancellation, isPreset, moveCurrent);
             if (nextAudioClip == null) return null;
 
             var audioTracks = _timelineAsset.GetOutputTracks().OfType<AudioTrack>();
@@ -78,7 +77,7 @@ namespace UniLiveViewer.Timeline
             //スペクトル用
             if (SceneChangeService.GetSceneType == SceneType.CANDY_LIVE)
             {
-                if (nextAudioClip.name.Contains(".mp3") || nextAudioClip.name.Contains(".wav"))
+                if (localizedName.Contains(".mp3") || localizedName.Contains(".wav"))
                 {
                     // NOTE: ランタイム上手くいかなかった
                 }
@@ -99,7 +98,7 @@ namespace UniLiveViewer.Timeline
 
             _audioClipChangedStream.OnNext(nextAudioClip);
 
-            return nextAudioClip.name;
+            return localizedName;
         }
     }
 }

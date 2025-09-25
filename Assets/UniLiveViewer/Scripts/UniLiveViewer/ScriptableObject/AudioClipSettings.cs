@@ -8,8 +8,8 @@ namespace UniLiveViewer.SO
     [CreateAssetMenu(menuName = "MyGame/Audio/AudioClipSettings", fileName = "AudioClipSettings")]
     public class AudioClipSettings : ScriptableObject
     {
-        public List<AudioClip> AudioBGM => _presetBGM;
-        [SerializeField] List<AudioClip> _presetBGM;
+        public List<MusicSetting> MusicSettings => _musicSettings;
+        [SerializeField] List<MusicSetting> _musicSettings;
 
         public List<AudioSEDataSet> AudioSEDataSet => _audioSEDataSet;
         [SerializeField] List<AudioSEDataSet> _audioSEDataSet;

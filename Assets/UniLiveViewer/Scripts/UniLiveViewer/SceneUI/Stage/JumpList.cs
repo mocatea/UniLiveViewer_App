@@ -101,7 +101,7 @@ namespace UniLiveViewer.Menu
         public async UniTask SetAnimeAsync(bool isPreset)
         {
             var danceInfoData = isPreset
-                ? _presetResourceData.DanceInfoData.Select(x => x.ViewName).ToList() : _animationAssetManager.VmdList;
+                ? _presetResourceData.DanceInfoData.Select(x => x.DisplayName.GetLocalizedString()).ToList() : _animationAssetManager.VmdList;
             IfNeededCreateButton(danceInfoData.Count);
             IfNeededAdjustBackImage();
 
@@ -157,7 +157,7 @@ namespace UniLiveViewer.Menu
         {
             if (isPresetAudio)
             {
-                var count = _audioClipSettings.AudioBGM.Count;
+                var count = _audioClipSettings.MusicSettings.Count;
                 IfNeededCreateButton(count);
                 IfNeededAdjustBackImage();
 
@@ -165,7 +165,7 @@ namespace UniLiveViewer.Menu
                 {
                     if (i < count)
                     {
-                        var name = Path.GetFileName(_audioClipSettings.AudioBGM[i].name);
+                        var name = Path.GetFileName(_audioClipSettings.MusicSettings[i].DisplayName.GetLocalizedString());
                         var abbreviatedName = name.TruncateWithEllipsis(MaxFontWidth, MaxFontLength);
                         _btnList[i].SetTextMesh(abbreviatedName);
                         if (!_btnList[i].gameObject.activeSelf) _btnList[i].gameObject.SetActive(true);
