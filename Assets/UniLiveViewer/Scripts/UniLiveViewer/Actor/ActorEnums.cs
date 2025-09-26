@@ -121,6 +121,14 @@ namespace UniLiveViewer.Actor
         /// <summary>
         /// 楽しい
         /// </summary>
-        FUN
+        FUN,
+        /// <summary>
+        /// 左目閉じ
+        /// </summary>
+        WINK_L,
+        /// <summary>
+        /// 右目閉じ
+        /// </summary>
+        WINK_R,
     }
 }

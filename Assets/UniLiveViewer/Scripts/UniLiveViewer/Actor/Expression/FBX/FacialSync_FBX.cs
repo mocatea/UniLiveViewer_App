@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -14,12 +14,13 @@ namespace UniLiveViewer.Actor.Expression
         public IReadOnlyDictionary<string, FACIALTYPE> CustomMap => _customMap;
         Dictionary<string, FACIALTYPE> _customMap = new()
         {
-            //{ "ウィンク" ,FacialSyncController.FACIALTYPE.BLINK },    
             { "まばたき", FACIALTYPE.BLINK },
             { "笑い", FACIALTYPE.JOY },
             { "怒り", FACIALTYPE.ANGRY },
             { "困る", FACIALTYPE.SORROW },
             { "にやり", FACIALTYPE.FUN },
+            { "ウィンク左" ,FACIALTYPE.WINK_L },
+            { "ウィンク右" ,FACIALTYPE.WINK_R },
         };
 
         void Start()
@@ -66,9 +67,6 @@ namespace UniLiveViewer.Actor.Expression
             _gainCurve = gainCurve;
         }
 
-        /// <summary>
-        /// シェイプキーを更新する
-        /// </summary>
         void IFacialSync.Morph()
         {
             foreach (var info in _skinBindInfo)
@@ -79,16 +77,14 @@ namespace UniLiveViewer.Actor.Expression
 
         void Morph(SkinBindInfo skinBindInfo)
         {
-            var total = 1.0f;
             var w = 0.0f;
             for (int i = 0; i < skinBindInfo.bindInfo.Length; i++)
             {
-                w = total * GetWeight(skinBindInfo.bindInfo[i].node);
+                w = GetWeight(skinBindInfo.bindInfo[i].node) * BLENDSHAPE_WEIGHT;
                 for (int j = 0; j < skinBindInfo.bindInfo[i].keyPair.Length; j++)
                 {
-                    skinBindInfo.skinMesh.SetBlendShapeWeight(skinBindInfo.bindInfo[i].keyPair[j].index, w * BLENDSHAPE_WEIGHT);
+                    skinBindInfo.skinMesh.SetBlendShapeWeight(skinBindInfo.bindInfo[i].keyPair[j].index, w);
                 }
-                total -= w;
             }
         }
 
