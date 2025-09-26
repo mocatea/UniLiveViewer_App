@@ -91,15 +91,15 @@ namespace UniLiveViewer.Actor.Animation
                     if (x.ActorState != ActorState.NULL) return;
                     if (x.ActorCommand == ActorCommand.TIMELINE_PLAY)
                     {
-                        _animationService.ReturnRuntimeAnimatorController();
+                        _animationService.OnPlayTimeline();
                     }
                     else if (x.ActorCommand == ActorCommand.TIMELINE_PAUSE)
                     {
-                        _animationService.RemoveRuntimeAnimatorController();
+                        _animationService.OnStopTimeline();
                     }
                     else if (x.ActorCommand == ActorCommand.TIMELINE_STOP)
                     {
-                        _animationService.RemoveRuntimeAnimatorController();
+                        _animationService.OnStopTimeline();
                         _animationService.TryVMDInitializePose();
                     }
                 }).AddTo(_disposables);

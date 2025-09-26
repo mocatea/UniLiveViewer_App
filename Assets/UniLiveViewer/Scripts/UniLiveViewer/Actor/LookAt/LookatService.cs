@@ -120,7 +120,6 @@ namespace UniLiveViewer.Actor.LookAt
         /// <summary>
         /// 現状使われていない
         /// </summary>
-        /// <param name="isEnable"></param>
         public void SetEyeEnable(bool isEnable)
         {
             _eyeLookAt.SetEnable(isEnable);
