@@ -59,13 +59,15 @@ namespace UniLiveViewer.Actor.Expression
         void IFacialSync.Morph()
         {
             if (_blendShapeProxy == null) return;
+            var total = 1.0f;
             var w = 0.0f;
             // 0許して...
             foreach (var info in _skinBindInfo[0].bindInfo)
             {
-                w = GetWeight(info.node);
+                w = total * GetWeight(info.node);
                 var preset = _presetMap[info.facialType];
                 _blendShapeProxy.ImmediatelySetValue(BlendShapeKey.CreateFromPreset(preset), w);
+                total -= w;
             }
         }
 

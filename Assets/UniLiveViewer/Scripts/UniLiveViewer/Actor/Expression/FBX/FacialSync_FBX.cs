@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -77,14 +77,16 @@ namespace UniLiveViewer.Actor.Expression
 
         void Morph(SkinBindInfo skinBindInfo)
         {
+            var total = 1.0f;
             var w = 0.0f;
             for (int i = 0; i < skinBindInfo.bindInfo.Length; i++)
             {
-                w = GetWeight(skinBindInfo.bindInfo[i].node) * BLENDSHAPE_WEIGHT;
+                w = total * GetWeight(skinBindInfo.bindInfo[i].node) ;
                 for (int j = 0; j < skinBindInfo.bindInfo[i].keyPair.Length; j++)
                 {
-                    skinBindInfo.skinMesh.SetBlendShapeWeight(skinBindInfo.bindInfo[i].keyPair[j].index, w);
+                    skinBindInfo.skinMesh.SetBlendShapeWeight(skinBindInfo.bindInfo[i].keyPair[j].index, w * BLENDSHAPE_WEIGHT);
                 }
+                total -= w;
             }
         }
 
