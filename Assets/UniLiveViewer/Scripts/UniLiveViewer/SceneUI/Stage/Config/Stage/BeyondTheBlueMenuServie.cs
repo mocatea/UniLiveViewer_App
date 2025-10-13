@@ -6,7 +6,7 @@ namespace UniLiveViewer.Menu.Config.Stage
 {
     public class BeyondTheBlueMenuServie : IStageMenuService
     {
-        const int PropSetCount = 4;
+        const int PropSetCount = 5;
 
         public IReactiveProperty<int> PropSet => _propSet;
         readonly ReactiveProperty<int> _propSet = new(1);

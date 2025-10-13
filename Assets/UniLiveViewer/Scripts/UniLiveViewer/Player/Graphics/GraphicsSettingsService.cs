@@ -9,7 +9,7 @@ namespace UniLiveViewer.Player.Graphics
 {
     public class GraphicsSettingsService
     {
-        readonly int EdgeId = Shader.PropertyToID("_Edge");
+        readonly int RimIntensityId = Shader.PropertyToID("_RimIntensity");
 
         UniversalAdditionalCameraData _cameraData;
         bool _cachePostProcessing;
@@ -89,7 +89,7 @@ namespace UniLiveViewer.Player.Graphics
                 _vignette = vignette;
                 _vignette.active = false;
             }
-            ChangeOutline(0.3f);
+            ChangeOutline(1);
 
             IfNeededSwitchPostprocessing();
         }
@@ -207,7 +207,7 @@ namespace UniLiveViewer.Player.Graphics
             if (0 < value)
             {
                 _graphicsSettings.OutlineRenderFeature.SetActive(true);
-                _graphicsSettings.OutlineMat.SetFloat(EdgeId, value);
+                _graphicsSettings.OutlineMat.SetFloat(RimIntensityId, value);
             }
             else _graphicsSettings.OutlineRenderFeature.SetActive(false);
         }

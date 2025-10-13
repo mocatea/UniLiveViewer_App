@@ -19,7 +19,12 @@ namespace UniLiveViewer.Menu.Config.Graphics
 
         public IReadOnlyReactiveProperty<MSAASamples> MSAASamplesValue => _msaaSamples;
         readonly ReactiveProperty<MSAASamples> _msaaSamples = new((MSAASamples)FileReadAndWriteUtility.UserProfile.MSAALevel);
-        readonly MSAASamples[] _msaaOptions = new MSAASamples[] { MSAASamples.None, MSAASamples.MSAA2x/*, MSAASamples.MSAA4x*/ };// なんで数値飛んでるのメンド
+        readonly MSAASamples[] _msaaOptions = new MSAASamples[] 
+        { 
+            //MSAASamples.None, // 中間カラー止まるとmultiviewおかしくなるので、最低レンダリングパス系を止めない対策
+            MSAASamples.MSAA2x,
+            //MSAASamples.MSAA4x // モバイル重すぎたのでナシ
+        };
 
         public IReadOnlyReactiveProperty<float> RenderScale => _renderScale;
         readonly ReactiveProperty<float> _renderScale = new(1);
@@ -55,7 +60,7 @@ namespace UniLiveViewer.Menu.Config.Graphics
         readonly ReactiveProperty<bool> _tonemapping = new();
 
         public IReadOnlyReactiveProperty<float> Outline => _outline;
-        readonly ReactiveProperty<float> _outline = new(0.3f);
+        readonly ReactiveProperty<float> _outline = new(1);
 
         readonly RootAudioSourceService _audioSourceService;
         readonly GraphicsMenuSettings _settings;

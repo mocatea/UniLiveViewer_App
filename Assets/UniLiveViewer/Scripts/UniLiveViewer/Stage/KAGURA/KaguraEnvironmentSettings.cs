@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using UniRx.Triggers;
+using UnityEngine;
 using UnityEngine.Assertions;
 
 namespace UniLiveViewer.Stage.Kagura
@@ -12,11 +13,15 @@ namespace UniLiveViewer.Stage.Kagura
         public Transform WaterAnchor => _waterAnchor;
         [SerializeField] Transform _waterAnchor;
 
+        public Transform FogSphere => _fogSphere;
+        [SerializeField] Transform _fogSphere;
+
         void Awake()
         {
             Assert.IsNotNull(_particle);
             Assert.IsNotNull(_reflection);
             Assert.IsNotNull(_waterAnchor);
+            Assert.IsNotNull(_fogSphere);
         }
 
         void Start()
@@ -26,6 +31,7 @@ namespace UniLiveViewer.Stage.Kagura
             _particle.gameObject.SetActive(FileReadAndWriteUtility.UserProfile.scene_kagura_particle);
             _reflection.gameObject.SetActive(FileReadAndWriteUtility.UserProfile.scene_kagura_sea);
             _waterAnchor.transform.GetChild(0).gameObject.SetActive(FileReadAndWriteUtility.UserProfile.scene_kagura_reflection);
+            _fogSphere.gameObject.SetActive(true);
         }
     }
 }

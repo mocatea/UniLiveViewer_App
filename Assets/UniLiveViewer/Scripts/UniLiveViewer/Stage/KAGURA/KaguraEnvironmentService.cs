@@ -45,5 +45,11 @@ namespace UniLiveViewer.Stage.Kagura
             FileReadAndWriteUtility.UserProfile.scene_kagura_sea = isEnable;
             FileReadAndWriteUtility.WriteJson(FileReadAndWriteUtility.UserProfile);
         }
+
+        public void OnChangePassthrough(bool isEnable)
+        {   
+            var isShow = !isEnable;
+            _sttings.FogSphere.gameObject.SetActive(isShow);
+        }
     }
 }

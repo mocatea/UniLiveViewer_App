@@ -4,12 +4,9 @@ using UnityEngine.SceneManagement;
 
 namespace UniLiveViewer.SceneLoader
 {
-    /// <summary>
-    /// 使わない想定
-    /// </summary>
     public class TitleScene : IScene
     {
-        const string SceneName = "TitleScene";
+        const string SceneName = "0_TitleScene";
 
         public TitleScene()
         {

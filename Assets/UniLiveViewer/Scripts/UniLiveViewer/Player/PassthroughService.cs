@@ -1,9 +1,14 @@
-﻿using UniRx;
+﻿using MessagePipe;
+using UniLiveViewer.MessagePipe;
+using UniRx;
 using UnityEngine;
 using VContainer;
 
 namespace UniLiveViewer.Player
 {
+    /// <summary>
+    /// パススルーとポスプロ共存できないので無効化しておく
+    /// </summary>
     [RequireComponent(typeof(OVRManager))]
     public class PassthroughService : MonoBehaviour
     {
@@ -12,15 +17,15 @@ namespace UniLiveViewer.Player
 
         OVRManager _ovrManager;
         Camera _camera;
-        /// <summary>
-        /// パススルーとポスプロ共存できないので無効化しておく
-        /// </summary>
+        IPublisher<PassthroughMessage> _passthroughPublisher;
 
         [Inject]
-        public void Construct(OVRManager ovrManager, Camera camera)
+        public void Construct(OVRManager ovrManager, Camera camera,
+            IPublisher<PassthroughMessage> passthroughPublisher)
         {
             _camera = camera;
             _ovrManager = ovrManager;
+            _passthroughPublisher = passthroughPublisher;
         }
 
         public void Initialize()
@@ -49,6 +54,7 @@ namespace UniLiveViewer.Player
                 _isEnable.Value = false;
                 _ovrManager.isInsightPassthroughEnabled = false;
             }
+            _passthroughPublisher.Publish(new PassthroughMessage(isEnable));
         }
 
         public bool IsInsightPassthroughEnabled()
