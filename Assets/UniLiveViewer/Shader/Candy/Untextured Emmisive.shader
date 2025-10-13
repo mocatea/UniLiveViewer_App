@@ -17,6 +17,11 @@ Shader "UniLiveViewer/Untextured Emmisive Surface URP"
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+            
+            #pragma multi_compile_instancing
+            #pragma multi_compile _ STEREO_INSTANCING_ON STEREO_MULTIVIEW_ON
+            
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/SurfaceInput.hlsl"
 
             struct appdata
@@ -29,23 +34,35 @@ Shader "UniLiveViewer/Untextured Emmisive Surface URP"
             {
                 float4 vertex : SV_POSITION;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
+                UNITY_VERTEX_OUTPUT_STEREO
              };
 
             CBUFFER_START(UnityPerMaterial)
-                UNITY_DEFINE_INSTANCED_PROP(half4, _Color)
                 half4 _Emission;
                 half _Amplitude;
             CBUFFER_END
 
+            UNITY_INSTANCING_BUFFER_START(Props)
+                UNITY_DEFINE_INSTANCED_PROP(half4, _Color)
+            UNITY_INSTANCING_BUFFER_END(Props)
+
             v2f vert(appdata v)
             {
                 v2f o;
+
+                UNITY_SETUP_INSTANCE_ID(v);
+                UNITY_TRANSFER_INSTANCE_ID(v, o);
+                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+
                 o.vertex = TransformObjectToHClip(v.vertex.xyz);
                 return o;
             }
            
             float4 frag(v2f i) : SV_Target
             {
+                UNITY_SETUP_INSTANCE_ID(i);
+                UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(i);
+
                 half4 color = UNITY_ACCESS_INSTANCED_PROP(Props, _Color);
                 color += _Emission * _Amplitude;
                 return color;
