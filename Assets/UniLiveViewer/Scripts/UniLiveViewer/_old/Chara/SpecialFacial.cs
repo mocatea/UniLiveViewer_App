@@ -10,6 +10,8 @@ namespace UniLiveViewer
     [RequireComponent(typeof(AudioSource))]
     public class SpecialFacial : MonoBehaviour
     {
+        /*
+
         [Header("＜旧Unityちゃん用＞")]
         //[SerializeField]
         //private SkinnedMeshRenderer face;
@@ -39,6 +41,8 @@ namespace UniLiveViewer
         private AudioClip[] Sound_ANG;
         [SerializeField]
         private AudioClip[] Sound_CONF;
+
+        */
 
         //private void Awake()
         //{

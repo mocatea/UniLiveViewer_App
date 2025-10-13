@@ -32,7 +32,7 @@ namespace UniLiveViewer.Menu
 
         public async UniTask<ActorLifetimeScope> GenerateFBXAsync(RegisterData data, CancellationToken cancellation)
         {
-            var presetIndex = data.Id.ID;
+            var presetIndex = data.Id.Id;
             if (_setting.FBXActorLifetimeScopePrefab.Count <= presetIndex) return null;
             var actorLifetimeScope = _setting.FBXActorLifetimeScopePrefab[presetIndex];
             var instanceID = new InstanceId(_instanceId);

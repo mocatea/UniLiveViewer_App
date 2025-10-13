@@ -20,6 +20,15 @@ namespace UniLiveViewer.Menu
         [SerializeField] TextMesh _vrmLoadFailureText;
         [SerializeField] TextMesh _actorMaxText;
 
+        [Header("--- ActorInfo ---")]
+        [SerializeField] Transform _actorInfoRoot;
+        [SerializeField] TextMesh _actorHeigthText;
+        [SerializeField] TextMesh _actorBoneCountText;
+        [SerializeField] TextMesh _actorMaterialsCountText;
+        [SerializeField] TextMesh _actorPolygonsText;
+        [SerializeField] Button_Base _actorInfoOpenButton;
+        [SerializeField] Button_Base _actorInfoCloseButton;
+
         MenuManager _menuManager;
         [Header("--- Preset or Custom ---")]
         [SerializeField] Button_Switch[] _switchChara = new Button_Switch[2];
@@ -52,7 +61,6 @@ namespace UniLiveViewer.Menu
         [Header("--- VRM用 ---")]
         [SerializeField] Button_Base _btnVRMSetting;
         [SerializeField] Button_Base _btnVRMDelete;
-        [SerializeField] Button_Base _btnVRM10Mode;//0.xと1.0切り替え
         [SerializeField] Button_Base _btnFacialActive;
         [SerializeField] Button_Base _btnLipSyncActive;
 
@@ -73,6 +81,8 @@ namespace UniLiveViewer.Menu
 
         /// <summary> 操作受付可能か </summary>
         bool _interactable;
+
+        readonly CompositeDisposable _disposables = new();
 
         PlayableBinderService _playableBinderService;
         PresetResourceData _presetResourceData;
@@ -121,30 +131,53 @@ namespace UniLiveViewer.Menu
             //ジャンプリスト
             foreach (var e in _btnJumpList)
             {
-                e.onTrigger += OpenJumplist;
+                e.OnTriggerAsObservable()
+                    .Subscribe(OpenJumplist).AddTo(_disposables);
             }
 
             //その他
-            for (int i = 0; i < _btnChara.Length; i++) _btnChara[i].onTrigger += OnMoveIndexActor;
-            for (int i = 0; i < _btnAnime.Length; i++) _btnAnime[i].onTrigger += OnMoveIndexAnimation;
+            for (int i = 0; i < _btnChara.Length; i++)
+            {
+                _btnChara[i].OnTriggerAsObservable()
+                    .Subscribe(OnMoveIndexActor).AddTo(_disposables);
+            }
+            for (int i = 0; i < _btnAnime.Length; i++)
+            {
+                _btnAnime[i].OnTriggerAsObservable()
+                    .Subscribe(OnMoveIndexAnimation).AddTo(_disposables);
+            }
+            
+            _actorInfoOpenButton.OnTriggerAsObservable()
+                .Subscribe(_ => OnClickActorInfo(true)).AddTo(_disposables);
+            _actorInfoCloseButton.OnTriggerAsObservable()
+                .Subscribe(_ => OnClickActorInfo(false)).AddTo(_disposables);
 
             for (int i = 0; i < _btnOffset.Length; i++)
             {
-                _btnOffset[i].onTrigger += OnClickVMDOffset;
+                _btnOffset[i].OnTriggerAsObservable()
+                    .Subscribe(OnClickVMDOffset)
+                    .AddTo(_disposables);
             }
 
             for (int i = 0; i < _switchChara.Length; i++)
             {
                 _switchChara[i].isEnable = (i == 0);
-                _switchChara[i].onTrigger += OnClickSwitchChara;
+                _switchChara[i].OnTriggerAsObservable()
+                    .Subscribe(OnClickSwitchChara)
+                    .AddTo(_disposables);
             }
             for (int i = 0; i < _switchAnime.Length; i++)
             {
                 _switchAnime[i].isEnable = (i == 0);
-                _switchAnime[i].onTrigger += OnClickSwitchAnime;
+                _switchAnime[i].OnTriggerAsObservable()
+                    .Subscribe(OnClickSwitchAnime)
+                    .AddTo(_disposables);
             }
 
-            _switchReverse.onTrigger += (b) => OnChangeReverseAnimation(b);
+            _switchReverse.OnTriggerAsObservable()
+                    .Subscribe(OnChangeReverseAnimation)
+                    .AddTo(_disposables); 
+
             _switchReverse.isEnable = false;
 
             _sliderOffset.ValueAsObservable
@@ -181,13 +214,15 @@ namespace UniLiveViewer.Menu
                     lookAtAllocator.SetEyeWeight(value);
                 }).AddTo(this);
             //_btnVRMSetting.onTrigger += VRMSetting;
-            _btnVRMDelete.onTrigger += OnClickVRMDelete;
-            _btnVRM10Mode.onTrigger += OnClickVRMMode;
-            _btnDeleteAll.onTrigger += OnClickDeleteAllActors;
-            _btnFacialActive.onTrigger += OnClickFacialExpression;
-            _btnLipSyncActive.onTrigger += OnClickFacialExpression;
 
-            _btnVRM10Mode.isEnable = FileReadAndWriteUtility.UserProfile.IsVRM10;
+            _btnVRMDelete.OnTriggerAsObservable()
+                .Subscribe(OnClickVRMDelete).AddTo(_disposables);
+            _btnDeleteAll.OnTriggerAsObservable()
+                .Subscribe(OnClickDeleteAllActors).AddTo(_disposables);
+            _btnFacialActive.OnTriggerAsObservable()
+                .Subscribe(OnClickFacialExpression).AddTo(_disposables);
+            _btnLipSyncActive.OnTriggerAsObservable()
+                .Subscribe(OnClickFacialExpression).AddTo(_disposables);
 
             //_vrmSelectUI.AddPrefabAsObservable
             //    .Subscribe(x =>
@@ -206,6 +241,8 @@ namespace UniLiveViewer.Menu
 
             if (_vmdAnchor.gameObject.activeSelf) _vmdAnchor.gameObject.SetActive(false);
             if (_vrmOptionAnchor.gameObject.activeSelf) _vrmOptionAnchor.gameObject.SetActive(false);
+
+            ChangeActorInfoPanel(true);
 
             _interactable = true;
         }
@@ -286,7 +323,7 @@ namespace UniLiveViewer.Menu
 
         public void OnUpdateActorCount()
         {
-            _textMeshs[2].text = $"{_playableBinderService.StageActorCount.Value}/{SystemInfo.MaxFieldChara}";
+            _textMeshs[2].text = $"{_playableBinderService.StageActorCount.Value}/{SystemInfo.MaxFieldActor}";
         }
 
         /// <summary>
@@ -301,15 +338,15 @@ namespace UniLiveViewer.Menu
 
             if (btn == _btnJumpList[0])
             {
-                _menuManager.jumpList.SetCharaData(_currentActorMode == CurrentMode.PRESET);
+                _menuManager.jumpList.SetActorAsync(_currentActorMode == CurrentMode.PRESET).Forget();
             }
             else if (btn == _btnJumpList[1])
             {
-                _menuManager.jumpList.SetAnimeData(_animationMode == CurrentMode.PRESET);
+                _menuManager.jumpList.SetAnimeAsync(_animationMode == CurrentMode.PRESET).Forget();
             }
             else if (btn == _btnJumpList[2])
             {
-                _menuManager.jumpList.SetLipSyncNames();
+                _menuManager.jumpList.SerAdditionalFacialAsync().Forget();
             }
             _audioSourceService.PlayOneShot(AudioSE.ButtonClick);
         }
@@ -354,6 +391,19 @@ namespace UniLiveViewer.Menu
             EvaluateAnimationIndex(0);
         }
 
+        void OnClickActorInfo(bool isOpen)
+        {
+            ChangeActorInfoPanel(isOpen);
+            _audioSourceService.PlayOneShot(AudioSE.ButtonClick);
+        }
+
+        void ChangeActorInfoPanel(bool isOpen)
+        {
+            _actorInfoRoot.gameObject.SetActive(isOpen);
+            _actorInfoOpenButton.gameObject.SetActive(!isOpen);
+            _actorInfoCloseButton.gameObject.SetActive(isOpen);
+        }
+
         void OnMoveIndexActor(Button_Base btn)
         {
             if (_interactable == false) return;
@@ -383,8 +433,7 @@ namespace UniLiveViewer.Menu
         public void OnVRMLoadFrame()
         {
             var userMessage = MenuConstants.LoadVRM;
-            _textMeshs[0].text = userMessage;
-            _textMeshs[0].fontSize = userMessage.FontSizeMatch(600, 30, 50);
+            _textMeshs[0].SetAutoSizedText(userMessage, 0.25f, 40);
         }
 
         /// <summary>
@@ -405,7 +454,7 @@ namespace UniLiveViewer.Menu
             _vrmLoadFailureText.gameObject.SetActive(false);//非表示で初期化しておく
             _actorMaxText.gameObject.SetActive(false);
 
-            if (SystemInfo.MaxFieldChara <= _playableBinderService.StageActorCount.Value)
+            if (SystemInfo.MaxFieldActor <= _playableBinderService.StageActorCount.Value)
             {
                 _actorMaxText.gameObject.SetActive(true);
                 _audioSourceService.PlayOneShot(AudioSE.ButtonClick);
@@ -453,11 +502,15 @@ namespace UniLiveViewer.Menu
 
         void UpdateActorInfo(ActorEntity actorEntity)
         {
-            var actorName = actorEntity?.CharaInfoData.viewName;
-            _textMeshs[0].text = actorName;
-            _textMeshs[0].fontSize = actorName.FontSizeMatch(600, 30, 50);
-
             if (actorEntity == null) return;
+
+            var actorName = actorEntity.CharaInfoData.viewName;
+            _textMeshs[0].SetAutoSizedText(actorName, 0.25f, 40);
+
+            _actorHeigthText.text = $"{actorEntity.Height.ToString("0.00")} m";
+            _actorBoneCountText.text = $"{actorEntity.BonesCount} bones";
+            _actorMaterialsCountText.text = $"{actorEntity.MaterialsCount} mat";
+            _actorPolygonsText.text = $"▲{actorEntity.Polygons}";
 
             actorEntity.LookAtService.SetHeadWeight(_sliderHeadLook.Value);
             actorEntity.LookAtService.SetEyeWeight(_sliderEyeLook.Value);
@@ -508,10 +561,9 @@ namespace UniLiveViewer.Menu
             if (_animationMode == CurrentMode.PRESET)
             {
                 var data = _presetResourceData.DanceInfoData[_clipIndex.Value];
-                var baseMotionName = _isReverse.Value ? data.ViewName + " R" : data.ViewName;
+                var baseMotionName = _isReverse.Value ? data.DisplayName.GetLocalizedString() + " R" : data.DisplayName.GetLocalizedString();
+                _textMeshs[1].SetAutoSizedText(baseMotionName, 0.25f, 40);
 
-                _textMeshs[1].text = baseMotionName;
-                _textMeshs[1].fontSize = baseMotionName.FontSizeMatch(600, 30, 50);
                 //反転ボタン
                 if (!_switchReverse.gameObject.activeSelf) _switchReverse.gameObject.SetActive(true);
                 _sliderOffset.Value = 0;
@@ -520,17 +572,15 @@ namespace UniLiveViewer.Menu
             }
             else if (_animationMode == CurrentMode.CUSTOM)
             {
-                if(_animationAssetManager.VmdList == null ||  _animationAssetManager.VmdList.Count <= 0)
+                if (_animationAssetManager.VmdList == null || _animationAssetManager.VmdList.Count <= 0)
                 {
                     var noneMessage = TimelineConstants.NoCustomDanceMessage;
-                    _textMeshs[1].text = noneMessage;
-                    _textMeshs[1].fontSize = noneMessage.FontSizeMatch(600, 30, 50);
+                    _textMeshs[1].SetAutoSizedText(noneMessage, 0.25f, 40);
                     return;
                 }
 
                 var baseMotionName = _animationAssetManager.VmdList[_vmdIndex.Value];
-                _textMeshs[1].text = baseMotionName;
-                _textMeshs[1].fontSize = baseMotionName.FontSizeMatch(600, 30, 50);
+                _textMeshs[1].SetAutoSizedText(baseMotionName, 0.25f, 40);
                 //反転ボタン
                 if (_switchReverse.gameObject.activeSelf) _switchReverse.gameObject.SetActive(false);
                 _sliderOffset.Value = FileReadAndWriteUtility.GetMotionOffset[baseMotionName];
@@ -538,8 +588,7 @@ namespace UniLiveViewer.Menu
                 if (!_vmdAnchor.gameObject.activeSelf) _vmdAnchor.gameObject.SetActive(true);
                 var syncFileName = FileReadAndWriteUtility.TryGetSyncFileName(baseMotionName);
                 if (string.IsNullOrEmpty(syncFileName)) syncFileName = TimelineConstants.NoCustomFacialSyncMessage;
-                _textMeshs[4].text = syncFileName;
-                _textMeshs[4].fontSize = syncFileName.FontSizeMatch(600, 25, 40);
+                _textMeshs[4].SetAutoSizedText(syncFileName, 0.25f, 40);
             }
         }
 
@@ -613,13 +662,6 @@ namespace UniLiveViewer.Menu
             });
         }
 
-        void OnClickVRMMode(Button_Base btn)
-        {
-            FileReadAndWriteUtility.UserProfile.IsVRM10 = btn.isEnable;
-            FileReadAndWriteUtility.WriteJson(FileReadAndWriteUtility.UserProfile);
-            _audioSourceService.PlayOneShot(AudioSE.ButtonClick);
-        }
-
         /// <summary>
         /// フィールド一掃
         /// </summary>
@@ -652,6 +694,11 @@ namespace UniLiveViewer.Menu
                 _publisher.Publish(message);
             }
             _audioSourceService.PlayOneShot(AudioSE.ButtonClick);
+        }
+
+        public void Dispose()
+        {
+            _disposables.Dispose();
         }
 
         void DebugInput()

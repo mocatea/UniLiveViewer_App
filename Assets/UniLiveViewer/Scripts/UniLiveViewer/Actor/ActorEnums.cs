@@ -76,7 +76,8 @@ namespace UniLiveViewer.Actor
         LIPSYNC_ENEBLE,
         LIPSYNC_DISABLE,
         TIMELINE_PLAY,
-        TIMELINE_NONPLAY,
+        TIMELINE_PAUSE,
+        TIMELINE_STOP,
         UPDATE_SHADOW
     }
 
@@ -120,6 +121,14 @@ namespace UniLiveViewer.Actor
         /// <summary>
         /// 楽しい
         /// </summary>
-        FUN
+        FUN,
+        /// <summary>
+        /// 左目閉じ
+        /// </summary>
+        WINK_L,
+        /// <summary>
+        /// 右目閉じ
+        /// </summary>
+        WINK_R,
     }
 }

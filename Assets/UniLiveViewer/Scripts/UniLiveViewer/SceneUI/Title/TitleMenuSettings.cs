@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.UI;
 
 namespace UniLiveViewer.SceneUI.Title
@@ -29,5 +30,30 @@ namespace UniLiveViewer.SceneUI.Title
 
         public AudioSourceService AudioSourceService => _audioSourceService;
         [SerializeField] AudioSourceService _audioSourceService;
+
+        void Awake()
+        {
+            Assert.IsNotNull(_uiRoot);
+            Assert.IsNotNull(_mainMenuCanvas);
+            Assert.IsNotNull(_mainMenuButton);
+            Assert.IsNotNull(_customLiveCanvas);
+            Assert.IsNotNull(_customLiveButton);
+            Assert.IsNotNull(_licenseCanvas);
+            Assert.IsNotNull(_licenseButton);
+            Assert.IsNotNull(_audioSourceService);
+
+            for (int i = 0; i < _mainMenuButton.Count; i++)
+            {
+                Assert.IsNotNull(_mainMenuButton[i]);
+            }
+            for (int i = 0; i < _customLiveButton.Count; i++)
+            {
+                Assert.IsNotNull(_customLiveButton[i]);
+            }
+            for (int i = 0; i < _licenseButton.Count; i++)
+            {
+                Assert.IsNotNull(_licenseButton[i]);
+            }
+        }
     }
 }

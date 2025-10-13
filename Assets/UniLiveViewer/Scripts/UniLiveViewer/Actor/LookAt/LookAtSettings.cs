@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace UniLiveViewer.Actor.LookAt
 {
@@ -18,5 +19,11 @@ namespace UniLiveViewer.Actor.LookAt
 
         public SkinnedMeshRenderer Face => _face;
         [SerializeField] SkinnedMeshRenderer _face;
+
+        void Awake()
+        {
+            // VRMはランタイムに取得する故
+            //Assert.IsNotNull(_face);
+        }
     }
 }

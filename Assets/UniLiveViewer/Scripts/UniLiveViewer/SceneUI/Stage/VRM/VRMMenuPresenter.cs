@@ -56,11 +56,11 @@ namespace UniLiveViewer.Menu
                 .Subscribe(async x =>
                 {
                     _cts?.Cancel();//ページ状態更新と見なす
-                    var isEnable = x.PageIndex == -1 ? false : true;
+                    var isClose = x.PageIndex == -1;
 
-                    _vrmMenuRootService.SetEnableRoot(isEnable);
-                    if (isEnable) _vrmSwitchController.InitPage(0);
-                    if (!isEnable) return;
+                    _vrmMenuRootService.SetEnableRoot(!isClose);
+                    if (!isClose) _vrmSwitchController.InitPage(0);
+                    if (isClose) return;
                     if (x.PageIndex == 0)
                     {
                         _cts = new CancellationTokenSource();
@@ -80,6 +80,7 @@ namespace UniLiveViewer.Menu
 
         void IDisposable.Dispose()
         {
+            _vrmSwitchController.Dispose();
             _disposables.Dispose();
         }
     }

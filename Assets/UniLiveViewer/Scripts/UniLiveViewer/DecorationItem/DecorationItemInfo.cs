@@ -1,4 +1,4 @@
-﻿using System.Linq;
+﻿using System;
 using UniLiveViewer.OVRCustom;
 using UniRx;
 using UnityEngine;
@@ -20,9 +20,11 @@ namespace UniLiveViewer
         [SerializeField] string[] flavorText = new string[2] { "何の変哲もないアイテム", "Unremarkable item" };//未使用
         OVRGrabbableCustom _ovrGrabbableCustom;
 
+        public IObservable<bool> AttachedAsObservable => _attachedStream;
+        readonly Subject<bool> _attachedStream = new();
+
         MeshRenderer _meshRenderer;
         bool _isAttached;
-
 
         void Awake()
         {
@@ -88,6 +90,7 @@ namespace UniLiveViewer
             _ovrGrabbableCustom.transform.parent = collider.transform;
             _meshRenderer.enabled = false;
             _isAttached = true;
+            _attachedStream.OnNext(true);
             return true;
         }
 

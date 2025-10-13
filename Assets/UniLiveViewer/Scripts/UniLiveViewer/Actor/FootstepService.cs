@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UniLiveViewer.SceneLoader;
+using UniLiveViewer.SO;
 using UnityEngine;
 using VContainer;
 
@@ -8,7 +9,7 @@ namespace UniLiveViewer.Actor
     /// <summary>
     /// 足音service
     /// </summary>
-    public class FootStepService
+    public class FootstepService
     {
         /// <summary>
         /// 要調整
@@ -19,15 +20,15 @@ namespace UniLiveViewer.Actor
         ActorEntity _actorEntity;
 
         readonly AudioSourceService _audioSourceService;
-        readonly AudioFootStepsDataSet _audioFootStepsDataSet;
+        readonly FootstepAudioData _footstepsAudioData;
 
         [Inject]
-        public FootStepService(
+        public FootstepService(
             AudioSourceService audioSourceService,
             AudioClipSettings setting)
         {
             _audioSourceService = audioSourceService;
-            _audioFootStepsDataSet = setting.GetSceneAudioDataSet(SceneChangeService.GetSceneType).AudioFootStepsDataSet;
+            _footstepsAudioData = setting.GetSceneAudioDataSet(SceneChangeService.GetSceneType).FootstepsAudioData;
         }
 
         public void SetVolume(float volume)
@@ -46,9 +47,6 @@ namespace UniLiveViewer.Actor
         public void OnFixedTick()
         {
             if (_actorEntity == null) return;
-
-            //TODO: ステージ別で音
-            //if (SceneChangeService.GetSceneType != SceneType.GYMNASIUM) return;
 
             for (int i = 0; i < _footMap.Count; i++)
             {
@@ -79,12 +77,11 @@ namespace UniLiveViewer.Actor
 
         void PlaySound(Vector3 hitPoint)
         {
-            _audioSourceService.transform.position = hitPoint;
-            var index = UnityEngine.Random.Range(0, _audioFootStepsDataSet.AudioClip.Count);
-            _audioSourceService.PlayOneShot(_audioFootStepsDataSet.AudioClip[index]);
+            var index = UnityEngine.Random.Range(0, _footstepsAudioData.AudioClip.Count);
+            _audioSourceService.PlayOneShot(_footstepsAudioData.AudioClip[index], hitPoint);
         }
 
-        public class FootMap
+        class FootMap
         {
             public Transform FootBone { get; private set; }
             public bool IsHitCache { get; private set; }

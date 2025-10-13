@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using UnityVMDReader;
+using UniLiveViewer.External.UnityVMDReader;
 using VContainer;
 
 namespace UniLiveViewer.Timeline

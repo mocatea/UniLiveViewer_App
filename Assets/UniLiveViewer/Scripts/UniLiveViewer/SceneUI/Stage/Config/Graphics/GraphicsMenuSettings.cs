@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Rendering.Universal;
+using UnityEngine.Assertions;
 
 namespace UniLiveViewer.Menu.Config.Graphics
 {
@@ -9,34 +9,65 @@ namespace UniLiveViewer.Menu.Config.Graphics
         public IReadOnlyList<Button_Base> GraphicButton => _graphicButton;
         [SerializeField] List<Button_Base> _graphicButton;
 
+        public IReadOnlyList<Button_Base> AntialiasingButton => _antialiasingButton;
+        [SerializeField] List<Button_Base> _antialiasingButton;
+        public TextMesh AntialiasingText => _antialiasingText;
+        [SerializeField] TextMesh _antialiasingText;
+
+        public IReadOnlyList<Button_Base> MSAAButton => _msaaButton;
+        [SerializeField] List<Button_Base> _msaaButton;
+
+        public TextMesh MSAAText => _msaaText;
+        [SerializeField] TextMesh _msaaText;
+
+        public IReadOnlyList<TextMesh> AntialiasingInfoText => _antialiasinginfoText;
+        [SerializeField] List<TextMesh> _antialiasinginfoText;
+
         public IReadOnlyList<SliderGrabController> GraphicSlider => _graphicSlider;
         [SerializeField] List<SliderGrabController> _graphicSlider;
 
         public IReadOnlyList<TextMesh> GraphicsText => _graphicsText;
         [SerializeField] List<TextMesh> _graphicsText;
 
-        public SliderGrabController OutlineSlider => _outlineSlider;
-        [SerializeField] SliderGrabController _outlineSlider;
-
-        [SerializeField] UniversalRendererData _frd;
-
-        public Material OutlineMat => _outlineMat;
-        [SerializeField] Material _outlineMat;
-        public ScriptableRendererFeature OutlineRender => _outlineRender;
-        [SerializeField] ScriptableRendererFeature _outlineRender;
+        public Transform BloomClolorGroup => _bloomColorGroup;
+        [SerializeField] Transform _bloomColorGroup;
 
         void Awake()
         {
-            //レンダーパイプラインからoutlineオブジェクトを取得    
-            foreach (var renderObj in _frd.rendererFeatures)
+            Assert.IsNotNull(_graphicButton);
+            Assert.IsNotNull(_antialiasingButton);
+            Assert.IsNotNull(_antialiasingText);
+            Assert.IsNotNull(_msaaButton);
+            Assert.IsNotNull(_msaaText);
+            Assert.IsNotNull(_antialiasinginfoText);
+            Assert.IsNotNull(_graphicSlider);
+            Assert.IsNotNull(_graphicsText);
+            Assert.IsNotNull(_bloomColorGroup);
+
+            foreach (var button in _graphicButton)
             {
-                if (renderObj.name == "Outline")
-                {
-                    _outlineRender = renderObj;
-                    break;
-                }
+                Assert.IsNotNull(button);
             }
-            _outlineRender.SetActive(false);
+            foreach (var button in _antialiasingButton)
+            {
+                Assert.IsNotNull(button);
+            }
+            foreach (var button in _msaaButton)
+            {
+                Assert.IsNotNull(button);
+            }
+            foreach (var text in _antialiasinginfoText)
+            {
+                Assert.IsNotNull(text);
+            }
+            foreach (var slider in _graphicSlider)
+            {
+                Assert.IsNotNull(slider);
+            }
+            foreach (var text in _graphicsText)
+            {
+                Assert.IsNotNull(text);
+            }
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Threading;
 using UniLiveViewer.Actor.AttachPoint;
 using UniLiveViewer.Actor.Expression;
 using UniLiveViewer.Actor.LookAt;
+using UniLiveViewer.External;
 using UniRx;
 using UnityEngine;
 using VContainer;
@@ -24,7 +25,6 @@ namespace UniLiveViewer.Actor
         /// <summary>
         /// TODO: この通知リレーは止めたい
         /// </summary>
-        /// <returns></returns>
         IReactiveProperty<float> IActorEntity.RootScalar() => _rootScalar;
         readonly ReactiveProperty<float> _rootScalar = new(FileReadAndWriteUtility.UserProfile.InitCharaSize);
 
@@ -71,18 +71,6 @@ namespace UniLiveViewer.Actor
             _lookAtService = lookAtService;
         }
 
-        /// <summary>
-        /// デバッグ用
-        /// </summary>
-        /// <param name="cancellation"></param>
-        /// <returns></returns>
-        async UniTask IActorEntity.EditorOnlySetupAsync(Transform firstParent, CancellationToken cancellation)
-        {
-#if UNITY_EDITOR
-            //何もしない
-#endif
-        }
-
         public async UniTask SetupAsync(Transform firstParent, CancellationToken cancellation)
         {
             await SetupInternalAsync(firstParent, cancellation);
@@ -126,9 +114,14 @@ namespace UniLiveViewer.Actor
             _lifetimeScope.gameObject.SetActive(isActive);
         }
 
+        void IActorEntity.SetRootTransform(Vector3 pos, Quaternion quaternion)
+        {
+            _lifetimeScope.gameObject.transform.SetPositionAndRotation(pos, quaternion);
+        }
+
         void IActorEntity.AddRootScalar(float add)
         {
-            _rootScalar.Value = Mathf.Clamp(_rootScalar.Value + add, 0.25f, 20.0f);
+            _rootScalar.Value = Mathf.Clamp(_rootScalar.Value + add, ActorConstants.ActorMinSize, ActorConstants.ActorMaxSize);
             _lifetimeScope.transform.localScale = Vector3.one * _rootScalar.Value;
             //_actorEntity.Value.GetAnimator.transform.localScale = Vector3.one * _customScalar;
         }
@@ -141,12 +134,13 @@ namespace UniLiveViewer.Actor
         public void SetState(ActorState setState, Transform overrideTarget)
         {
             if (_actorEntity.Value == null) return;
+            if (_actorState.Value == setState) return;
+
             var rootGameObject = _lifetimeScope.gameObject;
             var globalScale = Vector3.zero;
 
             _overrideAnchor = overrideTarget;
-            _actorState.Value = setState;
-            switch (_actorState.Value)
+            switch (setState)
             {
                 case ActorState.NULL:
                     //VRMとPrefab用
@@ -192,7 +186,7 @@ namespace UniLiveViewer.Actor
             }
             else rootTransform.parent = null;
 
-            if (_actorState.Value == ActorState.MINIATURE || _actorState.Value == ActorState.HOLD)
+            if (setState == ActorState.MINIATURE || setState == ActorState.HOLD)
             {
                 rootTransform.localScale = globalScale;
             }
@@ -201,6 +195,7 @@ namespace UniLiveViewer.Actor
                 rootTransform.localScale = globalScale * _rootScalar.Value;
             }
 
+            _actorState.Value = setState;
             _rawRootScalar.Value = rootTransform.localScale.x;
         }
 

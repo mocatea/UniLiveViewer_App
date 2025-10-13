@@ -3,7 +3,6 @@ using NanaCiel;
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using UniLiveViewer.Timeline;
 using UniRx;
 using UnityEngine;
 using VContainer;
@@ -12,6 +11,8 @@ namespace UniLiveViewer.Menu
 {
     public class ThumbnailService
     {
+        const string ButtonPrefabPath = "Prefabs/Button/Thumbnail/btnVRM";
+
         public IObservable<Button_Base> OnClickAsObservable => _clickStream;
         readonly Subject<Button_Base> _clickStream = new();
 
@@ -46,7 +47,7 @@ namespace UniLiveViewer.Menu
         {
             if (!RootSystemSettings._isUsedCustomFolders) return;
 
-            _btnPrefab = Resources.Load<Button_Base>("Prefabs/Button/btnVRM");
+            _btnPrefab = Resources.Load<Button_Base>(ButtonPrefabPath);
             CreateButtonAsync(cancellation).Forget();
             await UniTask.CompletedTask;
         }
@@ -122,8 +123,8 @@ namespace UniLiveViewer.Menu
                     if (!_buttons[index].gameObject.activeSelf) _buttons[index].gameObject.SetActive(true);
                     //ボタン情報更新
                     _buttons[index].name = clampedData[index];
-                    _texts[index].text = clampedData[index];
-                    _texts[index].fontSize = _texts[index].text.FontSizeMatch(500, 25, 40);
+                    _texts[index].SetAutoSizedText(clampedData[index], 0.1f, 40);
+                    _texts[index].text = _texts[index].text.InsertNewline();
                     UpdateSprite(clampedData, index);
 
                     if (i % GENERATE_COUNT[random] == 0)
@@ -151,7 +152,12 @@ namespace UniLiveViewer.Menu
             {
                 //サムネイル無しはデフォ画像を流用する仕様
                 var spr = _textureAssetManager.Thumbnails[clampedData[index]];
-                if (spr) _buttons[index].collisionChecker.colorSetting[0].targetSprite.sprite = spr;
+                if (spr)
+                {
+                    var targetSprite = _buttons[index].collisionChecker.ColorSetting[0].targetSprite;
+                    targetSprite.sprite = spr;
+                    targetSprite.drawMode = SpriteDrawMode.Simple; // 形状編集に必須
+                }
             }
             catch
             {

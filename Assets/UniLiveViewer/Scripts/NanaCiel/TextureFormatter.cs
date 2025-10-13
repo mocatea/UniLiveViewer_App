@@ -1,8 +1,8 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace NanaCiel
 {
-    public class TextureFormatter
+    public static class TextureFormatter
     {
         public static Texture2D Resize(Texture2D baseTex, int width = 256, int height = 256)
         {

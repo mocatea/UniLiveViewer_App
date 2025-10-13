@@ -1,5 +1,4 @@
-﻿using NanaCiel;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using UniLiveViewer.Actor;
@@ -36,11 +35,15 @@ namespace UniLiveViewer.Timeline
         public IReadOnlyList<BindingData> BindingData => _bindingData;
         readonly List<BindingData> _bindingData = Enumerable.Repeat<BindingData>(null, 6).ToList();
 
+        readonly TimelineService _timelineService;
         readonly PlayableDirector _playableDirector;
 
         [Inject]
-        public PlayableBinderService(PlayableDirector playableDirector)
+        public PlayableBinderService(
+            TimelineService timelineService,
+            PlayableDirector playableDirector)
         {
+            _timelineService = timelineService;
             _playableDirector = playableDirector;
         }
 
@@ -48,7 +51,6 @@ namespace UniLiveViewer.Timeline
         /// NOTE: 先客がいても上書きBind
         /// ActorEntityManagerService側で非Currentは非アクティブにしてるので削除なども不要
         /// </summary>
-        /// <param name="actorEntityService"></param>
         public void BindingNewActor(InstanceId instanceId, IActorEntity actorEntity)
         {
             var outputs = _playableDirector.playableAsset.outputs;
@@ -68,7 +70,7 @@ namespace UniLiveViewer.Timeline
 
             var data = new BindingData(playableBinding.sourceObject, baseName, instanceId, actorEntity);
             _bindingData[TimelineConstants.PortalIndex] = data;
-            _playableDirector.ResumeTimeline();
+            _timelineService.ResumeTimeline();
 
             _newBindingStream.OnNext(Unit.Default);
         }
@@ -76,8 +78,6 @@ namespace UniLiveViewer.Timeline
         /// <summary>
         /// Editor拡張のDebug用
         /// </summary>
-        /// <param name="pos"></param>
-        /// <param name="eulerAngles"></param>
         public InstanceId EditorOnly_TrySwitchTrackBinding()
         {
             if (_bindingData[TimelineConstants.PortalIndex] == null) return null;
@@ -89,9 +89,6 @@ namespace UniLiveViewer.Timeline
         /// <summary>
         /// 別トラックにバインドを試みる（自動的にポータル以外の空き枠）
         /// </summary>
-        /// <param name="instanceId"></param>
-        /// <param name="actorEntity"></param>
-        /// <returns></returns>
         public bool TrySwitchTrackBinding(InstanceId instanceId, IActorEntity actorEntity)
         {
             // 空があるかチェック、無ければ失敗
@@ -109,7 +106,6 @@ namespace UniLiveViewer.Timeline
         /// <summary>
         /// 未バインドのSourceObjectを取得
         /// </summary>
-        /// <returns></returns>
         public PlayableBinding? TryGetFreePlayable()
         {
             var usedStreamNames = _bindingData.Where(x => x != null).Select(x => x.StreamName);
@@ -130,8 +126,6 @@ namespace UniLiveViewer.Timeline
         /// 指定先にバインドする
         /// バインド先に先客はいない前提とする
         /// </summary>
-        /// <param name="bindingSourceObject"></param>
-        /// <param name="actorEntityService"></param>
         void BindingTo(PlayableBinding playableBinding, InstanceId instanceId, IActorEntity actorEntity)
         {
             if (actorEntity.ActorEntity().Value.GetAnimator == null) return;
@@ -149,7 +143,7 @@ namespace UniLiveViewer.Timeline
             var data = _bindingData[TimelineConstants.PortalIndex];
             if (data == null) return;
             Unbind(data.InstanceId);
-            _playableDirector.ResumeTimeline();
+            _timelineService.ResumeTimeline();
         }
 
         public void OnDeleteAllActor()
@@ -165,14 +159,13 @@ namespace UniLiveViewer.Timeline
         public void OnDeleteActor(InstanceId instanceId)
         {
             Unbind(instanceId);
-            _playableDirector.ResumeTimeline();
+            _timelineService.ResumeTimeline();
             _stageActorCount.Value -= 1;
         }
 
         /// <summary>
         /// 解除のみ（削除は勝手にやって）
         /// </summary>
-        /// <param name="actorEntity"></param>
         void Unbind(InstanceId instanceId)
         {
             var bindingData = _bindingData.Where(x => x?.InstanceId == instanceId).FirstOrDefault();

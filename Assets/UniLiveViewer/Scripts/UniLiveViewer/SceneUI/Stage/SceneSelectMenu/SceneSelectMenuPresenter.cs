@@ -1,5 +1,7 @@
 ﻿using Cysharp.Threading.Tasks;
+using MessagePipe;
 using System;
+using System.Threading;
 using UniRx;
 using VContainer;
 using VContainer.Unity;
@@ -25,7 +27,11 @@ namespace UniLiveViewer.Menu.SceneSelect
         void IStartable.Start()
         {
             _settings.ChangeSceneAsObservable
-                .Subscribe(x => _sceneSelectMenuService.OnChangeSceneAsync(x).Forget()).AddTo(_disposables);
+                .Subscribe(x =>
+                {
+                    var dummy = new CancellationToken();
+                    _sceneSelectMenuService.OnChangeSceneAsync(x, dummy).Forget();
+                }).AddTo(_disposables);
         }
 
         void IDisposable.Dispose()

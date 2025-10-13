@@ -9,6 +9,8 @@ namespace UniLiveViewer.Actor.LookAt.FBX
     /// </summary>
     public class FBXEyeLookAtUV : IEyeLookAt, IDisposable
     {
+        readonly int MainTexId = Shader.PropertyToID("_MainTex");
+
         /// <summary>
         /// 顔ベース
         /// </summary>
@@ -77,7 +79,7 @@ namespace UniLiveViewer.Actor.LookAt.FBX
                     result.x = v.x * _settings.eyeAmplitude.x * _eyeLeap;
                     result.y = -v.y * _settings.eyeAmplitude.y * _eyeLeap;
                     //UVをオフセットを反映
-                    _eyeMat.SetTextureOffset("_BaseMap", result);
+                    _eyeMat.SetTextureOffset(MainTexId, result);
                     break;
                 case ExpressionType.UnityChanSD:
                     //ローカル座標に変換

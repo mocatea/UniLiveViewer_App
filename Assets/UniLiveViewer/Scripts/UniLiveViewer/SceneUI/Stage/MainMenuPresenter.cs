@@ -17,27 +17,18 @@ namespace UniLiveViewer.Menu
         bool _isRootActive = true;
 
         readonly PlayerInputService _playerInputService;
-        readonly AudioPlaybackPage _audioPlaybackPage;
         readonly ItemPage _itemPage;
-        readonly ConfigPage _configPage;
-        readonly JumpList _jumpList;
         readonly RootAudioSourceService _audioSourceService;
         readonly CompositeDisposable _disposables = new();
 
         [Inject]
         public MainMenuPresenter(
             PlayerInputService playerInputService,
-            AudioPlaybackPage audioPlaybackPage,
             ItemPage itemPage,
-            ConfigPage configPage,
-            JumpList jumpList,
             RootAudioSourceService audioSourceService)
         {
             _playerInputService = playerInputService;
-            _audioPlaybackPage = audioPlaybackPage;
             _itemPage = itemPage;
-            _configPage = configPage;
-            _jumpList = jumpList;
             _audioSourceService = audioSourceService;
         }
 
@@ -47,12 +38,7 @@ namespace UniLiveViewer.Menu
                 .Where(x => x == PlayerHandType.RHand)
                 .Subscribe(_ => SwitchEnable()).AddTo(_disposables);
 
-            _jumpList.OnSelectAsObservable
-                .Subscribe(_audioPlaybackPage.OnJumpSelect).AddTo(_disposables);
-
-            _audioPlaybackPage.StartAsync(cancellation).Forget();
             _itemPage.OnStart();
-            _configPage.OnStart();
 
             await UniTask.CompletedTask;
         }

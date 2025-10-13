@@ -23,19 +23,22 @@ namespace UniLiveViewer.Actor.Expression
             { FACIALTYPE.ANGRY, ExpressionPreset.angry },
             { FACIALTYPE.SORROW, ExpressionPreset.sad },
             { FACIALTYPE.SUP, ExpressionPreset.oh },
-            { FACIALTYPE.FUN, ExpressionPreset.relaxed }
+            { FACIALTYPE.FUN, ExpressionPreset.relaxed },
+            { FACIALTYPE.WINK_L, ExpressionPreset.blinkLeft },
+            { FACIALTYPE.WINK_R, ExpressionPreset.blinkRight }
         };
 
         string[] IFacialSync.GetKeyArray() => _customMap.Keys?.ToArray();
         public IReadOnlyDictionary<string, ExpressionPreset> CustomMap => _customMap;
         readonly Dictionary<string, ExpressionPreset> _customMap = new()
-        {
-            //{ "ウィンク" ,FacialSyncController.FACIALTYPE.BLINK },    
+        {   
             { "まばたき", ExpressionPreset.blink },
             { "笑い", ExpressionPreset.happy },
             { "怒り", ExpressionPreset.angry },
             { "困る", ExpressionPreset.sad },
             { "にやり", ExpressionPreset.relaxed },
+            { "ウィンク左" ,ExpressionPreset.blinkLeft },
+            { "ウィンク右" ,ExpressionPreset.blinkRight },
         };
 
         /// <param name="blendShape">使わない</param>
@@ -56,15 +59,13 @@ namespace UniLiveViewer.Actor.Expression
         void IFacialSync.Morph()
         {
             if (_runtimeExpression == null) return;
-            var total = 1.0f;
             var w = 0.0f;
             // 0許して...
             foreach (var info in _skinBindInfo[0].bindInfo)
             {
-                w = total * GetWeight(info.node);
+                w = GetWeight(info.node);
                 var preset = _presetMap[info.facialType];
                 _map[ExpressionKey.CreateFromPreset(preset)] = w;
-                total -= w;
             }
             _runtimeExpression.SetWeightsNonAlloc(_map);
         }

@@ -19,7 +19,7 @@ namespace UniLiveViewer.Actor.LookAt.FBX
         /// 更新が走ってエラるのでSetup完了までは無効化
         /// </summary>
         bool _isLookAt = false;
-        float _eyeLeap = 0.0f;
+        float _eyeLeap = 0.0f;//MEMO: VMD中でも値が入ってくるのは仕様
 
         readonly LookAtSettings _settings;
         readonly CharaInfoData _charaInfoData;

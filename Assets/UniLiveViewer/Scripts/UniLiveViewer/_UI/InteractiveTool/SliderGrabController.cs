@@ -35,10 +35,12 @@ namespace UniLiveViewer
         [SerializeField] private Transform[] handMesh = new Transform[2];
         [Tooltip("VisibleHandleの子オブジェクトを指定")]
         [SerializeField] private OVRGrabbableCustom unVisibleHandler = null;
-        
-        public float maxValuel = 1.0f;
-        public float minValuel = 0.0f;
-        public float minStepValuel = 0.1f;//スライダーを動かす間隔
+
+        public (float min, float max) GetMaxMinValuels => (minValuel, maxValuel);
+        public void SetMaxValuel(float v) => maxValuel = v;
+        [SerializeField] float maxValuel = 1.0f;
+        [SerializeField] float minValuel = 0.0f;
+        [SerializeField] float minStepValuel = 0.1f;//スライダーを動かす間隔
         [SerializeField] private bool SkipMoveMode = false;
 
         [Header("--- 確認 ---")]
@@ -76,7 +78,7 @@ namespace UniLiveViewer
         /// 掴み操作以外で動かす必要があるケースで利用
         /// NOTE: 通知すると無限ループに陥る
         /// </summary>
-        public void NotNotifyChangeValue(float value)
+        public void SetValueWithoutNotify(float value)
         {
             _value = Mathf.Clamp(value, minValuel, maxValuel);
         }

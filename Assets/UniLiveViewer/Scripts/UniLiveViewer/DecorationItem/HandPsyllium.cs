@@ -17,16 +17,16 @@ public class HandPsyllium : MonoBehaviour, IItemColorChanger
     [SerializeField] TrailRenderer _trailRenderer;
     [SerializeField] MeshRenderer _meshRenderer;
 
-    [SerializeField] float _shakeThreshold = 0.1f;  // 揺れを検知するための閾値
-    [SerializeField] float _coolTime = 0.25f;
-    Vector3 _lastPosition;
-    float _timer;
-    bool _canPlaySound = true;
+    //[SerializeField] float _shakeThreshold = 0.1f;  // 揺れを検知するための閾値
+    //[SerializeField] float _coolTime = 0.25f;
+    //Vector3 _lastPosition;
+    //float _timer;
+    //bool _canPlaySound = true;
 
-    AudioHandPsylliumSE _currentAudioHandPsylliumSE;
-    RootAudioSourceService _rootAudioSourceService;
-    //AudioSource _audioSource;
-    List<AudioHandPsylliumDataSet> _audioClipSettings;
+    //AudioHandPsylliumSE _currentAudioHandPsylliumSE;
+    //RootAudioSourceService _rootAudioSourceService;
+    ////AudioSource _audioSource;
+    //List<AudioHandPsylliumDataSet> _audioClipSettings;
     
     void Start()
     {
@@ -40,7 +40,7 @@ public class HandPsyllium : MonoBehaviour, IItemColorChanger
 
         _materialInstance = Instantiate(_material);
         _meshRenderer.material = _materialInstance;
-        _timer = _coolTime;
+        //_timer = _coolTime;
     }
 
     void IItemColorChanger.SetColor(string shaderName, ColorInfo colorInfo)

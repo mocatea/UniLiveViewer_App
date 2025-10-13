@@ -1,5 +1,7 @@
 ﻿using MessagePipe;
+using UniLiveViewer.Actor.Option;
 using UniLiveViewer.MessagePipe;
+using UniLiveViewer.SceneLoader;
 using UniLiveViewer.Stage;
 using UnityEngine;
 using UnityEngine.Playables;
@@ -16,6 +18,7 @@ namespace UniLiveViewer.Timeline
         [SerializeField] PresetResourceData _presetResourceData;
         [SerializeField] QuasiShadowSetting _quasiShadowSetting;
         [SerializeField] ActorLifetimeScopeSetting _actorLifetimeScopeSetting;
+
         /// <summary>
         /// Actorが使うのでここになちゃってる
         /// </summary>
@@ -23,14 +26,21 @@ namespace UniLiveViewer.Timeline
 
         protected override void Configure(IContainerBuilder builder)
         {
+            // TODO: そろそろ整理する
             var options = builder.RegisterMessagePipe();
             builder.RegisterMessageBroker<VRMLoadResultData>(options);
             builder.RegisterMessageBroker<AllActorOperationMessage>(options);
             builder.RegisterMessageBroker<ActorOperationMessage>(options);
             builder.RegisterMessageBroker<AllActorOptionMessage>(options);
             builder.RegisterMessageBroker<ActorAnimationMessage>(options);
+            builder.RegisterMessageBroker<ActorStateMessage>(options);
             builder.RegisterMessageBroker<ActorResizeMessage>(options);
             builder.RegisterMessageBroker<AttachPointMessage>(options);
+            builder.RegisterMessageBroker<CursorGuideCollisionMessage>(options);
+            if (SceneChangeService.GetSceneType == SceneType.BEYOND_THE_BLUE)
+            {
+                builder.RegisterMessageBroker<WaterRippleMessage>(options);
+            }
 
             builder.Register<VMDData>(Lifetime.Singleton);
 
@@ -43,7 +53,8 @@ namespace UniLiveViewer.Timeline
             
             builder.RegisterComponent(GetComponent<AudioAssetManager>());
             builder.RegisterComponent(GetComponent<PlayableDirector>());
-            builder.Register<PlayableMusicService>(Lifetime.Singleton);
+            builder.Register<TimelineAudioClipSwitcherService>(Lifetime.Singleton);
+            builder.Register<TimelineService>(Lifetime.Singleton);
             builder.Register<PlayableBinderService>(Lifetime.Singleton);
             builder.Register<PlayableAnimationClipService>(Lifetime.Singleton);
             builder.RegisterEntryPoint<PlayableMusicPresenter>();

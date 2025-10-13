@@ -4,9 +4,6 @@ using VContainer.Unity;
 
 namespace UniLiveViewer.Menu.SceneSelect
 {
-    /// <summary>
-    /// まだ未使用
-    /// </summary>
     public class SceneSelectMenuLifetimeScope : LifetimeScope
     {
         [SerializeField] SceneSelectMenuSettings _settings;

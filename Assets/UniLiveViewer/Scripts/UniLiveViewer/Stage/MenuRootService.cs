@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using Cysharp.Threading.Tasks;
+using System.Threading;
+using UnityEngine;
 using VContainer;
 
 namespace UniLiveViewer.Stage
@@ -21,11 +23,14 @@ namespace UniLiveViewer.Stage
 
         public void Initialize()
         {
-            OnMenuSwitching(false);
+            _rootMenuAnchor.gameObject.SetActive(true);
+            _rootMenuAnchor.transform.position = new Vector3(0, 10, 0);
         }
 
-        public void OnLoadEnd()
+        public async UniTask OnLoadEndAsync(CancellationToken cancellationToken)
         {
+            OnMenuSwitching(false);
+            await UniTask.Delay(1000, cancellationToken: cancellationToken);
             OnMenuSwitching(true);
         }
 

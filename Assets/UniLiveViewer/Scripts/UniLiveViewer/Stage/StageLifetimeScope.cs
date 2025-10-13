@@ -1,4 +1,7 @@
-﻿using UnityEngine;
+using MessagePipe;
+using UniLiveViewer.Menu;
+using UniLiveViewer.MessagePipe;
+using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 
@@ -12,6 +15,9 @@ namespace UniLiveViewer.Stage
 
         protected override void Configure(IContainerBuilder builder)
         {
+            var options = builder.RegisterMessagePipe();
+            builder.RegisterMessageBroker<PassthroughMessage>(options);
+
             builder.RegisterComponent(_blackoutCurtain);
             builder.RegisterComponent(_playerHandVRMCollidersService);
             builder.RegisterEntryPoint<StagePresenter>();

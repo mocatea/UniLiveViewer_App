@@ -1,4 +1,4 @@
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using MessagePipe;
 using System;
 using System.Threading;
@@ -128,7 +128,7 @@ namespace UniLiveViewer.Menu
 
         async UniTask ActiveFBXAsync(int index, CancellationToken cancellation)
         {
-            if (SystemInfo.MaxFieldChara <= _playableBinderService.StageActorCount.Value) return;
+            if (SystemInfo.MaxFieldActor <= _playableBinderService.StageActorCount.Value) return;
 
             _actorCurrentMode = CurrentMode.PRESET;
             _publisher.Publish(new VRMMenuShowMessage(-1));
@@ -149,7 +149,7 @@ namespace UniLiveViewer.Menu
 
         async UniTask ActiveVRMAsync(int index, CancellationToken cancellation)
         {
-            if (SystemInfo.MaxFieldChara <= _playableBinderService.StageActorCount.Value) return;
+            if (SystemInfo.MaxFieldActor <= _playableBinderService.StageActorCount.Value) return;
 
             _actorCurrentMode = CurrentMode.CUSTOM;
 
@@ -209,6 +209,7 @@ namespace UniLiveViewer.Menu
 
         void IDisposable.Dispose()
         {
+            _characterPage.Dispose();
             _disposables.Dispose();
             _serialDisposable.Dispose();
         }

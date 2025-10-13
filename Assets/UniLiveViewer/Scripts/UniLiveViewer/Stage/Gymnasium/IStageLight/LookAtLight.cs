@@ -30,7 +30,7 @@ namespace UniLiveViewer.Stage.Gymnasium
         /// </summary>
         void Awake()
         {
-            _targetBones = new Transform[SystemInfo.MaxFieldChara];
+            _targetBones = new Transform[SystemInfo.MaxFieldActor];
             _targetList = new List<Transform>();
 
             var container = LifetimeScope.Find<TimelineLifetimeScope>().Container;

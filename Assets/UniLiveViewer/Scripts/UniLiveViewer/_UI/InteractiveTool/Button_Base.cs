@@ -52,12 +52,12 @@ namespace UniLiveViewer
             myCol = collisionChecker.GetComponent<BoxCollider>();
         }
 
-        private void OnEnable()
+        void OnEnable()
         {
             InitDirecting().Forget();
         }
 
-        private void FixedUpdate()
+        void FixedUpdate()
         {
             //バネ運動処理
             AddSpringForce(1500);
@@ -71,7 +71,7 @@ namespace UniLiveViewer
             if (collisionChecker.transform.localPosition.z >= 0.0f)
             {
                 //ボタンに触れていれば
-                if (collisionChecker.Touching()) ClickAction();
+                if (collisionChecker.Touching) ClickAction();
             }
         }
 
@@ -106,7 +106,7 @@ namespace UniLiveViewer
             collisionChecker.transform.localPosition = Vector3.zero;
 
             //振動処理
-            if (collisionChecker.isTouchL) ControllerVibration.Execute(OVRInput.Controller.LTouch, 1, 1, 0.1f);
+            if (collisionChecker.IsTouchL) ControllerVibration.Execute(OVRInput.Controller.LTouch, 1, 1, 0.1f);
             else ControllerVibration.Execute(OVRInput.Controller.RTouch, 1, 1f, 0.1f);
 
             //押した後のインターバル
@@ -123,11 +123,10 @@ namespace UniLiveViewer
         /// <summary>
         /// テキストメッシュに指定文字列を設定
         /// </summary>
-        /// <param name="str"></param>
         public void SetTextMesh(string str)
         {
-            if (collisionChecker.colorSetting == null || !collisionChecker.colorSetting[0].textMesh) return;
-            collisionChecker.colorSetting[0].textMesh.text = str;
+            if (collisionChecker.ColorSetting == null || !collisionChecker.ColorSetting[0].textMesh) return;
+            collisionChecker.ColorSetting[0].textMesh.text = str;
         }
 
         private async UniTaskVoid InitDirecting()

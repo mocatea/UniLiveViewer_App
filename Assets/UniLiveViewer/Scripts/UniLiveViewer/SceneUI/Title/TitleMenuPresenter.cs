@@ -47,7 +47,7 @@ namespace UniLiveViewer.SceneUI.Title
                 })
                 .AddTo(_disposable);
             _titleMenuSettings.MainMenuButton[1].onClick.AsObservable()
-                .Subscribe(async _ =>
+                .Subscribe(_ =>
                 {
                     _titleMenuService.OpenCustomLive();
                 })

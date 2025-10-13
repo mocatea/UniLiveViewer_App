@@ -1,4 +1,5 @@
 ﻿using UniLiveViewer.Player;
+using UniRx;
 using UnityEngine;
 using VContainer;
 
@@ -10,6 +11,7 @@ namespace UniLiveViewer.Menu.Config.Common
         readonly CommonMenuSettings _settings;
         readonly PassthroughService _passthroughService;
         readonly RootAudioSourceService _audioSourceService;
+        readonly CompositeDisposable _disposables = new();
 
         [Inject]
         public CommonMenuService(
@@ -26,22 +28,40 @@ namespace UniLiveViewer.Menu.Config.Common
 
         public void Initialize()
         {
+            if (_systemSettingsService.SystemLanguage.Value == SystemLanguage.English)
+            {
+                _settings.EnglishButton.isEnable = true;
+                _settings.JapaneseButton.isEnable = false;
+            }
+            else if (_systemSettingsService.SystemLanguage.Value == SystemLanguage.Japanese)
+            {
+                _settings.EnglishButton.isEnable = false;
+                _settings.JapaneseButton.isEnable = true;
+            }
+
             _settings.PassthroughButton.isEnable = _passthroughService.IsInsightPassthroughEnabled();
             _settings.VibrationButton.isEnable = FileReadAndWriteUtility.UserProfile.TouchVibration;
 
-            _settings.PassthroughButton.onTrigger += OnChangePassthrough;
-            _settings.VibrationButton.onTrigger += OnChangeControllerVibration;
+            _settings.PassthroughButton.OnTriggerAsObservable()
+                .Subscribe(OnChangePassthrough).AddTo(_disposables);
+            _settings.VibrationButton.OnTriggerAsObservable()
+                .Subscribe(OnChangeControllerVibration).AddTo(_disposables);
 
-            _settings.EnglishButton.onTrigger += (btn) =>
-            {
-                _systemSettingsService.Change(SystemLanguage.English);
-                _audioSourceService.PlayOneShot(AudioSE.ButtonClick);
-            };
-            _settings.JapaneseButton.onTrigger += (btn) =>
-            {
-                _systemSettingsService.Change(SystemLanguage.Japanese);
-                _audioSourceService.PlayOneShot(AudioSE.ButtonClick);
-            };
+            _settings.EnglishButton.OnTriggerAsObservable()
+                .Subscribe(_ =>
+                {
+                    _systemSettingsService.Change(SystemLanguage.English);
+                    _audioSourceService.PlayOneShot(AudioSE.ButtonClick);
+                    _settings.JapaneseButton.isEnable = false;
+                }).AddTo(_disposables);
+
+            _settings.JapaneseButton.OnTriggerAsObservable()
+                .Subscribe(_ =>
+                {
+                    _systemSettingsService.Change(SystemLanguage.Japanese);
+                    _audioSourceService.PlayOneShot(AudioSE.ButtonClick);
+                    _settings.EnglishButton.isEnable = false;
+                }).AddTo(_disposables);
         }
 
         void OnChangePassthrough(Button_Base button_Base)
@@ -78,6 +98,11 @@ namespace UniLiveViewer.Menu.Config.Common
             OVRManager.fixedFoveatedRenderingLevel = OVRManager.FixedFoveatedRenderingLevel.High;
 #endif
             */
+        }
+
+        public void Dispose()
+        {
+            _disposables.Dispose();
         }
     }
 }

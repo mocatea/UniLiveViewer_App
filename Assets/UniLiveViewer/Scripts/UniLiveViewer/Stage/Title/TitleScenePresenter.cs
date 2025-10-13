@@ -51,7 +51,7 @@ namespace UniLiveViewer.Stage.Title
 
         async UniTask StartFadeAsync(CancellationToken cancellation)
         {
-            
+
             _titleSceneSettings.SpriteRenderer.color = new Color(1, 1, 1, 0);
             _titleSceneSettings.AppVersionText.color = new Color(1, 1, 1, 0);
             await UniTask.Delay(12000, cancellationToken: cancellation);//実機ベースだとこの調整

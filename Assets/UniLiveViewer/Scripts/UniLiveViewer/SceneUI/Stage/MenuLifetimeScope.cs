@@ -1,4 +1,4 @@
-using MessagePipe;
+﻿using MessagePipe;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -11,11 +11,11 @@ namespace UniLiveViewer.Menu
         [SerializeField] BookSetting _bookSetting;
         [SerializeField] BookAnchor _bookAnchor;
 
+        // この辺全部LS化したい
         [Header("各ページ")]
         [SerializeField] CharacterPage _characterPage;
         [SerializeField] AudioPlaybackPage _audioPlaybackPage;
         [SerializeField] ItemPage _itemPage;
-        [SerializeField] ConfigPage _configPage;
 
         [Header("その他")]
         [SerializeField] JumpList _jumpList;
@@ -26,12 +26,12 @@ namespace UniLiveViewer.Menu
             builder.RegisterMessageBroker<VRMMenuShowMessage>(options);
 
             ActorPageConfigure(builder);
+            AudioPlaybackPageConfigure(builder);
 
             builder.RegisterComponent(GetComponent<MenuManager>());
 
-            builder.RegisterComponent(_audioPlaybackPage);
+
             builder.RegisterComponent(_itemPage);
-            builder.RegisterComponent(_configPage);
             builder.RegisterEntryPoint<MainMenuPresenter>();
 
             builder.RegisterComponent(_bookSetting);
@@ -43,7 +43,6 @@ namespace UniLiveViewer.Menu
         /// <summary>
         /// 理想はページごとにLS分けたい
         /// </summary>
-        /// <param name="builder"></param>
         void ActorPageConfigure(IContainerBuilder builder)
         {
             builder.RegisterComponent(_characterPage);
@@ -52,6 +51,12 @@ namespace UniLiveViewer.Menu
             builder.Register<ActorRegisterService>(Lifetime.Singleton);
             builder.Register<ActorEntityManagerService>(Lifetime.Singleton);
             builder.RegisterEntryPoint<ActorPresenter>();
+        }
+
+        void AudioPlaybackPageConfigure(IContainerBuilder builder)
+        {
+            builder.RegisterComponent(_audioPlaybackPage);
+            builder.RegisterEntryPoint<AudioPlaybackPresenter>();
         }
     }
 }

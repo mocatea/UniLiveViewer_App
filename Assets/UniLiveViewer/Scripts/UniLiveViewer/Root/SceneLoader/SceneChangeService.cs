@@ -11,6 +11,8 @@ namespace UniLiveViewer.SceneLoader
         KAGURA_LIVE,
         VIEWER,
         GYMNASIUM,
+        BEYOND_THE_BLUE,
+        SNOW_FIELD,
         FANTASY_VILLAGE,
     }
 
@@ -35,10 +37,12 @@ namespace UniLiveViewer.SceneLoader
             _map = new Dictionary<SceneType, IScene>
             {
                 { SceneType.TITLE, new TitleScene() },
-                { SceneType.CANDY_LIVE, new CandyLiveScene() },
-                { SceneType.KAGURA_LIVE, new KaguraLiveScene() },
+                { SceneType.CANDY_LIVE, new CRSScene() },
+                { SceneType.KAGURA_LIVE, new KaguraScene() },
                 { SceneType.VIEWER, new ViewerScene() },
                 { SceneType.GYMNASIUM, new GymnasiumScene() },
+                { SceneType.BEYOND_THE_BLUE, new BeyondTheBlueScene() },
+                { SceneType.SNOW_FIELD, new SnowFieldScene() },
                 { SceneType.FANTASY_VILLAGE, new FantasyVillageScene() }
             };
 
@@ -58,12 +62,10 @@ namespace UniLiveViewer.SceneLoader
             var nextScene = _map[nextSceneType];
             await nextScene.BeginAsync(cancellation);
 
-            if(nextSceneType != SceneType.TITLE)
+            if (nextSceneType != SceneType.TITLE)
             {
                 FileReadAndWriteUtility.UserProfile.LastSceneSceneTypeNo = (int)nextSceneType;
                 FileReadAndWriteUtility.WriteJson(FileReadAndWriteUtility.UserProfile);//完了したら更新
-
-                SystemInfo.Initialize(nextSceneType);
             }
         }
     }

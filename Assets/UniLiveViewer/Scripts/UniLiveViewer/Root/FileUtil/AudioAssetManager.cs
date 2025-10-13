@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using UniLiveViewer.SO;
 using UnityEngine;
+using UnityEngine.Localization;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using VContainer;
@@ -58,7 +60,6 @@ namespace UniLiveViewer
         /// <summary>
         /// カスタム曲名リストの取得
         /// </summary>
-        /// <returns></returns>
         void CustomAudioNamesUpdate()
         {
             //初期化
@@ -68,12 +69,18 @@ namespace UniLiveViewer
             _customAudioNames.AddRange(Directory.GetFiles(_basePath, $"*{EXTENSION_WAV}", SearchOption.TopDirectoryOnly));
         }
 
-        public async UniTask<AudioClip> TryGetCurrentAudioClipAsycn(bool isPreset, CancellationToken cancellation)
+        public async UniTask<float> GetCurrentAudioLengthAsync(bool isPreset, CancellationToken cancellation)
+        {
+            var audioClip = await TryGetCurrentAudioClipAsync(isPreset, cancellation);
+            return audioClip == null ? 0 : audioClip.length;
+        }
+
+        async UniTask<AudioClip> TryGetCurrentAudioClipAsync(bool isPreset, CancellationToken cancellation)
         {
             if (isPreset)
             {
-                if (_audioClipSettings.AudioBGM.Count == 0) return null;
-                return _audioClipSettings.AudioBGM[_currentPreset];
+                if (_currentPreset < 0 || _audioClipSettings.MusicSettings.Count <= _currentPreset) return null;
+                return _audioClipSettings.MusicSettings[_currentPreset].Clip;
             }
             else
             {
@@ -85,31 +92,29 @@ namespace UniLiveViewer
         /// <summary>
         /// 指定カレントのAudioClipを取得する
         /// </summary>
-        /// <param name="isPreset"></param>
-        /// <param name="addCurrent"></param>
-        /// <returns></returns>
-        public async UniTask<AudioClip> TryGetAudioClipAsync(CancellationToken cancellation, bool isPreset, int addCurrent)
+        public async UniTask<(AudioClip, string localizedName)> TryGetAudioClipAsync(CancellationToken cancellation, bool isPreset, int addCurrent)
         {
             cancellation.ThrowIfCancellationRequested();
 
             if (isPreset)
             {
-                if (_audioClipSettings.AudioBGM.Count == 0) return null;
-                _currentPreset = IndexNormalization(_currentPreset + addCurrent, _audioClipSettings.AudioBGM.Count);
-                return _audioClipSettings.AudioBGM[_currentPreset];
+                var nextIndex = _currentPreset + addCurrent;
+                _currentPreset = IndexNormalization(nextIndex, _audioClipSettings.MusicSettings.Count);
+                return (_audioClipSettings.MusicSettings[_currentPreset].Clip,
+                    _audioClipSettings.MusicSettings[_currentPreset].DisplayName.GetLocalizedString());
             }
             else
             {
-                if (_customAudioNames.Count == 0) return null;
+                if (_customAudioNames.Count == 0) return (null, null);
                 _currentCustom = IndexNormalization(_currentCustom + addCurrent, _customAudioNames.Count);
-                return await LoadAudioClipAsync(_customAudioNames[_currentCustom], cancellation);
+                var clip = await LoadAudioClipAsync(_customAudioNames[_currentCustom], cancellation);
+                return (clip, clip.name);
             }
         }
 
         /// <summary>
         /// スタックリストか無ければロードして取得
         /// </summary>
-        /// <param name="nextCurrent"></param>
         /// <returns></returns>
         async UniTask<AudioClip> LoadAudioClipAsync(string filePath, CancellationToken cancellation)
         {

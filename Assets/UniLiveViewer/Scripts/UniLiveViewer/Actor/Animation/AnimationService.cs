@@ -1,11 +1,12 @@
 ﻿using Cysharp.Threading.Tasks;
 using System.IO;
 using System.Threading;
+using UniLiveViewer.External;
+using UniLiveViewer.External.UnityVMDReader;
 using UniLiveViewer.Menu;
 using UniLiveViewer.Timeline;
 using UnityEngine;
 using UnityEngine.Playables;
-using UnityVMDReader;
 using VContainer;
 
 namespace UniLiveViewer.Actor.Animation
@@ -16,12 +17,14 @@ namespace UniLiveViewer.Actor.Animation
         /// 停止時Motionが死ぬのでTimelineがManual時のみ脱ぐ
         /// ここにダンスフォーマットは関係しない
         /// </summary>
-        RuntimeAnimatorController _cachedAnimatorController;
+        RuntimeAnimatorController _cacheAnimatorController;
         ActorEntity _actorEntity;
         CurrentMode _currentMode;
+        IVMDPlayer _vmdPlayer;
 
         readonly PlayableDirector _playableDirector;
         readonly PlayableAnimationClipService _playableAnimationClipService;
+        readonly RuntimeAnimatorController _initAnimatorController;
         readonly PresetResourceData _presetResourceData;
         readonly VMDData _vmdData;
 
@@ -29,13 +32,13 @@ namespace UniLiveViewer.Actor.Animation
         public AnimationService(
             PlayableDirector playableDirector,
             PlayableAnimationClipService playableAnimationClipService,
-            RuntimeAnimatorController cachedAnimatorController,
+            RuntimeAnimatorController runtimeAnimatorController,
             PresetResourceData presetResourceData,
             VMDData vmdData)
         {
             _playableDirector = playableDirector;
             _playableAnimationClipService = playableAnimationClipService;
-            _cachedAnimatorController = cachedAnimatorController;
+            _initAnimatorController = runtimeAnimatorController;
             _presetResourceData = presetResourceData;
             _vmdData = vmdData;
         }
@@ -43,10 +46,15 @@ namespace UniLiveViewer.Actor.Animation
         public void OnChangeAnimator(ActorEntity actorEntity)
         {
             _actorEntity = actorEntity;
-            if (_actorEntity == null) return;
+            if (actorEntity == null)
+            {
+                _vmdPlayer = null;
+                return;
+            }
+            _vmdPlayer = actorEntity.GetVMDPlayer;
 
             var animator = _actorEntity.GetAnimator;
-            animator.runtimeAnimatorController = _cachedAnimatorController;
+            animator.runtimeAnimatorController = _initAnimatorController;
             animator.updateMode = AnimatorUpdateMode.Normal;
             animator.cullingMode = AnimatorCullingMode.CullUpdateTransforms;
             //animator.applyRootMotion = false;最早関係なさそう
@@ -63,7 +71,8 @@ namespace UniLiveViewer.Actor.Animation
             _currentMode = mode;
             if (_currentMode == CurrentMode.PRESET)
             {
-                _actorEntity.GetVMDPlayer.ClearBaseAndSyncData();
+                _vmdPlayer.Stop();
+                _vmdPlayer.ClearMotionAndExpressionData();
                 _actorEntity.GetAnimator.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);//Animator層が動いているので
                 _actorEntity.GetAnimator.enabled = true;
 
@@ -74,6 +83,9 @@ namespace UniLiveViewer.Actor.Animation
             }
             else if (_currentMode == CurrentMode.CUSTOM)
             {
+                // MEMO: 常時脱いでおかないと一瞬anim側のポーズが適用されポーズ時の姿勢がブレる
+                RemoveRuntimeAnimatorController();
+
                 _actorEntity.GetAnimator.enabled = false;
                 _actorEntity.GetAnimator.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);//Animator層が動いているので
 
@@ -95,12 +107,6 @@ namespace UniLiveViewer.Actor.Animation
         /// VMDを再生する
         /// TODO: いつかちゃんとする
         /// </summary>
-        /// <param name="existingVMD"></param>
-        /// <param name="folderPath"></param>
-        /// <param name="fileName"></param>
-        /// <param name="isBaseMotion"></param>
-        /// <param name="cancellation"></param>
-        /// <returns></returns>
         async UniTask PlayVMDAsync(VMD existingVMD, string folderPath, string fileName, bool isBaseMotion, CancellationToken cancellation)
         {
             var isSmoothVMD = FileReadAndWriteUtility.UserProfile.IsSmoothVMD;
@@ -113,11 +119,11 @@ namespace UniLiveViewer.Actor.Animation
                 VMD newVMD = null;
                 if (isBaseMotion)
                 {
-                    newVMD = await _actorEntity.GetVMDPlayer.SetupBaseMotion(info, cancellation);
+                    newVMD = await _vmdPlayer.PlayMotionAsync(info, cancellation);
                 }
                 else
                 {
-                    newVMD = await _actorEntity.GetVMDPlayer.SetupExpression(info, cancellation);
+                    newVMD = await _vmdPlayer.PlayExpressionAsync(info, cancellation);
                 }
                 _vmdData.Add(fileName, newVMD);
             }
@@ -127,13 +133,30 @@ namespace UniLiveViewer.Actor.Animation
                 var info = new VMDSetupInfo(existingVMD, folderPath, fileName, boneAmplifier, isSmoothVMD);
                 if (isBaseMotion)
                 {
-                    await _actorEntity.GetVMDPlayer.SetupBaseMotion(info, cancellation);
+                    await _vmdPlayer.PlayMotionAsync(info, cancellation);
                 }
                 else
                 {
-                    await _actorEntity.GetVMDPlayer.SetupExpression(info, cancellation);
+                    await _vmdPlayer.PlayExpressionAsync(info, cancellation);
                 }
             }
+        }
+
+        public void Stop()
+        {
+            _vmdPlayer.Stop();
+        }
+
+        public bool IsPlaying()
+        {
+            return _vmdPlayer.IsPlaying();
+        }
+
+        public async UniTask OnChangeScale(CancellationToken cancellation)
+        {
+            if (_currentMode != CurrentMode.CUSTOM) return;
+            await _vmdPlayer.ReplayMotionAsync(cancellation);
+            await _vmdPlayer.ReplayExpressionAsync(cancellation);
         }
 
         async UniTask TrySetSyncVMDAsync(CancellationToken cancellation)
@@ -143,7 +166,7 @@ namespace UniLiveViewer.Actor.Animation
 
             if (syncFileName == TimelineConstants.NoCustomFacialSyncMessage)
             {
-                _actorEntity.GetVMDPlayer.ClearSyncData();
+                _vmdPlayer.ClearExpressionData();
             }
             else
             {
@@ -160,32 +183,52 @@ namespace UniLiveViewer.Actor.Animation
             }
         }
 
+        public void OnPlayTimeline()
+        {
+            RestoreRuntimeAnimatorController();
+        }
+
+        public void OnStopTimeline()
+        {
+            RemoveRuntimeAnimatorController();
+        }
+
         public void OnLateTick()
         {
             if (_actorEntity == null) return;
-            _actorEntity.GetVMDPlayer.ToeIKReset();
+            _vmdPlayer.ToeIKReset();
         }
 
-        /// <summary>
-        /// アニメーションコントローラーをKeepし、解除する
-        /// </summary>
-        public void RemoveRuntimeAnimatorController()
+        public void TryVMDInitializePose()
         {
             if (_actorEntity == null) return;
-            if (!_actorEntity.GetAnimator.runtimeAnimatorController) return;
-            _cachedAnimatorController = _actorEntity.GetAnimator.runtimeAnimatorController;
-            _actorEntity.GetAnimator.runtimeAnimatorController = null;
+            if (_currentMode != CurrentMode.CUSTOM) return;
+            //_vmdPlayer.Stop(); 本来停止が正しいが、マニュアルモード中スライダー同期しなくなるのでしない
+            _vmdPlayer.InitializePose();
         }
 
         /// <summary>
         /// 解除したアニメーションコントローラーを元に戻す
         /// </summary>
-        public void ReturnRuntimeAnimatorController()
+        void RestoreRuntimeAnimatorController()
         {
             if (_actorEntity == null) return;
-            if (!_cachedAnimatorController) return;
-            _actorEntity.GetAnimator.runtimeAnimatorController = _cachedAnimatorController;
-            _cachedAnimatorController = null;
+            if (_currentMode == CurrentMode.CUSTOM) return;// 不都合回避の為VMDは常時脱いだまま
+            if (!_cacheAnimatorController) return;
+            _actorEntity.GetAnimator.runtimeAnimatorController = _cacheAnimatorController;
+            _cacheAnimatorController = null;
+        }
+
+        /// <summary>
+        /// アニメーションコントローラーをKeepし、解除する
+        /// </summary>
+        void RemoveRuntimeAnimatorController()
+        {
+            if (_actorEntity == null) return;
+            if (_cacheAnimatorController != null ||
+            _actorEntity.GetAnimator.runtimeAnimatorController == null) return;
+            _cacheAnimatorController = _actorEntity.GetAnimator.runtimeAnimatorController;
+            _actorEntity.GetAnimator.runtimeAnimatorController = null;
         }
     }
 }

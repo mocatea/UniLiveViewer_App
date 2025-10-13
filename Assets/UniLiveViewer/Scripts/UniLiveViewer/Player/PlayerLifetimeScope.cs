@@ -1,10 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using MessagePipe;
+using System.Collections.Generic;
+using UniLiveViewer.MessagePipe;
 using UniLiveViewer.OVRCustom;
 using UniLiveViewer.Player.HandMenu;
 using UnityEngine;
 using UnityEngine.Rendering;
 using VContainer;
 using VContainer.Unity;
+using UniLiveViewer.Player.Graphics;
 
 namespace UniLiveViewer.Player
 {
@@ -21,6 +24,7 @@ namespace UniLiveViewer.Player
         [SerializeField] PlayerHandMenuAnchorL _playerHandMenuAnchorL;
         [SerializeField] PlayerHandMenuAnchorR _playerHandMenuAnchorR;
         [SerializeField] OVRManager _ovrManager;
+        [SerializeField] PlayerGraphicsSettings _graphicsSettings;
         [SerializeField] PassthroughService _passthroughService;
         [SerializeField] PlayerHandMenuSettings _playerHandMenuSettings;
         /// <summary>
@@ -30,6 +34,9 @@ namespace UniLiveViewer.Player
 
         protected override void Configure(IContainerBuilder builder)
         {
+            var options = builder.RegisterMessagePipe();
+            builder.RegisterMessageBroker<PlayerInputOperationMessage>(options);
+
             builder.RegisterInstance(_playerConfigData);
             builder.RegisterComponent<Camera>(Camera.main);
 
@@ -57,6 +64,7 @@ namespace UniLiveViewer.Player
         {
             builder.RegisterInstance(_volumeProfile);
             builder.RegisterComponent(_passthroughService);
+            builder.RegisterComponent(_graphicsSettings);
             builder.Register<GraphicsSettingsService>(Lifetime.Singleton);
             builder.RegisterEntryPoint<GraphicsSettingsPresenter>();
         }

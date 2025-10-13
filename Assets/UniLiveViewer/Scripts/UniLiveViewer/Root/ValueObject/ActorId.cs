@@ -1,52 +1,42 @@
-﻿using UniLiveViewer.Actor;
+﻿using System;
+using UniLiveViewer.Actor;
 
 namespace UniLiveViewer.ValueObject
 {
-    public class ActorId
+    /// <summary>
+    /// MEMO: null使いたいのでstructにしない
+    /// </summary>
+    public sealed class ActorId : IEquatable<ActorId>
     {
-        /// <summary>
-        /// アクター種類
-        /// </summary>
-        public ActorType Type => _type;
-        readonly ActorType _type;
+        /// <summary> アクター種類 </summary>
+        public ActorType Type { get; }
 
         /// <summary>
         /// 登録順なIndexと同義
         /// NOTE: 同じVRMをロードした場合は異なるIDとする
         /// </summary>
-        public int ID => _id;
-        readonly int _id;
-
-        ActorId()
-        {
-        }
+        public int Id { get; }
 
         public ActorId(ActorType type, int id)
         {
-            _type = type;
-            _id = id;
+            Type = type;
+            Id = id;
         }
 
-        public static bool operator ==(ActorId left, ActorId right)
-        {
-            if (ReferenceEquals(left, right)) return true;
-            if (ReferenceEquals(left, null) || ReferenceEquals(right, null)) return false;
-            return left.ID == right.ID;
-        }
-
-        public static bool operator !=(ActorId left, ActorId right)
-        {
-            return !(left == right);
-        }
+        public bool Equals(ActorId other)
+            => other is not null && Type == other.Type && Id == other.Id;
 
         public override bool Equals(object obj)
-        {
-            return obj is ActorId id && this == id;
-        }
+            => obj is ActorId other && Equals(other);
 
-        public override int GetHashCode()
-        {
-            return ID.GetHashCode();
-        }
+        public override int GetHashCode() => HashCode.Combine(Type, Id);
+
+        public static bool operator ==(ActorId left, ActorId right)
+            => left is null ? right is null : left.Equals(right);
+
+        public static bool operator !=(ActorId left, ActorId right)
+            => !(left == right);
+
+        public override string ToString() => $"{Type}:{Id}";
     }
 }

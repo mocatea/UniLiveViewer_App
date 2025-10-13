@@ -9,17 +9,9 @@ TagManager:
   - Grab_Chara
   - GeneratorPortal
   - Grab_Slider_Volume
-  - FloorLED
   - VRMSelectUI
   - AppConfig
-  - Particle
-  - ReflectionProbe
-  - ManualUI
-  - LaserGun
-  - SonicBoom
-  - WaterAnchor
   - ItemMaterial
-  - FloorMirror
   - BackGroundController
   - FxTemporaire
   - Passthrough
@@ -40,8 +32,8 @@ TagManager:
   - AttachPoint
   - 
   - SubCameraImage
-  - UnRendererFeature
-  - 
+  - ActorFace
+  - ActorEyeHL
   - 
   - 
   - 

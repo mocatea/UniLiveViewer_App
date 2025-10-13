@@ -1,33 +1,17 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace UniLiveViewer
 {
-    //ボタン状態
-    public enum SWITCHSTATE
-    {
-        NULL = 0,
-        OFF,
-        ON,
-    }
-
-    public enum DRAWTYPE
-    {
-        NULL = 0,
-        IMAGE,
-        SPRITE,
-        MESHRENDER,
-        TEXTMESH
-    }
-
     [RequireComponent(typeof(BoxCollider))]
     [RequireComponent(typeof(Rigidbody))]
     public class CollisionChecker : MonoBehaviour
     {
-        [SerializeField] private SWITCHSTATE _myState = SWITCHSTATE.ON;
-        public bool Touching() { return isTouch; }
-        private bool isTouch = false;
-        public bool isTouchL = false;
+        [SerializeField] SWITCHSTATE _myState = SWITCHSTATE.ON;
+        public bool Touching => _isTouch;
+        bool _isTouch = false;
+        public bool IsTouchL => _isTouchL;
+        [SerializeField] bool _isTouchL;
         public SWITCHSTATE myState
         {
             get
@@ -38,20 +22,25 @@ namespace UniLiveViewer
             {
                 //ボタン状態に応じて色を更新
                 _myState = value;
-                isTouch = false;
-                ColorUpdate();
+                _isTouch = false;
+                UpdateColor();
             }
         }
+        public TargetColorSetting[] ColorSetting => colorSetting;
         //色の設定
-        public TargetColorSetting[] colorSetting;
+        [SerializeField] TargetColorSetting[] colorSetting;
 
-        /// <summary>
-        /// 実体化した時
-        /// </summary>
-        private void OnEnable()
+        // MEMO: 初回OnEnableだと上手くいかないので同じ事している
+        void Start()
         {
-            isTouch = false;
-            ColorUpdate();
+            _isTouch = false;
+            UpdateColor();
+        }
+
+        void OnEnable()
+        {
+            _isTouch = false;
+            UpdateColor();
         }
 
         public void Init()
@@ -65,30 +54,30 @@ namespace UniLiveViewer
         /// <summary>
         /// 状態に応じて色を更新
         /// </summary>
-        private void ColorUpdate()
+        void UpdateColor()
         {
             if (colorSetting == null) return;
 
             for (int i = 0; i < colorSetting.Length; i++)
             {
-                colorSetting[i].SetColor(_myState, isTouch);
+                colorSetting[i].SetColor(_myState, _isTouch);
             }
         }
 
         //Enterした次のフレームでExitするとStayは呼ばれないらしい
         //だがExitもすり抜けている気がするので、Stayさせれば確実にExitが発生するかも？なのでStayを使う
-        private void OnCollisionStay(Collision collision)
+        void OnCollisionStay(Collision collision)
         {
-            if (isTouch) return;
-            isTouch = true;
-            ColorUpdate();
+            if (_isTouch) return;
+            _isTouch = true;
+            UpdateColor();
 
             //ヒット対象
-            if (collision.transform.name.Contains("Left")) isTouchL = true;
-            else isTouchL = false;
+            if (collision.transform.name.Contains("Left")) _isTouchL = true;
+            else _isTouchL = false;
 
             //振動処理
-            if (isTouchL) ControllerVibration.Execute(OVRInput.Controller.LTouch, 1, 0.6f, 0.05f);
+            if (_isTouchL) ControllerVibration.Execute(OVRInput.Controller.LTouch, 1, 0.6f, 0.05f);
             else ControllerVibration.Execute(OVRInput.Controller.RTouch, 1, 0.6f, 0.05f);
         }
 
@@ -96,11 +85,11 @@ namespace UniLiveViewer
         /// 離れた時
         /// </summary>
         /// <param name="collision"></param>
-        private void OnCollisionExit(Collision collision)
+        void OnCollisionExit(Collision collision)
         {
-            if (!isTouch) return;
-            isTouch = false;
-            ColorUpdate();
+            if (!_isTouch) return;
+            _isTouch = false;
+            UpdateColor();
         }
     }
 

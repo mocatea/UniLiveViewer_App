@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using UniLiveViewer.SceneLoader;
+using UniLiveViewer.SO;
 using UniRx;
 using UnityEngine;
 using VContainer;
@@ -15,6 +16,8 @@ namespace UniLiveViewer
         [SerializeField] AudioSource _bgmAudioSource;
         [SerializeField] AudioSource[] _seAudioSources;
         [SerializeField] AudioSource _ambientAudioSources;
+
+        public AudioSource BgmAudioSource => _bgmAudioSource;
 
         /// <summary> 0~1.0f </summary>
         public float MasterVolumeRate { get; private set; }

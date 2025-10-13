@@ -24,7 +24,7 @@ namespace UniLiveViewer
             collisionChecker.transform.localPosition = Vector3.zero;
 
             //振動処理
-            if (collisionChecker.isTouchL) ControllerVibration.Execute(OVRInput.Controller.LTouch, 1, 1, 0.1f);
+            if (collisionChecker.IsTouchL) ControllerVibration.Execute(OVRInput.Controller.LTouch, 1, 1, 0.1f);
             else ControllerVibration.Execute(OVRInput.Controller.RTouch, 1, 1f, 0.1f);
 
             await UniTask.Delay((int)(delayTime * 1000), cancellationToken: cancellation_token);

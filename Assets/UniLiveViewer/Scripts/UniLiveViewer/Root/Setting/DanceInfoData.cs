@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Localization;
 
 namespace UniLiveViewer
 {
@@ -25,12 +26,15 @@ namespace UniLiveViewer
             _overrideLipSyncClip = overrideLipSyncClip;
         }
 
+        // MEMO: この書き換え辞めたい
         public bool IsReverse = false;
 
+        // 使ってないメモ用
         [SerializeField] string _beforeName;
 
-        public string ViewName => _viewName;
-        [SerializeField] string _viewName;
+        /// <summary> 翻訳で切り替わる </summary>
+        public LocalizedString DisplayName => _displayName;
+        [SerializeField] LocalizedString _displayName;
 
         public float OffsetTime => _offsetTime;
         [SerializeField] float _offsetTime = 0;//現状FBXだけ、VMDはtxtを参照している

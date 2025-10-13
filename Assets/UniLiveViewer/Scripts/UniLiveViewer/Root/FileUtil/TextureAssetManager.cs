@@ -15,58 +15,111 @@ namespace UniLiveViewer
         VRMNamesData _vrmNamesData;
 
         public IReadOnlyDictionary<string, Sprite> Thumbnails => _thumbnails;
-        Dictionary<string, Sprite> _thumbnails = new ();
+        Dictionary<string, Sprite> _thumbnails;
 
         readonly Texture2D _texDummy;
 
-        TextureAssetManager()
+        public TextureAssetManager()
         {
             _texDummy = Resources.Load<Texture2D>("Texture/NoImage");
+        }
+
+        public void Start()
+        {
+            _thumbnails = LoadAllPngAsDict(PathsInfo.GetThumbnailsFolderPath(), true);
+        }
+
+        Dictionary<string, Sprite> LoadAllPngAsDict(string folderPath, bool allowOverwrite = true)
+        {
+            var dict = new Dictionary<string, Sprite>();
+            if (string.IsNullOrEmpty(folderPath) || !Directory.Exists(folderPath))
+            {
+                Debug.LogWarning($"[PngLoader] Folder not found: {folderPath}");
+                return dict;
+            }
+
+            var files = Directory.GetFiles(folderPath, "*.png", SearchOption.TopDirectoryOnly);
+
+            foreach (var path in files)
+            {
+                try
+                {
+                    // 拡張子なしのファイル名をキーにする
+                    var key = Path.GetFileNameWithoutExtension(path);
+
+                    if (!allowOverwrite && dict.ContainsKey(key)) continue;
+
+                    byte[] bytes = File.ReadAllBytes(path);
+
+                    // 適当な初期サイズで作成（LoadImageでリサイズされる）
+                    var tex = new Texture2D(2, 2, TextureFormat.RGBA32, mipChain: false, linear: false);
+
+                    if (!tex.LoadImage(bytes, markNonReadable: true))
+                    {
+                        Object.Destroy(tex);
+                        Debug.LogWarning($"[PngLoader] Failed to load image: {path}");
+                        continue;
+                    }
+
+                    // 既存の場合は八角形
+                    dict[key] = tex.CreateSpriteWithOctagon();
+                }
+                catch (System.Exception e)
+                {
+                    Debug.LogWarning($"[PngLoader] Error at {path}: {e.Message}");
+                }
+            }
+
+            return dict;
         }
 
         /// <summary>
         /// 暫定
         /// </summary>
-        public async UniTask CacheThumbnails(CancellationToken cancellation)
+        public async UniTask CacheThumbnailsAsync(CancellationToken cancellation)
         {
             var charaFolderPath = PathsInfo.GetFullPath(FolderType.Actor) + "/";
 
             Texture2D texture = null;
-            Sprite spr = null;
+            Sprite sprite = null;
 
             await UniTask.Delay(100, cancellationToken: cancellation);
 
             _vrmNamesData = new VRMNamesData(GetVrmNames(charaFolderPath));
+
             var rawData = _vrmNamesData.RawData;
 
             for (int i = 0; i < rawData.Length; i++)
             {
-                if (spr) spr = null;
-                if (texture) texture = null;
-
-                spr = _thumbnails.FirstOrDefault(x => x.Key == _vrmNamesData.RawData[i]).Value;
-                if (spr != null) continue;
+                sprite = null;
+                texture = null;
+                sprite = _thumbnails.FirstOrDefault(x => x.Key == _vrmNamesData.RawData[i]).Value;
+                
+                if (sprite != null)
+                {
+                    continue;
+                }
 
                 try
                 {
                     //VRMファイルからサムネイルを抽出する
-                    texture = await VRMExtension.GetThumbnailAsync(charaFolderPath + rawData[i], cancellation);
+                    //texture = await VRMExtension.GetThumbnailAsync(charaFolderPath + rawData[i], cancellation);
+                    texture = VRMThumbnailPurser.Parse(charaFolderPath + rawData[i]);
 
-                    if (texture)
-                    {
-                        //テクスチャ→スプライトに変換
-                        spr = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
-                    }
-                    else
+                    if (!texture)
                     {
                         //ダミー画像生成
                         texture = GameObject.Instantiate(_texDummy);
-                        //テクスチャ→スプライトに変換
-                        spr = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
-                        texture = new Texture2D(1, 1, TextureFormat.RGB24, false);
+                        var rect = new Rect(0, 0, texture.width, texture.height);
+                        var pivot = new Vector2(0.5f, 0.5f);
+                        sprite = Sprite.Create(texture, rect, pivot);
+                        _thumbnails.Add(rawData[i], sprite);
+                        continue;
                     }
-                    //リストに追加
-                    _thumbnails.Add(rawData[i], spr);
+
+                    // 新規はアーチ型
+                    sprite = texture.CreateSpriteWithArch();
+                    _thumbnails.Add(rawData[i], sprite);
 #if UNITY_EDITOR
                     texture = TextureFormatter.Resize(texture);
 #elif UNITY_ANDROID
@@ -85,7 +138,7 @@ namespace UniLiveViewer
                     throw;
                 }
                 await UniTask.Yield(PlayerLoopTiming.Update, cancellation);
-            };
+            }
         }
 
         /// <summary>
@@ -116,8 +169,7 @@ namespace UniLiveViewer
         /// <summary>
         /// VRMファイルをコピー(download→Actor)
         /// </summary>
-        /// <returns></returns>
-        public async UniTask CopyVRMtoCharaFolder(string folderPath, CancellationToken cancellation)
+        public async UniTask CopyVRMtoActorFolderAsync(string folderPath, CancellationToken cancellation)
         {
             _vrmNamesData = new VRMNamesData(GetVrmNames(folderPath));
             var rawData = _vrmNamesData.RawData;
@@ -132,7 +184,7 @@ namespace UniLiveViewer
                 }
 
                 //VRMのサムネイル画像をキャッシュする
-                await CacheThumbnails(cancellation);
+                await CacheThumbnailsAsync(cancellation);
             }
             catch
             {
